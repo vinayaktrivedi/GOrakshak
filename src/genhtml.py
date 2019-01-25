@@ -4,7 +4,6 @@ import csv
 with open('../tests/cfg1', mode='r') as infile:
     reader = csv.reader(infile)
     col_spec = {rows[0]:rows[1] for rows in reader}
-print col_spec
 
 outfile = open("output.html","w")
 outfile.write("<html>\n<title>Generated HTML</title>\n<body>\n")
