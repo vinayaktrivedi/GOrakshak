@@ -11,9 +11,11 @@ outfile.write("<html>\n<title>Generated HTML</title>\n<body>\n")
 
 with open('../tests/inp1','r') as f:
     for line in f:
+    	# assuming tabs are given for indentation not spaces
     	tabs = len(line) - len(line.lstrip())
     	for i in range(0,tabs):
-    		for j in range(0,8):
+    		# assuming 4 &nbsp = 1 Tab
+    		for j in range(0,4):
     			outfile.write("&nbsp")
         for word in line.split():
         	if word in col_spec:
