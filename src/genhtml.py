@@ -1,5 +1,6 @@
 import sys
 import csv
+import re
 
 with open('../tests/cfg1', mode='r') as infile:
     reader = csv.reader(infile)
@@ -10,6 +11,10 @@ outfile.write("<html>\n<title>Generated HTML</title>\n<body>\n")
 
 with open('../tests/inp1','r') as f:
     for line in f:
+    	tabs = len(line) - len(line.lstrip())
+    	for i in range(0,tabs):
+    		for j in range(0,8):
+    			outfile.write("&nbsp")
         for word in line.split():
         	if word in col_spec:
         		outfile.write("<font color = \"")
