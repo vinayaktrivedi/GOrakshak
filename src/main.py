@@ -38,7 +38,9 @@ num = 0
 
 for tok in lexer:
 	print tok.value,tok.lexpos,len(str(tok.value)),num
+	flag = 0
 	if tok.lineno >= (i+1):
+		flag = 1
 		if tok.lineno != 1:
 			for co in range(0,tok.lineno-i):
 				outfile.write("<br>")
@@ -50,6 +52,8 @@ for tok in lexer:
 		num = num + tabs[tok.lineno-1]
 		i = tok.lineno
 
+	if flag == 1:
+		num = tok.lexpos
 	for x in range(0,(tok.lexpos - num)):
 		if tok.type != "STRING":
 			outfile.write("&nbsp")

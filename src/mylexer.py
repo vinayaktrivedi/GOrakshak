@@ -81,7 +81,8 @@ tokens = [
         'COLON',
         'IDENTIFIER', 
         'PLUSEQ',
-        'TIMESEQ'  
+        'TIMESEQ',
+        'CONSTANTS'
         ] + list(reserved.values())
 
 # A string containing ignored characters (spaces and tabs)
@@ -141,8 +142,9 @@ t_COLON   = r'\:'
 
 # Strings in quotes
 def t_STRING(t):
-    r'(\"[^(\")]*\")|(\'[^(\')]*\') '
+    # r'(\"[^(\")]*\")|(\'[^(\')]*\') '
     #r'\'.*\' | \".*\"'
+    r'(\"[^\"]*\")|(\'[^\']*\') '
     t.value=t.value[1:-1].replace("\'","\"")
     return t
 
@@ -151,7 +153,12 @@ def t_INTERFACE(t):
     return t
 
 def t_TYPE(t):
-    r'(((\*)|\ )*int|((\*)|\ )*float|((\*)|\ )*string)'
+    r'(((\*)|\ )*int|((\*)|\ )*float|((\*)|\ )*string|((\*)|\ )*uint64|((\*)|\ )*bool)'
+    t.value=t.value.replace(" ","")
+    return t
+
+def t_CONSTANTS(t):
+    r'(((\*)|\ )*true|((\*)|\ )*false|((\*)|\ )*iota)'
     t.value=t.value.replace(" ","")
     return t
 
