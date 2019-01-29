@@ -41,9 +41,10 @@ tokens = [
         'MOD',
         'AMPERS',
         'OR',
-        'CARET',
-        'LL',
-        'GG',
+        'AND_NOT',
+        'XOR',
+        'SHL',
+        'SHR',
         'AMPCAR',
         'MINUSEQ',
         'DIVIDEEQ',
@@ -51,8 +52,8 @@ tokens = [
         'AMPEQ',
         'OREQ',
         'CAREQ',
-        'LLEQ',
-        'GGEQ',
+        'SHL_ASSIGN',
+        'SHR_ASSIGN',
         'AMPCAREQ',
         'AMPAMP',
         'OROR',
@@ -83,6 +84,7 @@ tokens = [
         'PLUSEQ',
         'TIMESEQ',
         'CONSTANTS'
+
         ] + list(reserved.values())
 
 # A string containing ignored characters (spaces and tabs)
@@ -99,9 +101,9 @@ t_DIVIDE  = r'/'
 t_MOD     = r'%'
 t_AMPERS  = r'&'
 t_OR 	  = r'\|'
-t_CARET   = r'\^'
-t_LL      = r'(<<)'
-t_GG	  = r'(>>)'
+t_XOR  = r'\^'
+t_SHL      = r'(<<)'
+t_SHR	  = r'(>>)'
 t_AMPCAR  = r'&\^'
 t_PLUSEQ  = r'(\+=)'
 t_MINUSEQ = r'(-=)'
@@ -111,8 +113,8 @@ t_MODEQ   = r'(%=)'
 t_AMPEQ   = r'(&=)'
 t_OREQ    = r'(\|=)'
 t_CAREQ   = r'(\^=)'
-t_LLEQ    = r'(<<=)'
-t_GGEQ    = r'(>>=)'
+t_SHL_ASSIGN    = r'(<<=)'
+t_SHR_ASSIGN    = r'(>>=)'
 t_AMPCAREQ= r'(&\^=)'
 t_AMPAMP  = r'(&&)'
 t_OROR    = r'(\|\|)'
