@@ -1,6 +1,6 @@
 import ply.lex as lex
  
-#These are a set of reserved tokens in GO, NOT to be used as indentifiers
+#These are a set of reserved tokens in GO, NOT to be used as identifiers
 reserved = {
         'break':'BREAK',
         'default':'DEFAULT',
