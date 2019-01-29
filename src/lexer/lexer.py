@@ -3,9 +3,8 @@ import csv
 import re
 import argparse
 import ply.lex as lex
-import regex
+from tokens import *
 from regex import *
-
 
 ap = argparse.ArgumentParser()                                                                                                                                           
 ap.add_argument("-c", "--cfg",help="configuration")
@@ -42,7 +41,7 @@ with open(file) as f:
     	tabs.append(len(line) - len(line.lstrip()))
 
 i = 0
-lexer = lex.lex()
+lexer=lex.lex()
 with open(file) as f:
     code = f.read()
     code += '\n'
