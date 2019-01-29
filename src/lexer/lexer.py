@@ -3,8 +3,8 @@ import csv
 import re
 import argparse
 import ply.lex as lex
-import mylexer
-from mylexer import *
+import regex
+from regex import *
 
 
 ap = argparse.ArgumentParser()                                                                                                                                           
@@ -14,13 +14,13 @@ ap.add_argument("-o", "--output",help="name of output file")
 args = vars(ap.parse_args())
 
 if args["input"] is None:
-    args["input"] = "../tests/test1.go"
+    args["input"] = "../../tests/lexer/input/test1.go"
 
 if args["cfg"] is None:
-    args["cfg"] = "../tests/cfg1"
+    args["cfg"] = "../../tests/lexer/cfg/cfg1"
 
 if args["output"] is None:
-    args["output"] = "output.html"
+    args["output"] = "../../tests/lexer/output/output1.html"
 
 file = args["input"]
 cfgfile = args["cfg"]
@@ -51,7 +51,6 @@ with open(file) as f:
 num = 0
 
 for tok in lexer:
-	print tok.value,tok.lexpos,len(str(tok.value)),num
 	flag = 0
 	if tok.lineno >= (i+1):
 		flag = 1
