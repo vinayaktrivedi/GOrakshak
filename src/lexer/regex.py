@@ -94,7 +94,7 @@ t_ignore  = ' \t'
 # COMMENTS
 t_COMMENT = r'(/\*([^*]|\n|(\*+([^*/]|\n])))*\*+/)|(//.*)'
 
-#This is just a list of all operators in GO
+#List of all operators in GO
 t_PLUS    = r'\+'
 t_MINUS   = r'-'
 t_TIMES   = r'\*'
