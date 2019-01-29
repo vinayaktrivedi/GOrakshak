@@ -33,35 +33,56 @@ with open(file) as f:
     code = f.read()
     code += '\n'
     lexer.input(code)
+
+num = 0
+
 for tok in lexer:
-	print tabs[tok.lineno-1]
+	print tok.value,tok.lexpos,len(str(tok.value)),num
+	flag = 0
 	if tok.lineno >= (i+1):
+		flag = 1
 		if tok.lineno != 1:
-			outfile.write("<br>")
-		for k in range(0,tabs[tok.lineno-1]):
+			for co in range(0,tok.lineno-i):
+				outfile.write("<br>")
+				num = num + 1
+
+		for tab in range(0,tabs[tok.lineno-1]):
 			# assuming 4 &nbsp = 1 Tab
-			for j in range(0,4):
-				outfile.write("&nbsp")
+			outfile.write("&nbsp")
+		num = num + tabs[tok.lineno-1]
 		i = tok.lineno
 
-	mapping[tok.value] = tok.type
+	if flag == 1:
+		num = tok.lexpos
+	for x in range(0,(tok.lexpos - num)):
+		if tok.type != "STRING":
+			outfile.write("&nbsp")
+		else:
+			if x != 0:
+				outfile.write("&nbsp")
+		num = tok.lexpos
+
 	if tok.type in col_spec:
 		outfile.write("<font color = \"")
 		outfile.write(col_spec[tok.type])
 		outfile.write("\">")
+
 		if tok.type == "STRING":
 			outfile.write("\"")
 		outfile.write(str(tok.value))
+		num = num + len(str(tok.value))
+
 		if tok.type == "STRING":
 			outfile.write("\"")
+			num = num + 2
 		outfile.write("</font>")
-		outfile.write(" ")
 	else:
 		if tok.type == "STRING":
 			outfile.write("\"")
 		outfile.write(str(tok.value))
+		num = num + len(str(tok.value))
 		if tok.type == "STRING":
 			outfile.write("\"")
-		outfile.write(" ")
+			num = num + 2
 
 outfile.write("</body>\n</html>")
