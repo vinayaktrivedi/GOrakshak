@@ -31,6 +31,7 @@ reserved = {
 
 # List of token names.
 tokens = [
+        'COMMENT',
         'MINUS',
         'INTEGER',
         'FLOAT',
@@ -91,7 +92,7 @@ tokens = [
 t_ignore  = ' \t'
 
 # COMMENTS
-t_ignore_COMMENT = r'(/\*([^*]|\n|(\*+([^*/]|\n])))*\*+/)|(//.*)'
+t_COMMENT = r'(/\*([^*]|\n|(\*+([^*/]|\n])))*\*+/)|(//.*)'
 
 #This is just a list of all operators in GO
 t_PLUS    = r'\+'
