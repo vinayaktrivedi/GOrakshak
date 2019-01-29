@@ -145,8 +145,6 @@ t_COLON   = r'\:'
 
 # Strings in quotes
 def t_STRING(t):
-    # r'(\"[^(\")]*\")|(\'[^(\')]*\') '
-    #r'\'.*\' | \".*\"'
     r'(\"[^\"]*\")|(\'[^\']*\') '
     t.value=t.value[1:-1].replace("\'","\"")
     return t
