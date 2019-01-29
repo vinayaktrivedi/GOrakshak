@@ -27,52 +27,38 @@ reserved = {
     'select':'SELECT'
     }
 
-tokens = [
+operators = [
     'MOD',
     'XOR',
-    'FLOAT',
-    'INTEGER',
     'PLUS',
-    'STRING',
-    'COMMENT',
     'MINUS',
     'EQUAL',
     'NOT',
     'NOTEQ',
     'TIMES',
     'DIVIDE',
-    'AMPEQ',
-    'AND_NOT',
-    'LPAREN',
-    'RPAREN',
     'SHL',
     'SHR',
-    'AMPCAR',
+    'AMPEQ',
+    'AND_NOT',
     'MINUSEQ',
     'DIVIDEEQ',
     'MODEQ',
-    'LBRACK',
-    'RBRACK',
-    'LBRACE',
-    'RBRACE',
     'SHL_ASSIGN',
     'LEQ',
     'GEQ',
     'EQEQ',
     'LESS',
     'TIMESEQ',
-    'CONSTANTS',
     'SHR_ASSIGN',
     'AMPCAREQ',
     'AMPAMP',
     'GREAT',
     'COLONEQ',
     'DDD',
-    'COMMA',
     'DOT',
     'SEMICOL',
     'COLON',
-    'IDENTIFIER', 
     'PLUSEQ',
     'OREQ',
     'CAREQ',
@@ -83,4 +69,22 @@ tokens = [
     'PLUSPLUS',
     'MINUSMIN'
     ]
-tokens = tokens + list(reserved.values())
+
+tokens = [
+    'FLOAT',
+    'INTEGER',
+    'IDENTIFIER',
+    'STRING',
+    'COMMENT',
+    'CONSTANTS',
+    'COMMA',
+    'LBRACK',
+    'RBRACK',
+    'LBRACE',
+    'RBRACE',
+    'LPAREN',
+    'RPAREN',
+    'AMPCAR'
+    ]
+    
+tokens = tokens + list(operators) + list(reserved.values())
