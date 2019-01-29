@@ -1,22 +1,36 @@
 import sys
 import csv
 import re
-
+import argparse
 import ply.lex as lex
 import mylexer
 from mylexer import *
 
-with open('../tests/cfg1', mode='r') as infile:
+
+ap = argparse.ArgumentParser()                                                                                                                                           
+ap.add_argument("-c", "--cfg",help="configuration")
+ap.add_argument("-i", "--input",help="name of GO input file")
+ap.add_argument("-o", "--output",help="name of output file")
+args = vars(ap.parse_args())
+
+if args["input"] is None:
+    args["input"] = "../tests/test1.go"
+
+if args["cfg"] is None:
+    args["cfg"] = "../tests/cfg1"
+
+if args["output"] is None:
+    args["output"] = "output.html"
+
+file = args["input"]
+cfgfile = args["cfg"]
+
+with open(cfgfile, mode='r') as infile:
     reader = csv.reader(infile)
     col_spec = {rows[0]:rows[1] for rows in reader}
 
-outfile = open("output.html","w")
+outfile = open(args["output"],"w")
 outfile.write("<html>\n<title>Generated HTML</title>\n<body>\n")
-
-if (len(sys.argv) == 1):
-    file =raw_input( "Give a GO file to lexer: ")
-else:
-    file = sys.argv[1]
 
 mapping = {}
 tabs = []
