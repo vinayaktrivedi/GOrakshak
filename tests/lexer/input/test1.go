@@ -13,11 +13,13 @@ var (
 
 
 func main() {
-	// lexer didn't fuck up in comments and brackets
 	const x = "%T(x)\n"				// comment
 	fmt.Printf(f, ToBe, ToBe) // Hi this is a comment too
 	// This is as well!		// yo
 	// This is a comment too!
 	fmt.Printf(f, MaxInt, MaxInt)	// yo yo
 	fmt.Printf(f, z, z)
+	var a = 0xffff
+	var d int8 = 32
+	v := 89.09
 }
