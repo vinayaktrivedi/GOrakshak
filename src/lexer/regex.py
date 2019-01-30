@@ -65,7 +65,7 @@ def t_INTERFACE(t):
     return t
 
 def t_TYPE(t):
-    r'(((\*)|\ )*int|((\*)|\ )*float|((\*)|\ )*string|((\*)|\ )*uint64|((\*)|\ )*bool)'
+    r'( ((\*)|\ )*int | ((\*)|\ )*int8 | ((\*)|\ )*int16 | ((\*)|\ )*int32 | ((\*)|\ )*int64 |((\*)|\ )*float32 | ((\*)|\ )*float64 | ((\*)|\ )*byte |((\*)|\ )*string | ((\*)|\ )*uintptr | ((\*)|\ )*uint | ((\*)|\ )*uint8 | ((\*)|\ )*uint16 | ((\*)|\ )*uint32 | ((\*)|\ )*uint64 | ((\*)|\ )*bool)'
     t.value=t.value.replace(" ","")
     return t
 
@@ -86,7 +86,7 @@ def t_FLOAT(t):
     return t
 
 def t_INTEGER(t):
-    r'[0-9](_?[0-9]+)*([Ee](\+)?[0-9](_?[0-9]+)*)?'
+    r'[0-9](_?[0-9]+)*([Ee](\+)?[0-9](_?[0-9]+)*)?(u|U)?(l|L)?'
     t.value = int(float(t.value.replace("_","")))   
     return t
 
