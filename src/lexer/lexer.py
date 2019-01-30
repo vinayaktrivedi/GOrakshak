@@ -29,7 +29,7 @@ with open(cfgfile, mode='r') as infile:
     col_spec = {rows[0]:rows[1] for rows in reader}
 
 outfile = open(args["output"],"w")
-outfile.write("<html>\n<title>Generated HTML</title>\n<body>\n")
+outfile.write("<html>\n<title>Generated HTML</title>\n<body text=\"white\" bgcolor=\"#4d4d4d\">\n")
 
 mapping = {}
 tabs = []
