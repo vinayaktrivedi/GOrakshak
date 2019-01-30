@@ -22,4 +22,14 @@ func main() {
     fmt.Println("Rectangle area is: ", r1.Area_by_reference())
     fmt.Println("Rectangle area is: ", (&r1).Area_by_value())
     fmt.Println("Rectangle area is: ", (&r1).Area_by_reference())
+
+    if 8%4 == 0 {
+        fmt.Println("8 is divisible by 4")
+    }
+
+    sum := 0
+	for i := 0; i < 10; i++ {
+		sum += i
+	}
+	fmt.Println(sum)
 }

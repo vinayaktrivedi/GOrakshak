@@ -21,5 +21,13 @@ func main() {
 	fmt.Printf(f, z, z)
 	var a = 0xffff
 	var d int8 = 32
+	var c = 43>>1;
+	var d = 43<<2;
+	d--;
+	c++;
+	var e=1.23;
+	var f = 13 & 10;
+	var g = 14 | 10;
+	var i = 14 ^ 15;
 	v := 89.09
 }
