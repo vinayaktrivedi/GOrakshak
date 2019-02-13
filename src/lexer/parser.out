@@ -1,0 +1,584 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    OROR
+    GREAT
+    SEMICOL
+    CONSTANT
+    CAREQ
+    AMPCAR
+    LESS
+    CHAN
+    EQUAL
+    SHL_ASSIGN
+    COLONEQ
+    AMPAMP
+    DEFER
+    GEQ
+    TIMESEQ
+    MINUSEQ
+    FALLTHROUGH
+    SHR_ASSIGN
+    MODEQ
+    SHR
+    EQEQ
+    AND_NOT
+    SELECT
+    DIVIDEEQ
+    FUNCTION
+    COMMENT
+    LMINUS
+    PLUSPLUS
+    RBRACK
+    RBRACE
+    MINUSMIN
+    AMPEQ
+    AMPCAREQ
+    GO
+    NOTEQ
+    TIMES
+    SHL
+    DDD
+    MAP
+    LBRACE
+    PLUSEQ
+    AMPERS
+    LBRACK
+    OREQ
+    LEQ
+    INTERFACE
+    CONSTANTS
+
+Grammar
+
+Rule 0     S' -> start
+Rule 1     start -> SourceFile
+Rule 2     Type -> TypeName
+Rule 3     Type -> TypeLit
+Rule 4     Type -> LPAREN Type RPAREN
+Rule 5     TypeName -> TypeToken
+Rule 6     TypeName -> QualifiedIdent
+Rule 7     TypeToken -> INT_T
+Rule 8     TypeToken -> FLOAT_T
+Rule 9     TypeToken -> UINT_T
+Rule 10    TypeToken -> COMPLEX_T
+Rule 11    TypeToken -> RUNE_T
+Rule 12    TypeToken -> BOOL_T
+Rule 13    TypeToken -> STRING_T
+Rule 14    TypeToken -> TYPE IDENTIFIER
+Rule 15    TypeLit -> ArrayType
+Rule 16    TypeLit -> StructType
+Rule 17    TypeLit -> PointerType
+Rule 18    TypeOpt -> Type
+Rule 19    TypeOpt -> epsilon
+Rule 20    ArrayType -> LSQUARE ArrayLength RSQUARE ElementType
+Rule 21    ArrayLength -> Expression
+Rule 22    ElementType -> Type
+Rule 23    StructType -> STRUCT LCURL FieldDeclRep RCURL
+Rule 24    FieldDeclRep -> FieldDeclRep FieldDecl SEMICOLON
+Rule 25    FieldDeclRep -> epsilon
+Rule 26    FieldDecl -> IdentifierList Type TagOpt
+Rule 27    TagOpt -> Tag
+Rule 28    TagOpt -> epsilon
+Rule 29    Tag -> STRING
+Rule 30    PointerType -> STAR BaseType
+Rule 31    BaseType -> Type
+Rule 32    Signature -> Parameters ResultOpt
+Rule 33    ResultOpt -> Result
+Rule 34    ResultOpt -> epsilon
+Rule 35    Result -> Parameters
+Rule 36    Result -> Type
+Rule 37    Parameters -> LPAREN ParameterListOpt RPAREN
+Rule 38    ParameterListOpt -> ParametersList
+Rule 39    ParameterListOpt -> epsilon
+Rule 40    ParametersList -> Type
+Rule 41    ParametersList -> IdentifierList Type
+Rule 42    ParametersList -> ParameterDeclCommaRep
+Rule 43    ParameterDeclCommaRep -> ParameterDeclCommaRep COMMA ParameterDecl
+Rule 44    ParameterDeclCommaRep -> ParameterDecl COMMA ParameterDecl
+Rule 45    ParameterDecl -> IdentifierList Type
+Rule 46    ParameterDecl -> Type
+Rule 47    Block -> LCURL StatementList RCURL
+Rule 48    StatementList -> StatementRep
+Rule 49    StatementRep -> StatementRep Statement SEMICOLON
+Rule 50    StatementRep -> epsilon
+Rule 51    Declaration -> ConstDecl
+Rule 52    Declaration -> TypeDecl
+Rule 53    Declaration -> VarDecl
+Rule 54    TopLevelDecl -> Declaration
+Rule 55    TopLevelDecl -> FunctionDecl
+Rule 56    ConstDecl -> CONST ConstSpec
+Rule 57    ConstDecl -> CONST LPAREN ConstSpecRep RPAREN
+Rule 58    ConstSpecRep -> ConstSpecRep ConstSpec SEMICOLON
+Rule 59    ConstSpecRep -> epsilon
+Rule 60    ConstSpec -> IdentifierList TypeExprListOpt
+Rule 61    TypeExprListOpt -> TypeOpt ASSIGN ExpressionList
+Rule 62    TypeExprListOpt -> epsilon
+Rule 63    IdentifierList -> IDENTIFIER IdentifierRep
+Rule 64    IdentifierRep -> IdentifierRep COMMA IDENTIFIER
+Rule 65    IdentifierRep -> epsilon
+Rule 66    ExpressionList -> Expression ExpressionRep
+Rule 67    ExpressionRep -> ExpressionRep COMMA Expression
+Rule 68    ExpressionRep -> epsilon
+Rule 69    TypeDecl -> TYPE TypeSpec
+Rule 70    TypeDecl -> TYPE LPAREN TypeSpecRep RPAREN
+Rule 71    TypeSpecRep -> TypeSpecRep TypeSpec SEMICOLON
+Rule 72    TypeSpecRep -> epsilon
+Rule 73    TypeSpec -> AliasDecl
+Rule 74    TypeSpec -> TypeDef
+Rule 75    AliasDecl -> IDENTIFIER ASSIGN Type
+Rule 76    TypeDef -> IDENTIFIER Type
+Rule 77    VarDecl -> VAR VarSpec
+Rule 78    VarDecl -> VAR LPAREN VarSpecRep RPAREN
+Rule 79    VarSpecRep -> VarSpecRep VarSpec SEMICOLON
+Rule 80    VarSpecRep -> epsilon
+Rule 81    VarSpec -> IdentifierList Type ExpressionListOpt
+Rule 82    VarSpec -> IdentifierList ASSIGN ExpressionList
+Rule 83    ExpressionListOpt -> ASSIGN ExpressionList
+Rule 84    ExpressionListOpt -> epsilon
+Rule 85    ShortVarDecl -> IDENTIFIER QUICK_ASSIGN Expression
+Rule 86    FunctionDecl -> FUNC FunctionName Function
+Rule 87    FunctionDecl -> FUNC FunctionName Signature
+Rule 88    FunctionName -> IDENTIFIER
+Rule 89    Function -> Signature FunctionBody
+Rule 90    FunctionBody -> Block
+Rule 91    Operand -> Literal
+Rule 92    Operand -> OperandName
+Rule 93    Operand -> LPAREN Expression RPAREN
+Rule 94    Literal -> BasicLit
+Rule 95    BasicLit -> INTEGER
+Rule 96    BasicLit -> OCTAL
+Rule 97    BasicLit -> HEX
+Rule 98    BasicLit -> FLOAT
+Rule 99    BasicLit -> IMAGINARY
+Rule 100   BasicLit -> RUNE
+Rule 101   BasicLit -> STRING
+Rule 102   OperandName -> IDENTIFIER
+Rule 103   QualifiedIdent -> IDENTIFIER DOT TypeName
+Rule 104   CompositeLit -> LiteralType LiteralValue
+Rule 105   LiteralType -> ArrayType
+Rule 106   LiteralType -> ElementType
+Rule 107   LiteralType -> TypeName
+Rule 108   LiteralValue -> LCURL ElementListOpt RCURL
+Rule 109   ElementListOpt -> ElementList
+Rule 110   ElementListOpt -> epsilon
+Rule 111   ElementList -> KeyedElement KeyedElementCommaRep
+Rule 112   KeyedElementCommaRep -> KeyedElementCommaRep COMMA KeyedElement
+Rule 113   KeyedElementCommaRep -> epsilon
+Rule 114   KeyedElement -> Key COLON Element
+Rule 115   KeyedElement -> Element
+Rule 116   Key -> FieldName
+Rule 117   Key -> Expression
+Rule 118   Key -> LiteralValue
+Rule 119   FieldName -> IDENTIFIER
+Rule 120   Element -> Expression
+Rule 121   Element -> LiteralValue
+Rule 122   PrimaryExpr -> Operand
+Rule 123   PrimaryExpr -> PrimaryExpr Selector
+Rule 124   PrimaryExpr -> Conversion
+Rule 125   PrimaryExpr -> PrimaryExpr Index
+Rule 126   PrimaryExpr -> PrimaryExpr Slice
+Rule 127   PrimaryExpr -> PrimaryExpr TypeAssertion
+Rule 128   PrimaryExpr -> PrimaryExpr Arguments
+Rule 129   Selector -> DOT IDENTIFIER
+Rule 130   Index -> LSQUARE Expression RSQUARE
+Rule 131   Slice -> LSQUARE ExpressionOpt COLON ExpressionOpt RSQUARE
+Rule 132   Slice -> LSQUARE ExpressionOpt COLON Expression COLON Expression RSQUARE
+Rule 133   TypeAssertion -> DOT LPAREN Type RPAREN
+Rule 134   Arguments -> LPAREN ExpressionListTypeOpt RPAREN
+Rule 135   ExpressionListTypeOpt -> ExpressionList
+Rule 136   ExpressionListTypeOpt -> epsilon
+Rule 137   ExpressionListCommaOpt -> COMMA ExpressionList
+Rule 138   ExpressionListCommaOpt -> epsilon
+Rule 139   Expression -> UnaryExpr
+Rule 140   Expression -> Expression BinaryOp Expression
+Rule 141   ExpressionOpt -> Expression
+Rule 142   ExpressionOpt -> epsilon
+Rule 143   UnaryExpr -> PrimaryExpr
+Rule 144   UnaryExpr -> UnaryOp UnaryExpr
+Rule 145   UnaryExpr -> NOT UnaryExpr
+Rule 146   BinaryOp -> LOGICAL_OR
+Rule 147   BinaryOp -> LOGICAL_AND
+Rule 148   BinaryOp -> RelOp
+Rule 149   BinaryOp -> AddMulOp
+Rule 150   RelOp -> EQUALS
+Rule 151   RelOp -> NOT_ASSIGN
+Rule 152   RelOp -> LESSER
+Rule 153   RelOp -> GREATER
+Rule 154   RelOp -> LESS_EQUALS
+Rule 155   RelOp -> MORE_EQUALS
+Rule 156   AddMulOp -> UnaryOp
+Rule 157   AddMulOp -> OR
+Rule 158   AddMulOp -> XOR
+Rule 159   AddMulOp -> DIVIDE
+Rule 160   AddMulOp -> MOD
+Rule 161   AddMulOp -> LSHIFT
+Rule 162   AddMulOp -> RSHIFT
+Rule 163   UnaryOp -> PLUS
+Rule 164   UnaryOp -> MINUS
+Rule 165   UnaryOp -> STAR
+Rule 166   UnaryOp -> AND
+Rule 167   Conversion -> TYPECAST Type LPAREN Expression RPAREN
+Rule 168   Statement -> Declaration
+Rule 169   Statement -> LabeledStmt
+Rule 170   Statement -> SimpleStmt
+Rule 171   Statement -> ReturnStmt
+Rule 172   Statement -> BreakStmt
+Rule 173   Statement -> ContinueStmt
+Rule 174   Statement -> GotoStmt
+Rule 175   Statement -> Block
+Rule 176   Statement -> IfStmt
+Rule 177   Statement -> SwitchStmt
+Rule 178   Statement -> ForStmt
+Rule 179   SimpleStmt -> epsilon
+Rule 180   SimpleStmt -> ExpressionStmt
+Rule 181   SimpleStmt -> IncDecStmt
+Rule 182   SimpleStmt -> Assignment
+Rule 183   SimpleStmt -> ShortVarDecl
+Rule 184   LabeledStmt -> Label COLON Statement
+Rule 185   Label -> IDENTIFIER
+Rule 186   ExpressionStmt -> Expression
+Rule 187   IncDecStmt -> Expression INCR
+Rule 188   IncDecStmt -> Expression DECR
+Rule 189   Assignment -> ExpressionList assign_op ExpressionList
+Rule 190   assign_op -> AssignOp
+Rule 191   AssignOp -> PLUS_ASSIGN
+Rule 192   AssignOp -> MINUS_ASSIGN
+Rule 193   AssignOp -> STAR_ASSIGN
+Rule 194   AssignOp -> DIVIDE_ASSIGN
+Rule 195   AssignOp -> MOD_ASSIGN
+Rule 196   AssignOp -> AND_ASSIGN
+Rule 197   AssignOp -> OR_ASSIGN
+Rule 198   AssignOp -> XOR_ASSIGN
+Rule 199   AssignOp -> LSHIFT_ASSIGN
+Rule 200   AssignOp -> RSHIFT_ASSIGN
+Rule 201   AssignOp -> ASSIGN
+Rule 202   IfStmt -> IF Expression Block ElseOpt
+Rule 203   SimpleStmtOpt -> SimpleStmt SEMICOLON
+Rule 204   SimpleStmtOpt -> epsilon
+Rule 205   ElseOpt -> ELSE IfStmt
+Rule 206   ElseOpt -> ELSE Block
+Rule 207   ElseOpt -> epsilon
+Rule 208   SwitchStmt -> ExprSwitchStmt
+Rule 209   SwitchStmt -> TypeSwitchStmt
+Rule 210   ExprSwitchStmt -> SWITCH ExpressionOpt LCURL ExprCaseClauseRep RCURL
+Rule 211   ExprCaseClauseRep -> ExprCaseClauseRep ExprCaseClause
+Rule 212   ExprCaseClauseRep -> epsilon
+Rule 213   ExprCaseClause -> ExprSwitchCase COLON StatementList
+Rule 214   ExprSwitchCase -> CASE ExpressionList
+Rule 215   ExprSwitchCase -> DEFAULT
+Rule 216   TypeSwitchStmt -> SWITCH SimpleStmtOpt TypeSwitchGuard LCURL TypeCaseClauseOpt RCURL
+Rule 217   TypeSwitchGuard -> IdentifierOpt PrimaryExpr DOT LPAREN TYPE RPAREN
+Rule 218   IdentifierOpt -> IDENTIFIER QUICK_ASSIGN
+Rule 219   IdentifierOpt -> epsilon
+Rule 220   TypeCaseClauseOpt -> TypeCaseClauseOpt TypeCaseClause
+Rule 221   TypeCaseClauseOpt -> epsilon
+Rule 222   TypeCaseClause -> TypeSwitchCase COLON StatementList
+Rule 223   TypeSwitchCase -> CASE TypeList
+Rule 224   TypeSwitchCase -> DEFAULT
+Rule 225   TypeList -> Type TypeRep
+Rule 226   TypeRep -> TypeRep COMMA Type
+Rule 227   TypeRep -> epsilon
+Rule 228   ForStmt -> FOR ConditionBlockOpt Block
+Rule 229   ConditionBlockOpt -> epsilon
+Rule 230   ConditionBlockOpt -> Condition
+Rule 231   ConditionBlockOpt -> ForClause
+Rule 232   ConditionBlockOpt -> RangeClause
+Rule 233   Condition -> Expression
+Rule 234   ForClause -> SimpleStmt SEMICOLON ConditionOpt SEMICOLON SimpleStmt
+Rule 235   ConditionOpt -> epsilon
+Rule 236   ConditionOpt -> Condition
+Rule 237   RangeClause -> ExpressionIdentListOpt RANGE Expression
+Rule 238   ExpressionIdentListOpt -> epsilon
+Rule 239   ExpressionIdentListOpt -> ExpressionIdentifier
+Rule 240   ExpressionIdentifier -> ExpressionList ASSIGN
+Rule 241   ReturnStmt -> RETURN ExpressionListPureOpt
+Rule 242   ExpressionListPureOpt -> ExpressionList
+Rule 243   ExpressionListPureOpt -> epsilon
+Rule 244   BreakStmt -> BREAK LabelOpt
+Rule 245   ContinueStmt -> CONTINUE LabelOpt
+Rule 246   LabelOpt -> Label
+Rule 247   LabelOpt -> epsilon
+Rule 248   GotoStmt -> GOTO Label
+Rule 249   SourceFile -> PackageClause SEMICOLON ImportDeclRep TopLevelDeclRep
+Rule 250   ImportDeclRep -> epsilon
+Rule 251   ImportDeclRep -> ImportDeclRep ImportDecl SEMICOLON
+Rule 252   TopLevelDeclRep -> TopLevelDeclRep TopLevelDecl SEMICOLON
+Rule 253   TopLevelDeclRep -> epsilon
+Rule 254   PackageClause -> PACKAGE PackageName
+Rule 255   PackageName -> IDENTIFIER
+Rule 256   ImportDecl -> IMPORT ImportSpec
+Rule 257   ImportDecl -> IMPORT LPAREN ImportSpecRep RPAREN
+Rule 258   ImportSpecRep -> ImportSpecRep ImportSpec SEMICOLON
+Rule 259   ImportSpecRep -> epsilon
+Rule 260   ImportSpec -> PackageNameDotOpt ImportPath
+Rule 261   PackageNameDotOpt -> DOT
+Rule 262   PackageNameDotOpt -> PackageName
+Rule 263   PackageNameDotOpt -> epsilon
+Rule 264   ImportPath -> STRING
+Rule 265   epsilon -> <empty>
+
+Terminals, with rules where they appear
+
+AMPAMP               : 
+AMPCAR               : 
+AMPCAREQ             : 
+AMPEQ                : 
+AMPERS               : 
+AND_NOT              : 
+BREAK                : 244
+CAREQ                : 
+CASE                 : 214 223
+CHAN                 : 
+COLON                : 114 131 132 132 184 213 222
+COLONEQ              : 
+COMMA                : 43 44 64 67 112 137 226
+COMMENT              : 
+CONSTANT             : 
+CONSTANTS            : 
+CONTINUE             : 245
+DDD                  : 
+DEFAULT              : 215 224
+DEFER                : 
+DIVIDE               : 159
+DIVIDEEQ             : 
+DOT                  : 103 129 133 217 261
+ELSE                 : 205 206
+EQEQ                 : 
+EQUAL                : 
+FALLTHROUGH          : 
+FLOAT                : 98
+FOR                  : 228
+FUNCTION             : 
+GEQ                  : 
+GO                   : 
+GOTO                 : 248
+GREAT                : 
+IDENTIFIER           : 14 63 64 75 76 85 88 102 103 119 129 185 218 255
+IF                   : 202
+IMPORT               : 256 257
+INTEGER              : 95
+INTERFACE            : 
+LBRACE               : 
+LBRACK               : 
+LEQ                  : 
+LESS                 : 
+LMINUS               : 
+LPAREN               : 4 37 57 70 78 93 133 134 167 217 257
+MAP                  : 
+MINUS                : 164
+MINUSEQ              : 
+MINUSMIN             : 
+MOD                  : 160
+MODEQ                : 
+NOT                  : 145
+NOTEQ                : 
+OR                   : 157
+OREQ                 : 
+OROR                 : 
+PACKAGE              : 254
+PLUS                 : 163
+PLUSEQ               : 
+PLUSPLUS             : 
+RANGE                : 237
+RBRACE               : 
+RBRACK               : 
+RETURN               : 241
+RPAREN               : 4 37 57 70 78 93 133 134 167 217 257
+SELECT               : 
+SEMICOL              : 
+SHL                  : 
+SHL_ASSIGN           : 
+SHR                  : 
+SHR_ASSIGN           : 
+STRING               : 29 101 264
+STRUCT               : 23
+SWITCH               : 210 216
+TIMES                : 
+TIMESEQ              : 
+TYPE                 : 14 69 70 217
+VAR                  : 77 78
+XOR                  : 158
+error                : 
+
+Nonterminals, with rules where they appear
+
+AND                  : 166
+AND_ASSIGN           : 196
+ASSIGN               : 61 75 82 83 201 240
+AddMulOp             : 149
+AliasDecl            : 73
+Arguments            : 128
+ArrayLength          : 20
+ArrayType            : 15 105
+AssignOp             : 190
+Assignment           : 182
+BOOL_T               : 12
+BaseType             : 30
+BasicLit             : 94
+BinaryOp             : 140
+Block                : 90 175 202 206 228
+BreakStmt            : 172
+COMPLEX_T            : 10
+CONST                : 56 57
+CompositeLit         : 
+Condition            : 230 236
+ConditionBlockOpt    : 228
+ConditionOpt         : 234
+ConstDecl            : 51
+ConstSpec            : 56 58
+ConstSpecRep         : 57 58
+ContinueStmt         : 173
+Conversion           : 124
+DECR                 : 188
+DIVIDE_ASSIGN        : 194
+Declaration          : 54 168
+EQUALS               : 150
+Element              : 114 115
+ElementList          : 109
+ElementListOpt       : 108
+ElementType          : 20 106
+ElseOpt              : 202
+ExprCaseClause       : 211
+ExprCaseClauseRep    : 210 211
+ExprSwitchCase       : 213
+ExprSwitchStmt       : 208
+Expression           : 21 66 67 85 93 117 120 130 132 132 140 140 141 167 186 187 188 202 233 237
+ExpressionIdentListOpt : 237
+ExpressionIdentifier : 239
+ExpressionList       : 61 82 83 135 137 189 189 214 240 242
+ExpressionListCommaOpt : 
+ExpressionListOpt    : 81
+ExpressionListPureOpt : 241
+ExpressionListTypeOpt : 134
+ExpressionOpt        : 131 131 132 210
+ExpressionRep        : 66 67
+ExpressionStmt       : 180
+FLOAT_T              : 8
+FUNC                 : 86 87
+FieldDecl            : 24
+FieldDeclRep         : 23 24
+FieldName            : 116
+ForClause            : 231
+ForStmt              : 178
+Function             : 86
+FunctionBody         : 89
+FunctionDecl         : 55
+FunctionName         : 86 87
+GREATER              : 153
+GotoStmt             : 174
+HEX                  : 97
+IMAGINARY            : 99
+INCR                 : 187
+INT_T                : 7
+IdentifierList       : 26 41 45 60 81 82
+IdentifierOpt        : 217
+IdentifierRep        : 63 64
+IfStmt               : 176 205
+ImportDecl           : 251
+ImportDeclRep        : 249 251
+ImportPath           : 260
+ImportSpec           : 256 258
+ImportSpecRep        : 257 258
+IncDecStmt           : 181
+Index                : 125
+Key                  : 114
+KeyedElement         : 111 112
+KeyedElementCommaRep : 111 112
+LCURL                : 23 47 108 210 216
+LESSER               : 152
+LESS_EQUALS          : 154
+LOGICAL_AND          : 147
+LOGICAL_OR           : 146
+LSHIFT               : 161
+LSHIFT_ASSIGN        : 199
+LSQUARE              : 20 130 131 132
+Label                : 184 246 248
+LabelOpt             : 244 245
+LabeledStmt          : 169
+Literal              : 91
+LiteralType          : 104
+LiteralValue         : 104 118 121
+MINUS_ASSIGN         : 192
+MOD_ASSIGN           : 195
+MORE_EQUALS          : 155
+NOT_ASSIGN           : 151
+OCTAL                : 96
+OR_ASSIGN            : 197
+Operand              : 122
+OperandName          : 92
+PLUS_ASSIGN          : 191
+PackageClause        : 249
+PackageName          : 254 262
+PackageNameDotOpt    : 260
+ParameterDecl        : 43 44 44
+ParameterDeclCommaRep : 42 43
+ParameterListOpt     : 37
+Parameters           : 32 35
+ParametersList       : 38
+PointerType          : 17
+PrimaryExpr          : 123 125 126 127 128 143 217
+QUICK_ASSIGN         : 85 218
+QualifiedIdent       : 6
+RCURL                : 23 47 108 210 216
+RSHIFT               : 162
+RSHIFT_ASSIGN        : 200
+RSQUARE              : 20 130 131 132
+RUNE                 : 100
+RUNE_T               : 11
+RangeClause          : 232
+RelOp                : 148
+Result               : 33
+ResultOpt            : 32
+ReturnStmt           : 171
+SEMICOLON            : 24 49 58 71 79 203 234 234 249 251 252 258
+STAR                 : 30 165
+STAR_ASSIGN          : 193
+STRING_T             : 13
+Selector             : 123
+ShortVarDecl         : 183
+Signature            : 87 89
+SimpleStmt           : 170 203 234 234
+SimpleStmtOpt        : 216
+Slice                : 126
+SourceFile           : 1
+Statement            : 49 184
+StatementList        : 47 213 222
+StatementRep         : 48 49
+StructType           : 16
+SwitchStmt           : 177
+TYPECAST             : 167
+Tag                  : 27
+TagOpt               : 26
+TopLevelDecl         : 252
+TopLevelDeclRep      : 249 252
+Type                 : 4 18 22 26 31 36 40 41 45 46 75 76 81 133 167 225 226
+TypeAssertion        : 127
+TypeCaseClause       : 220
+TypeCaseClauseOpt    : 216 220
+TypeDecl             : 52
+TypeDef              : 74
+TypeExprListOpt      : 60
+TypeList             : 223
+TypeLit              : 3
+TypeName             : 2 103 107
+TypeOpt              : 61
+TypeRep              : 225 226
+TypeSpec             : 69 71
+TypeSpecRep          : 70 71
+TypeSwitchCase       : 222
+TypeSwitchGuard      : 216
+TypeSwitchStmt       : 209
+TypeToken            : 5
+UINT_T               : 9
+UnaryExpr            : 139 144 145
+UnaryOp              : 144 156
+VarDecl              : 53
+VarSpec              : 77 79
+VarSpecRep           : 78 79
+XOR_ASSIGN           : 198
+assign_op            : 189
+epsilon              : 19 25 28 34 39 50 59 62 65 68 72 80 84 110 113 136 138 142 179 204 207 212 219 221 227 229 235 238 243 247 250 253 259 263
+start                : 0
+
