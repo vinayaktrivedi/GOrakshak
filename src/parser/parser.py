@@ -16,7 +16,7 @@ def make_node(p,label,childs):
     num_childs=len(childs)
     for i in childs:
         if(p[i] != "NULL"):
-            graph+=p[0] + " -> "+p[i]+";\n"
+            graph += p[0] + "->"+ str(p[i])+";\n"
 
 def make_leaf(p,index,label="notgiven"):
     global cnt
@@ -33,32 +33,60 @@ def bypass(p,child):
 def pass_empty(p):
     p[0]="NULL"
 
+def add_child(p,p_index,childs):
+  global graph
+  for i in childs:
+    graph+=p[p_index] + "->" +p[i]+";\n"
 
 
 
 def p_start(p):
   '''start : SourceFile'''
+  bypass(p,1)
     
 def p_sourcefile(p):
   '''SourceFile : cmtlist PackageClause cmtlist Imports cmtlist DeclList cmtlist
                 | cmtlist PackageClause cmtlist DeclList cmtlist
                 | cmtlist PackageClause cmtlist Imports cmtlist
                 | cmtlist PackageClause cmtlist'''
+  if(len(p)==8):
+    make_node(p,"source_file",[2,4,6])
+  elif (len(p)==6):
+    make_node(p,"source_file",[2,4])
+  else:
+    make_node(p,"source_file",[2])
+
 
 def p_packegeclause(p):
   '''PackageClause : PACKAGE IDENTIFIER SEMICOL'''
+  make_leaf(p,2)
+  make_node(p,"package_clause",[1,2])
 
 def p_imports(p):
   '''Imports : Import SEMICOL
            | Imports cmtlist Import SEMICOL'''
 
+  if(len(p)==3):
+    make_node(p,"import",[1])
+  else:
+    bypass(p,1)
+    add_child(p,0,[3])
+
 def p_import(p):
   '''Import : IMPORT ImportStmt
            | IMPORT LPAREN ImportStmtList OSemi RPAREN
            | IMPORT LPAREN RPAREN'''
+  if(len(p)==3):
+    bypass(p,2)
+  else if(len(p)==6):
+    bypass(p,3)
+  else:
+    pass_empty(p)
 
 def p_importstmt(p):
   '''ImportStmt : ImportHere STRING'''
+  make_leaf(p,2)
+  make
 
 def p_importstmtlist(p):
   '''ImportStmtList : ImportStmt
