@@ -6,15 +6,16 @@ tokens = lexer.tokens   # Need token list
 
 def p_start(p):
   '''start : SourceFile'''
+  
     
 def p_sourcefile(p):
-  '''SourceFile : PackageClause Imports DeclList'''
+  '''SourceFile : cmtlist PackageClause cmtlist Imports cmtlist DeclList cmtlist'''
 
 def p_packegeclause(p):
   '''PackageClause : PACKAGE IDENTIFIER SEMICOL'''
 def p_imports(p):
   '''Imports : 
-           | Imports Import SEMICOL'''
+           | Imports cmtlist Import SEMICOL'''
 def p_import(p):
   '''Import : IMPORT ImportStmt
            | IMPORT LPAREN ImportStmtList OSemi RPAREN
@@ -89,7 +90,7 @@ def p_case(p):
      | DEFAULT COLON'''
 
 def p_compoundstmt(p):
-  '''CompoundStmt : LBRACE StmtList RBRACE'''
+  '''CompoundStmt : LBRACE cmtlist StmtList cmtlist RBRACE'''
 
 def p_caseblock(p):
   '''CaseBlock : Case StmtList'''
@@ -100,7 +101,7 @@ def p_caseblocklist(p):
                    | CaseBlockList CaseBlock'''
 def p_loopbody(p):
 
-  '''LoopBody : LBRACE StmtList RBRACE'''
+  '''LoopBody : LBRACE cmtlist StmtList  cmtlist RBRACE'''
 
 def p_rangestmt(p):
 
@@ -143,7 +144,8 @@ def p_ntype(p):
            |  OtherType
            |  PtrType
            |  DotName
-           |  LPAREN NType RPAREN'''
+           |  LPAREN NType RPAREN
+           |  TYPE'''
       
 def p_nonexprtype(p):
   '''NonExprType : FuncType
@@ -181,7 +183,7 @@ def p_arglist(p):
         
 def p_funcbody(p):
   '''FuncBody : 
-              | LBRACE StmtList RBRACE'''
+              | LBRACE  cmtlist StmtList  cmtlist RBRACE'''
          
 def p_funcres(p):
   '''FuncRes : 
@@ -225,7 +227,8 @@ def p_funcrettype(p):
   '''FuncRetType : FuncType
                  | OtherType
                  | PtrType
-                 | DotName'''
+                 | DotName
+                 | TYPE'''
             
 def p_dotname(p):
   '''DotName : Name
@@ -259,7 +262,7 @@ def p_funcliteraldecl(p):
   '''FuncLiteralDecl : FuncType'''
                 
 def p_funcliteral(p):
-  '''FuncLiteral : FuncLiteralDecl LBRACE StmtList RBRACE'''
+  '''FuncLiteral : FuncLiteralDecl LBRACE cmtlist StmtList cmtlist RBRACE'''
             
 def p_exprlist(p):
   '''ExprList : Expr
@@ -283,7 +286,7 @@ def p_embed(p):
       
 def p_dec1list(p):
   '''DeclList : 
-              | DeclList Declaration SEMICOL'''
+              | DeclList cmtlist Declaration SEMICOL'''
 
 def p_var_dec_list(p):
   '''VarDeclList : VarDecl 
@@ -298,8 +301,8 @@ def p_decl_name_list(p):
   '''DeclNameList : DeclName
                     | DeclNameList COMMA DeclName'''
 def p_stmtlist(p):
-  '''StmtList : Stmt
-                | StmtList SEMICOL Stmt'''
+  '''StmtList : Stmt SEMICOL
+                | StmtList cmtlist Stmt SEMICOL'''
 def p_newnamelist(p):
   '''NewNameList : NewName
                    | NewNameList COMMA NewName'''
@@ -421,7 +424,8 @@ def p_prec2expr_(p):
                   | Prec2Expr_ AMPAMP Prec3Expr_'''
 def p_expr(p):
   '''Expr : Prec2Expr_
-            | Expr OROR Prec2Expr_'''
+            | Expr OROR Prec2Expr_
+            | CONSTANTS'''
 def p_uexpr(p):
   '''UExpr : PExpr
              | AMPERS UExpr
@@ -438,6 +442,10 @@ def p_pseudocall(p):
                   | PExpr LPAREN ExprOrTypeList OComma RPAREN
                   | PExpr LPAREN ExprOrTypeList DDD OComma RPAREN'''
 
+
+def p_cmtlist(p):
+  '''cmtlist : 
+              | COMMENT cmtlist'''
 # def p_(p):
 #   ''' : '''
 
@@ -450,4 +458,4 @@ parser = yacc.yacc()            # Build the parser
 with open('../../tests/lexer/input/test1.go','r') as f:
     input_str = f.read()
 
-parser.parse(input_str,debug=0)
+parser.parse(input_str,debug=1)
