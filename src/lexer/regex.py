@@ -82,10 +82,12 @@ def t_IDENTIFIER(t):
 
 def t_FLOAT(t):
     r'(([0-9]([0-9]+)*(\.[0-9]([0-9]+)*)?)[eE]\-[0-9]([0-9]+)*)|([0-9]([0-9]+)*\.[0-9]([0-9]+)*)([eE][\+]?[0-9]([0-9]+)*)?'
+    t.value = float(t.value.replace("_",""))
     return t
 
 def t_INTEGER(t):
     r'(0x([0-9A-Fa-f]+)) | [0-9]([0-9]+)*([Ee](\+)?[0-9]([0-9]+)*)?'
+    t.value = int(float(t.value.replace("_","")))
     return t
 
 def t_newline(t):
