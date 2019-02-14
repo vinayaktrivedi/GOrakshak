@@ -13,7 +13,6 @@ reserved = {
     'case':'CASE',
     'switch':'SWITCH',
     'return':'RETURN',
-    'go':'GO',
     'goto':'GOTO',
     'package':'PACKAGE',
     'import':'IMPORT',

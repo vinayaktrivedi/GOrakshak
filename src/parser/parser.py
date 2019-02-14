@@ -40,13 +40,16 @@ def p_start(p):
   '''start : SourceFile'''
     
 def p_sourcefile(p):
-  '''SourceFile : cmtlist PackageClause cmtlist Imports cmtlist DeclList cmtlist'''
+  '''SourceFile : cmtlist PackageClause cmtlist Imports cmtlist DeclList cmtlist
+                | cmtlist PackageClause cmtlist DeclList cmtlist
+                | cmtlist PackageClause cmtlist Imports cmtlist
+                | cmtlist PackageClause cmtlist'''
 
 def p_packegeclause(p):
   '''PackageClause : PACKAGE IDENTIFIER SEMICOL'''
 
 def p_imports(p):
-  '''Imports : 
+  '''Imports : Import SEMICOL
            | Imports cmtlist Import SEMICOL'''
 
 def p_import(p):
@@ -327,7 +330,7 @@ def p_embed(p):
   '''Embed : IDENTIFIER'''
       
 def p_dec1list(p):
-  '''DeclList : 
+  '''DeclList : Declaration SEMICOL
               | DeclList cmtlist Declaration SEMICOL'''
 
 def p_var_dec_list(p):
