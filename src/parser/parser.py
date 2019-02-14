@@ -86,21 +86,27 @@ def p_import(p):
 def p_importstmt(p):
   '''ImportStmt : ImportHere STRING'''
   make_leaf(p,2)
-  make
 
 def p_importstmtlist(p):
   '''ImportStmtList : ImportStmt
                | ImportStmtList SEMICOL ImportStmt'''
+  if(len(p)==2):
+    bypass(p,1)
+  else:
+    make_node(p,"multi_imports",[1,3])
 
 def p_importhere(p):
   '''ImportHere : 
            | IDENTIFIER
            | DOT'''
+    pass_empty(p)
 
 def p_declaration(p):
   '''Declaration : CommonDecl
             | FuncDecl
             | NonDeclStmt'''
+  bypass(p,1)
+
 
 def p_commondecl(p):
   '''CommonDecl : CONSTANT ConstDecl
@@ -113,12 +119,21 @@ def p_commondecl(p):
            | TYPE TypeDecl
            | TYPE LPAREN TypeDeclList OSemi RPAREN
            | TYPE LPAREN RPAREN'''
+  if(len(p)==3):
+    bypass(p,2)
+  elif(len(p)==6):
+    bypass(p,3)
+  elif(len(p)==8):
+    bypass(p,3)
+    add_child(p,0,[5])
+  elif(len(p)==4):
+    pass_empty(p)
 
 def p_vardecl(p):
   '''VarDecl   : DeclNameList NType
           | DeclNameList NType EQUAL ExprList
           | DeclNameList EQUAL ExprList'''
-
+  
 def p_constdecl(p):
   '''ConstDecl : DeclNameList NType EQUAL ExprList
           | DeclNameList EQUAL ExprList'''
@@ -360,6 +375,12 @@ def p_embed(p):
 def p_dec1list(p):
   '''DeclList : Declaration SEMICOL
               | DeclList cmtlist Declaration SEMICOL'''
+
+  if(len(p)==2):
+    make_node(p,"Declaration",[1])
+  else:
+    bypass(p,1)
+    add_child(p,0,3)
 
 def p_var_dec_list(p):
   '''VarDeclList : VarDecl 
