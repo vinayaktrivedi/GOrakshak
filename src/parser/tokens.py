@@ -67,7 +67,14 @@ operators = [
     'OROR',
     'LMINUS',
     'PLUSPLUS',
-    'MINUSMIN'
+    'MINUSMIN',
+    'PIPE',
+    'RIGHT_RIGHT',
+    'LEFT_LEFT',
+    'OR_RIGHT',
+    'LEFT_OR',
+    'RIGHT_ANGLE',
+    'LEFT_ANGLE'
     ]
 
 tokens = [

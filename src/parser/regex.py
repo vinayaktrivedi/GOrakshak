@@ -53,6 +53,13 @@ t_COMMA   = r'\,'
 t_DOT     = r'\.'
 t_SEMICOL = r'\;'
 t_COLON   = r'\:'
+t_LEFT_ANGLE  = r'(<<<)'
+t_RIGHT_ANGLE = r'(>>>)'
+t_LEFT_LEFT   = r'(\[\()'
+t_RIGHT_RIGHT = r'(\)\])'
+t_LEFT_OR     = r'(\(\|)'
+t_OR_RIGHT    = r'(\|\))'
+t_PIPE        = r'(\|\|\|)'
 
 # Strings in quotes
 def t_STRING(t):
