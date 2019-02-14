@@ -21,5 +21,12 @@ def t_NUMBER(t):
     r'\d+'
     t.value = int(t.value)
     return t
+    
+ERROR_LIST=[]
+
+# Error handling rule
+def t_error(t):
+    ERROR_LIST.append(t.value[0])
+    t.lexer.skip(1)
 
 lex.lex()         # Build the lexer
