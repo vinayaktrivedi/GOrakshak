@@ -253,7 +253,7 @@ type geometry interface {
 func main() {
 	i = 0;
 	// var a = map[Node];
-	m := make(map[string]int);
+	// m := make(map[string]int);
 // Set key/value pairs using typical name[key] = val syntax.
 
 	m["k1"] = 7;
@@ -261,7 +261,7 @@ func main() {
     fmt.Println("prs:", prs);
 // You can also declare and initialize a new map in the same line with this syntax.
 
-	n := map[string]int{"foo": 1, "bar": 2};
-	r := rect{width: 3, height: 4};
+	// n := map[string]int{"foo": 1, "bar": 2};
+	// r := rect{width: 3, height: 4};
     fmt.Println("map:", n);
 };

@@ -159,14 +159,27 @@ def p_nonexprtype(p):
             
 def p_othertype(p):
   '''OtherType : LBRACK OExpr RBRACK NType
+               | MAP LBRACK NType RBRACK NType
                | StructType
+               | SliceType
+               | MapType
                | InterfaceType
                | ChannelType'''
+
+def p_slicetype(p):
+  '''SliceType : LBRACK RBRACK Brackets TYPE'''
+
+def p_maptype(p):
+  '''MapType : MAP LBRACK TYPE RBRACK TYPE'''
 
 def p_channeltype(p):
   '''ChannelType : CHAN TYPE
                  | CHAN LMINUS TYPE
                  | LMINUS CHAN TYPE'''
+
+def p_brackets(p):
+    '''Brackets : 
+                | LBRACK RBRACK Brackets'''
 
 def p_structtype(p):
   '''StructType : STRUCT LBRACE StructDeclList OSemi RBRACE
@@ -458,13 +471,29 @@ def p_expr(p):
             | Expr OROR Prec2Expr_
             | CONSTANTS
             | Chexpr
-            | Arrayexp'''
+            | Arrayexp
+            | Structexp
+            | InterfaceExp'''
 
 def p_chexpr(p):
   '''Chexpr : LMINUS IDENTIFIER'''
 
+def p_structexp(p):
+  '''Structexp : Name LBRACE ExprList RBRACE'''
+
+def p_interfacexp(p):
+  '''InterfaceExp : Name LBRACE IntexpList RBRACE'''
+
+def p_intexp(p):
+  '''Intexp : Expr COLON Expr'''
+
+def p_intexpList(p):
+  '''IntexpList : Intexp
+                | Intexp COMMA IntexpList'''
+
 def p_arrayexp(p):
-  '''Arrayexp : OtherType LBRACE ExprList RBRACE'''
+  '''Arrayexp : OtherType LBRACE ExprList RBRACE
+              | OtherType LBRACE IntexpList RBRACE'''
 
 def p_uexpr(p):
   '''UExpr : PExpr
@@ -486,7 +515,7 @@ def p_pseudocall(p):
 
 def p_cmtlist(p):
   '''cmtlist : 
-              | cmtlist COMMENT'''
+              | COMMENT cmtlist'''
 
 def p_error(p):
   print("Syntax error in input!")
