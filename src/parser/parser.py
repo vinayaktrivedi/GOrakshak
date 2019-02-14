@@ -535,7 +535,7 @@ def p_error(p):
 
 parser = yacc.yacc()            # Build the parser
 
-with open('../../tests/lexer/input/test1.go','r') as f:
+with open('../../tests/parser/input/test1.go','r') as f:
     input_str = f.read()
 
 parser.parse(input_str,debug=0)
