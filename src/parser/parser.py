@@ -3,6 +3,38 @@ import lexer            # Import lexer information
 tokens = lexer.tokens   # Need token list
 
 # Rune part yet to be done
+graph="digraph finite_state_machine {ordering=out;rankdir=UD;size=\"8,5\";node [shape = circle];\n"
+cnt=0
+
+
+def make_node(p,label,childs):
+    global cnt
+    global graph
+    cnt+=1
+    p[0]=str(cnt)
+    graph+=p[0] + " [label=\""+ label+"\"];\n"
+    num_childs=len(childs)
+    for i in childs:
+        if(p[i] != "NULL"):
+            graph+=p[0] + " -> "+p[i]+";\n"
+
+def make_leaf(p,index,label="notgiven"):
+    global cnt
+    global graph
+    if(label == "notgiven"):
+        label=str(p[index])
+    cnt+=1
+    p[index]=str(cnt)
+    graph+=p[index] + " [label=\""+ label+"\"];\n"
+
+def bypass(p,child):
+    p[0] = p[child]
+
+def pass_empty(p):
+    p[0]="NULL"
+
+
+
 
 def p_start(p):
   '''start : SourceFile'''
@@ -498,3 +530,7 @@ with open('../../tests/parser/test1.go','r') as f:
     input_str = f.read()
 
 parser.parse(input_str,debug=0)
+
+
+graph+="}"
+print(graph)
