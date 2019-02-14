@@ -72,7 +72,7 @@ def t_INTERFACE(t):
     return t
 
 def t_TYPE(t):
-    r'( ((\*)|\ )*int8 | ((\*)|\ )*int16 | ((\*)|\ )*int32 | ((\*)|\ )*int64 | ((\*)|\ )*int |((\*)|\ )*float32 | ((\*)|\ )*float64 | ((\*)|\ )*byte |((\*)|\ )*string | ((\*)|\ )*uintptr | ((\*)|\ )*uint8 | ((\*)|\ )*uint16 | ((\*)|\ )*uint32 | ((\*)|\ )*uint64 | ((\*)|\ )*uint | ((\*)|\ )*bool | ((\*)|\ )*map)'
+    r'( ((\*)|\ )*int8 | ((\*)|\ )*int16 | ((\*)|\ )*int32 | ((\*)|\ )*int64 | ((\*)|\ )*int |((\*)|\ )*float32 | ((\*)|\ )*float64 | ((\*)|\ )*byte |((\*)|\ )*string | ((\*)|\ )*uintptr | ((\*)|\ )*uint8 | ((\*)|\ )*uint16 | ((\*)|\ )*uint32 | ((\*)|\ )*uint64 | ((\*)|\ )*uint | ((\*)|\ )*bool)'
     t.value=t.value.replace(" ","")
     return t
 

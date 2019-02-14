@@ -13,9 +13,7 @@ reserved = {
     'case':'CASE',
     'switch':'SWITCH',
     'return':'RETURN',
-    'defer':'DEFER',
     'go':'GO',
-    'map':'MAP',
     'goto':'GOTO',
     'package':'PACKAGE',
     'import':'IMPORT',
@@ -23,8 +21,7 @@ reserved = {
     'type':'TYPE',
     'struct':'STRUCT',
     'var':'VAR',
-    'chan':'CHAN',
-    'select':'SELECT'
+    'chan':'CHAN'
     }
 
 operators = [
@@ -40,7 +37,6 @@ operators = [
     'SHL',
     'SHR',
     'AMPEQ',
-    'AND_NOT',
     'MINUSEQ',
     'DIVIDEEQ',
     'MODEQ',

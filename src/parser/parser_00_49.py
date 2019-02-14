@@ -8,25 +8,29 @@ def p_start(p):
   '''start : SourceFile'''
     
 def p_sourcefile(p):
-  '''SourceFile : PackageClause Imports DeclList'''
+  '''SourceFile : cmtlist PackageClause cmtlist Imports cmtlist DeclList cmtlist'''
 
 def p_packegeclause(p):
   '''PackageClause : PACKAGE IDENTIFIER SEMICOL'''
+
 def p_imports(p):
-  '''Imports : empty
-           | Imports Import SEMICOL'''
+  '''Imports : 
+           | Imports cmtlist Import SEMICOL'''
+
 def p_import(p):
   '''Import : IMPORT ImportStmt
            | IMPORT LPAREN ImportStmtList OSemi RPAREN
            | IMPORT LPAREN RPAREN'''
+
 def p_importstmt(p):
   '''ImportStmt : ImportHere STRING'''
+
 def p_importstmtlist(p):
   '''ImportStmtList : ImportStmt
                | ImportStmtList SEMICOL ImportStmt'''
 
 def p_importhere(p):
-  '''ImportHere : empty
+  '''ImportHere : 
            | IDENTIFIER
            | DOT'''
 
@@ -34,6 +38,7 @@ def p_declaration(p):
   '''Declaration : CommonDecl
             | FuncDecl
             | NonDeclStmt'''
+
 def p_commondecl(p):
   '''CommonDecl : CONSTANT ConstDecl
            | CONSTANT LPAREN ConstDecl OSemi RPAREN
@@ -82,6 +87,7 @@ def p_simplestmt(p):
            | ExprList COLONEQ ExprList
            | Expr PLUSPLUS
            | Expr MINUSMIN'''
+
 def p_case(p):
   '''Case : CASE ExprOrTypeList COLON
      | CASE ExprOrTypeList EQUAL Expr COLON
@@ -89,18 +95,18 @@ def p_case(p):
      | DEFAULT COLON'''
 
 def p_compoundstmt(p):
-  '''CompoundStmt : LBRACE StmtList RBRACE'''
+  '''CompoundStmt : LBRACE cmtlist StmtList cmtlist RBRACE'''
 
 def p_caseblock(p):
   '''CaseBlock : Case StmtList'''
 
 def p_caseblocklist(p):
 
-  '''CaseBlockList : empty
+  '''CaseBlockList : 
                    | CaseBlockList CaseBlock'''
 def p_loopbody(p):
 
-  '''LoopBody : LBRACE StmtList RBRACE'''
+  '''LoopBody : LBRACE cmtlist StmtList  cmtlist RBRACE'''
 
 def p_rangestmt(p):
 
@@ -131,11 +137,11 @@ def p_elseif(p):
   '''ElseIf : ELSE IF IfHeader LoopBody'''
        
 def p_elseiflist(p):
-  '''ElseIfList : empty
+  '''ElseIfList : 
                 | ElseIfList ElseIf'''
            
 def p_else(p):
-  '''Else : empty
+  '''Else : 
           | ELSE CompoundStmt'''
      
 def p_ntype(p):
@@ -143,7 +149,8 @@ def p_ntype(p):
            |  OtherType
            |  PtrType
            |  DotName
-           |  LPAREN NType RPAREN'''
+           |  LPAREN NType RPAREN
+           |  TYPE'''
       
 def p_nonexprtype(p):
   '''NonExprType : FuncType
@@ -154,8 +161,26 @@ def p_othertype(p):
   '''OtherType : LBRACK OExpr RBRACK NType
                | MAP LBRACK NType RBRACK NType
                | StructType
-               | InterfaceType'''
-          
+               | SliceType
+               | MapType
+               | InterfaceType
+               | ChannelType'''
+
+def p_slicetype(p):
+  '''SliceType : LBRACK RBRACK Brackets TYPE'''
+
+def p_maptype(p):
+  '''MapType : MAP LBRACK TYPE RBRACK TYPE'''
+
+def p_channeltype(p):
+  '''ChannelType : CHAN TYPE
+                 | CHAN LMINUS TYPE
+                 | LMINUS CHAN TYPE'''
+
+def p_brackets(p):
+    '''Brackets : 
+                | LBRACK RBRACK Brackets'''
+
 def p_structtype(p):
   '''StructType : STRUCT LBRACE StructDeclList OSemi RBRACE
                 | STRUCT LBRACE RBRACE'''
@@ -180,11 +205,11 @@ def p_arglist(p):
              | ArgList LPAREN OArgTypeListOComma RPAREN'''
         
 def p_funcbody(p):
-  '''FuncBody : empty
-              | LBRACE StmtList RBRACE'''
+  '''FuncBody : 
+              | LBRACE  cmtlist StmtList  cmtlist RBRACE'''
          
 def p_funcres(p):
-  '''FuncRes : empty
+  '''FuncRes : 
              | FuncRetType
              | LEFT_OR OArgTypeListOComma OR_RIGHT'''
         
@@ -225,41 +250,42 @@ def p_funcrettype(p):
   '''FuncRetType : FuncType
                  | OtherType
                  | PtrType
-                 | DotName'''
+                 | DotName
+                 | TYPE'''
             
 def p_dotname(p):
   '''DotName : Name
              | Name DOT IDENTIFIER'''
         
 def p_ocomma(p):
-  '''OComma : empty
+  '''OComma : 
             | COMMA'''
        
 def p_osemi(p):
-  '''OSemi : empty
+  '''OSemi : 
            | SEMICOL'''
       
 def p_osimplestmt(p):
-  '''OSimpleStmt : empty
+  '''OSimpleStmt : 
                  | SimpleStmt'''
     
 def p_onewname(p):
-  '''ONewName : empty
+  '''ONewName : 
               | NewName'''
       
 def p_oexpr(p):
-  '''OExpr : empty
+  '''OExpr : 
            | Expr'''
       
 def p_oexprlist(p):
-  '''OExprList : empty
+  '''OExprList : 
                | ExprList'''
           
 def p_funcliteraldecl(p):
   '''FuncLiteralDecl : FuncType'''
                 
 def p_funcliteral(p):
-  '''FuncLiteral : FuncLiteralDecl LBRACE StmtList RBRACE'''
+  '''FuncLiteral : FuncLiteralDecl LBRACE cmtlist StmtList cmtlist RBRACE'''
             
 def p_exprlist(p):
   '''ExprList : Expr
@@ -270,7 +296,7 @@ def p_exprortypelist(p):
                     | ExprOrTypeList COMMA ExprOrType'''
                
 def p_oliteral(p):
-  '''OLiteral : empty
+  '''OLiteral : 
               | Literal'''
          
 def p_literal(p):
@@ -282,56 +308,69 @@ def p_embed(p):
   '''Embed : IDENTIFIER'''
       
 def p_dec1list(p):
-  '''DeclList : empty
-              | DeclList Declaration SEMICOL'''
+  '''DeclList : 
+              | DeclList cmtlist Declaration SEMICOL'''
 
 def p_var_dec_list(p):
   '''VarDeclList : VarDecl 
                    | VarDeclList SEMICOL VarDecl'''
+
 def p_const_dec_list(p):
   '''ConstDeclList : ConstDecl1
                      | ConstDeclList SEMICOL ConstDecl1'''
+
 def p_type_decl_list(p): 
   '''TypeDeclList : TypeDecl
                     | TypeDeclList SEMICOL TypeDecl'''
+
 def p_decl_name_list(p):
   '''DeclNameList : DeclName
                     | DeclNameList COMMA DeclName'''
+
 def p_stmtlist(p):
-  '''StmtList : Stmt
-                | StmtList SEMICOL Stmt'''
+  '''StmtList : Stmt SEMICOL
+                | StmtList cmtlist Stmt SEMICOL'''
+
 def p_newnamelist(p):
   '''NewNameList : NewName
                    | NewNameList COMMA NewName'''
+
 def p_keyvallist(p):
   '''KeyvalList : Keyval
                   | BareCompLitExpr
                   | KeyvalList COMMA Keyval
                   | KeyvalList COMMA BareCompLitExpr'''
+
 def p_bracedkeyvallist(p):
-  '''BracedKeyvalList : empty
+  '''BracedKeyvalList : 
                         | KeyvalList OComma'''
+
 def p_declname(p):
   '''DeclName : IDENTIFIER'''
+  
 def p_name(p):
   '''Name : IDENTIFIER'''
+
 def p_argtype(p):
   '''ArgType : NameOrType
                | IDENTIFIER NameOrType
                | IDENTIFIER DotDotDot
                | DotDotDot'''
+
 def p_argtypelist(p):
   '''ArgTypeList : ArgType
                    | ArgTypeList COMMA ArgType'''
+
 def p_oargtypelistocomma(p):
-  '''OArgTypeListOComma : empty
+  '''OArgTypeListOComma : 
                           | ArgTypeList OComma'''
 
 def p_stmt(p):
-  '''Stmt : empty
+  '''Stmt : 
             | CompoundStmt
             | CommonDecl
             | NonDeclStmt'''
+
 def p_nondeclstmt(p):
   '''NonDeclStmt : SimpleStmt
                    | ForStmt
@@ -341,15 +380,17 @@ def p_nondeclstmt(p):
                    | FALLTHROUGH
                    | BREAK ONewName
                    | CONTINUE ONewName
-                   | DEFER PseudoCall
                    | GOTO NewName
                    | RETURN OExprList'''
+
 def p_dotdotdot(p):
   '''DotDotDot : DDD
                  | DDD NType'''
+
 def p_pexpr(p):
   '''PExpr : PExprNoParen
              | LPAREN ExprOrType RPAREN'''
+
 def p_pexprnoparen(p):
   '''PExprNoParen : Literal
                     | Name
@@ -365,30 +406,32 @@ def p_pexprnoparen(p):
                     | PExpr LEFT_LEFT BracedKeyvalList RIGHT_RIGHT
                     | FuncLiteral
                     | ForCompExpr'''
+
 def p_convtype(p):
   '''ConvType : FuncType
                 | OtherType'''
+
 def p_comptype(p):
   '''CompType : OtherType'''
 
-
-
-def p_startcomplit(p):
-  '''StartCompLit : empty '''
-
 def p_keyval(p):
   '''Keyval : Expr COLON CompLitExpr'''
+
 def p_barecomplitexpr(p):
   '''BareCompLitExpr : Expr
                        | LEFT_LEFT BracedKeyvalList RIGHT_RIGHT'''
+
 def p_complitexpr(p):
   '''CompLitExpr : Expr
                    | LEFT_LEFT BracedKeyvalList RIGHT_RIGHT'''
+
 def p_exportype(p):
   '''ExprOrType : Expr
                   | NonExprType'''
+
 def p_nameortype(p):
   '''NameOrType : NType'''
+
 def p_switchstmt(p):
   '''SwitchStmt : SWITCH IfHeader LBRACE CaseBlockList RBRACE'''
 
@@ -401,12 +444,14 @@ def p_prec5expr_(p):
                   | Prec5Expr_ AMPERS UExpr
                   | Prec5Expr_ AMPCAR UExpr
                   | Prec5Expr_ TIMES UExpr'''
+
 def p_prec4expr_(p):
   '''Prec4Expr_ : Prec5Expr_
                   | Prec4Expr_ PLUS Prec5Expr_
                   | Prec4Expr_ MINUS Prec5Expr_
                   | Prec4Expr_ XOR Prec5Expr_
                   | Prec4Expr_ OR Prec5Expr_'''
+
 def p_prec3expr_(p):
   '''Prec3Expr_ : Prec4Expr_
                   | Prec3Expr_ EQEQ Prec4Expr_
@@ -416,12 +461,40 @@ def p_prec3expr_(p):
                   | Prec3Expr_ GREAT Prec4Expr_
                   | Prec3Expr_ LESS Prec4Expr_
                 '''
+
 def p_prec2expr_(p):
   '''Prec2Expr_ : Prec3Expr_
                   | Prec2Expr_ AMPAMP Prec3Expr_'''
+
 def p_expr(p):
   '''Expr : Prec2Expr_
-            | Expr OROR Prec2Expr_'''
+            | Expr OROR Prec2Expr_
+            | CONSTANTS
+            | Chexpr
+            | Arrayexp
+            | Structexp
+            | InterfaceExp'''
+
+def p_chexpr(p):
+  '''Chexpr : LMINUS IDENTIFIER'''
+
+def p_structexp(p):
+  '''Structexp : Name LBRACE ExprList RBRACE'''
+
+def p_interfacexp(p):
+  '''InterfaceExp : Name LBRACE IntexpList RBRACE'''
+
+def p_intexp(p):
+  '''Intexp : Expr COLON Expr'''
+
+def p_intexpList(p):
+  '''IntexpList : Intexp
+                | Intexp COMMA IntexpList'''
+
+def p_arrayexp(p):
+  '''Arrayexp : OtherType LBRACE ExprList RBRACE
+              | OtherType LBRACE IntexpList RBRACE'''
+
 def p_uexpr(p):
   '''UExpr : PExpr
              | AMPERS UExpr
@@ -430,6 +503,7 @@ def p_uexpr(p):
              | PLUS UExpr
              | MINUS UExpr
              | XOR UExpr'''
+
 def p_forcompexpr(p):
   '''ForCompExpr : LBRACK Expr PIPE RangeStmt RBRACK'''
 
@@ -438,8 +512,10 @@ def p_pseudocall(p):
                   | PExpr LPAREN ExprOrTypeList OComma RPAREN
                   | PExpr LPAREN ExprOrTypeList DDD OComma RPAREN'''
 
-def p_empty(p):
-  '''empty : '''
+
+def p_cmtlist(p):
+  '''cmtlist : 
+              | COMMENT cmtlist'''
 
 def p_error(p):
   print("Syntax error in input!")
@@ -447,7 +523,7 @@ def p_error(p):
 
 parser = yacc.yacc()            # Build the parser
 
-with open('../../tests/lexer/input/test1.go','r') as f:
+with open('../../tests/parser/test1.go','r') as f:
     input_str = f.read()
 
-parser.parse(input_str,debug=1)
+parser.parse(input_str,debug=0)
