@@ -110,12 +110,12 @@
 // _Interfaces_ are named collections of method
 // signatures.
 
-package main;
+// package main;
 
-import "fmt";
-import "math";
+// import "fmt";
+// import "math";
 
-// Here's a basic interface for geometric shapes.
+// // Here's a basic interface for geometric shapes.
 // type geometry interface {
 //     area() float64;
 //     perim() float64;
@@ -130,9 +130,9 @@ import "math";
 //     radius float64;
 // };
 
-// // To implement an interface in Go, we just need to
-// // implement all the methods in the interface. Here we
-// // implement `geometry` on `rect`s.
+// To implement an interface in Go, we just need to
+// implement all the methods in the interface. Here we
+// implement `geometry` on `rect`s.
 // func area(r rect) (float64,int) {
 //     return r.width * r.height, 34;
 // };
@@ -140,7 +140,7 @@ import "math";
 //     return 2*r.width + 2*r.height;
 // };
 
-// // The implementation for `circle`s.
+// The implementation for `circle`s.
 // func  area(c circle) float64 {
 //     return math.Pi * c.radius * c.radius;
 // };
@@ -148,10 +148,10 @@ import "math";
 //     return 2 * math.Pi * c.radius;
 // };
 
-// // If a variable has an interface type, then we can call
-// // methods that are in the named interface. Here's a
-// // generic `measure` function taking advantage of this
-// // to work on any `geometry`.
+// If a variable has an interface type, then we can call
+// methods that are in the named interface. Here's a
+// generic `measure` function taking advantage of this
+// to work on any `geometry`.
 // func measure(g geometry) {
 // 	fmt.Println(g);
 // 	x,y = area(g);
@@ -160,57 +160,108 @@ import "math";
 // };
 
 // func main() {
-//     // r := rect{width: 3, height: 4}
-//     // c := circle{radius: 5}
+    // r := rect{width: 3, height: 4};
+    // c := circle{radius: 5};
 
-//     // The `circle` and `rect` struct types both
-//     // implement the `geometry` interface so we can use
-//     // instances of
-// 	// these structs as arguments to `measure`.
+    // The `circle` and `rect` struct types both
+    // implement the `geometry` interface so we can use
+    // instances of
+	// these structs as arguments to `measure`.
 	
 //     measure(r);
 //     measure(c);
 // };
 
-type Node struct {
-	Next  *Node;
-	Value interface{};
-};
-var first *Node;
+// type Node struct {
+// 	Next  *Node;
+// 	Value interface{};
+// };
+// var first *Node;
 
 
-func main() {
-    // r := rect{width: 3, height: 4}
-    // c := circle{radius: 5}
+// func main() {
+//     // r := rect{width: 3, height: 4}
+//     // c := circle{radius: 5}
     
-    // The `circle` and `rect` struct types both
-    // implement the `geometry` interface so we can use
-    // instances of
-	// these structs as arguments to `measure`.
-	// var a = map[Node];
-	// visited := make(a);
-	// for n := first; n != nil; n = n.Next {
-	// 	if visited[n] {
-	// 		fmt.Println("cycle detected");
-	// 		break;
-	// 	};
-	// 	visited[n] = true;
-	// 	fmt.Println(n.Value);
-	// };
-    // measure(r);
-	// measure(c);
-	// var n int =10;
-	var a [2]string;
-	a[n] = 2;
-	a[1] = "World";
-	if a == 0{
-		v = 90;
-	}
-	else{
-		g = 0-9;
-		i = 90*7;
+//     // The `circle` and `rect` struct types both
+//     // implement the `geometry` interface so we can use
+//     // instances of
+// 	// these structs as arguments to `measure`.
+// 	// visited := make(a);
+// 	// for n := first; n != nil; n = n.Next {
+// 	// 	if visited[n] {
+// 	// 		fmt.Println("cycle detected");
+// 	// 		break;
+// 	// 	};
+// 	// 	visited[n] = true;
+// 	// 	fmt.Println(n.Value);
+// 	// };
+//     // measure(r);
+// 	// measure(c);
+// 	// var n int =10;
+// 	var a [2]string;
+// 	a[n] = 2;
+// 	a[1] = "World";
+// 	if a == 0{
+// 		v = 90;
+// 	}
+// 	else{
+// 		g = 0-9;
+// 		i = 90*7;
+// 	};
+// 	// var b int = map[1];
+// 	// visited[n] = true;
+// 	// fmt.Println(a[0], a[1]);
+// };
+
+
+//this file contains opening and closing file example
+package main;
+import (
+    "bufio";
+    "fmt";
+    "io";
+    "io/ioutil";
+    "os";
+);
+
+func check(e error) {
+    if e != nil {
+        panic(e);
+    };
+};
+
+type geometry interface {
+	    area() float64;
+	    perim() float64;
 	};
-	// var b int = map[1];
-	// visited[n] = true;
-	// fmt.Println(a[0], a[1]);
+	
+	// For our example we'll implement this interface on
+	// `rect` and `circle` types.
+	type rect struct {
+	    width, height float64;
+	};
+	type circle struct {
+	    radius float64;
+	};
+
+	func check(e ...int,r int) int{
+		if e != nil {
+			panic(e);
+		};
+	};
+func main() {
+	i = 0;
+	// var a = map[Node];
+	m := make(map[string]int);
+// Set key/value pairs using typical name[key] = val syntax.
+
+	m["k1"] = 7;
+	_, prs := m["k2"];
+    fmt.Println("prs:", prs);
+// You can also declare and initialize a new map in the same line with this syntax.
+
+	n := map[string]int{"foo": 1, "bar": 2};
+	r := rect{width: 3, height: 4};
+    fmt.Println("map:", n);
 };

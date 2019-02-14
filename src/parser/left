@@ -1,5 +1,3 @@
-1. slice, map, variadic func, defer, switch, switch
+1. slice, map,  defer, switch, switch
 2. peculiar decl of functions
-3. overloading
-4. channels
-
+3. typecast
