@@ -238,7 +238,8 @@ def p_caseblocklist(p):
 def p_loopbody(p):
 
   '''LoopBody : LBRACE cmtlist StmtList  cmtlist RBRACE'''
-  
+
+  bypass(p,3);
 
 def p_rangestmt(p):
 
