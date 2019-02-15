@@ -349,8 +349,7 @@ def p_arglist(p):
   if(len(p)==4):
 
   else:
-
-        
+    
 def p_funcbody(p):
   '''FuncBody : 
               | LBRACE  cmtlist StmtList  cmtlist RBRACE'''
@@ -358,7 +357,8 @@ def p_funcbody(p):
 
   else:
 
-         
+
+        
 def p_funcres(p):
   '''FuncRes : 
              | FuncRetType
@@ -368,7 +368,8 @@ def p_funcres(p):
   elif(len(p)==2):
 
   else:
-        
+
+######################################################################################################        
 def p_structdeclist(p):
   '''StructDeclList : StructDecl
                     | StructDeclList SEMICOL StructDecl'''
@@ -430,18 +431,19 @@ def p_funcrettype(p):
                  | PtrType
                  | DotName
                  | TYPE'''
-            
+  #no need  
 def p_dotname(p):
   '''DotName : Name
              | Name DOT IDENTIFIER'''
   if(len(p)==2):
-
+    
   else:
 
         
 def p_ocomma(p):
   '''OComma : 
             | COMMA'''
+  #no_need
   if(len(p)==1):
     
   else:
@@ -450,6 +452,7 @@ def p_ocomma(p):
 def p_osemi(p):
   '''OSemi : 
            | SEMICOL'''
+  #no need
   if(len(p)==1):
 
   else:
@@ -459,32 +462,33 @@ def p_osimplestmt(p):
   '''OSimpleStmt : 
                  | SimpleStmt'''
   if(len(p)==1):
-    
+    bypass(p,1)
   else:
-
+    pass_empty(p)
     
 def p_onewname(p):
   '''ONewName : 
               | NewName'''
   if(len(p)==1):
-
+    bypass(p,1)
   else:
-      
+    pass_empty(p)
+
 def p_oexpr(p):
   '''OExpr : 
            | Expr'''
   if(len(p)==1):
-
+    bypass(p,1)
   else:
-
+    pass_empty(p)
       
 def p_oexprlist(p):
   '''OExprList : 
                | ExprList'''
   if(len(p)==1):
-    
+    bypass(p,1)
   else:
-
+    pass_empty(p)
           
 def p_funcliteraldecl(p):
   '''FuncLiteralDecl : FuncType'''
@@ -496,9 +500,10 @@ def p_exprlist(p):
   '''ExprList : Expr
               | ExprList COMMA Expr'''
   if(len(p)==2):
-
+    bypass(p,1);
   else:
-
+    bypass(p,1)
+    add_child(p,0,[3])
          
 def p_exprortypelist(p):
   '''ExprOrTypeList : ExprOrType
@@ -512,14 +517,16 @@ def p_oliteral(p):
   '''OLiteral : 
               | Literal'''
   if(len(p)==1):
-    
+    bypass(p,1);
   else:
-
+    pass_empty(p);
          
 def p_literal(p):
   '''Literal : INTEGER
              | FLOAT
              | STRING'''
+  make_leaf(p,1);
+  bypass(p,1);
         
 def p_embed(p):
   '''Embed : IDENTIFIER'''
@@ -580,7 +587,7 @@ def p_newnamelist(p):
     
   else:
 
-
+###############################################################################################################
 def p_keyvallist(p):
   '''KeyvalList : Keyval
                   | BareCompLitExpr
