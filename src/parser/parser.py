@@ -1,4 +1,5 @@
 import sys
+import os
 import csv
 import re
 import argparse
@@ -8,7 +9,7 @@ tokens = lexer.tokens   # Need token list
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--input",help="name of GO input file")
-ap.add_argument("-o", "--output",help="name of output file")
+ap.add_argument("-o", "--output",help="name of output file(.gv)")
 args = vars(ap.parse_args())
 
 if args["input"] is None:
@@ -19,6 +20,7 @@ if args["output"] is None:
 
 file = args["input"]
 outfile = open(args["output"],"w")
+# outfile = open("graph.gv","w")
 
 graph="digraph finite_state_machine {ordering=out;rankdir=UD;size=\"8,5\";node [shape = circle];\n"
 cnt=0
@@ -989,7 +991,6 @@ parser.parse(input_str,debug=0)
 
 
 graph+="}"
-# output = "graph.gv"
 outfile.write(graph)
 
 
