@@ -60,7 +60,7 @@ def p_sourcefile(p):
 def p_packegeclause(p):
   '''PackageClause : PACKAGE IDENTIFIER SEMICOL'''
   make_leaf(p,2)
-  make_node(p,"package_clause",[1,2])
+  make_node(p,"package_clause",[2])
 
 def p_imports(p):
   '''Imports : Import SEMICOL
@@ -86,6 +86,7 @@ def p_import(p):
 def p_importstmt(p):
   '''ImportStmt : ImportHere STRING'''
   make_leaf(p,2)
+  bypass(p,2)
 
 def p_importstmtlist(p):
   '''ImportStmtList : ImportStmt
@@ -100,7 +101,11 @@ def p_importhere(p):
   '''ImportHere : 
            | IDENTIFIER
            | DOT'''
-  pass_empty(p)
+  if(len(p)==2):         
+    make_leaf(p,1)
+    bypass(p,1)
+  else:
+    pass_empty(p)
 
 def p_declaration(p):
   '''Declaration : CommonDecl
@@ -139,6 +144,7 @@ def p_vardecl(p):
     make_node(p,"VAR",[1,2])
   elif(len(p)==4):
     #something
+    make_leaf(p,2)
     make_node(p,"VAR",[1,2,3])
   else:
     #something
@@ -189,29 +195,31 @@ def p_simplestmt(p):
            | Expr MINUSMIN'''
   if(len(p)==2):
     bypass(p,1)
+    print("tus2", p[0])
   elif(len(p)==3):
-    make_leaf(p,2);
+    make_leaf(p,2)
     bypass(p,2)
     add_child(p,0,[1,3])
   else:
+    make_leaf(p,2)
     bypass(p,2)
-    add_child(p,0,[1])
+    add_child(p,0,[1,3])
 
 def p_case(p):
   '''Case : CASE ExprOrTypeList COLON
      | CASE ExprOrTypeList EQUAL Expr COLON
      | CASE ExprOrTypeList COLONEQ Expr COLON
      | DEFAULT COLON'''
-  if(len(p)==3):
+  # if(len(p)==3):
     
-  elif(len(p)==4):
+  # elif(len(p)==4):
 
-  else:
+  # else:
 
 
 def p_compoundstmt(p):
   '''CompoundStmt : LBRACE cmtlist StmtList cmtlist RBRACE'''
-    bypass(p,3)
+  bypass(p,3)
 
 def p_caseblock(p):
   '''CaseBlock : Case StmtList'''
@@ -237,6 +245,7 @@ def p_rangestmt(p):
   '''RangeStmt : ExprList EQUAL RANGE Expr
                | ExprList COLONEQ RANGE Expr
                | RANGE Expr'''
+
   if(len(p)==3):
     
   else:
@@ -247,9 +256,9 @@ def p_forheader(p):
   '''ForHeader : OSimpleStmt SEMICOL OSimpleStmt SEMICOL OSimpleStmt
                | OSimpleStmt
                | RangeStmt'''
-  if(len(p)==2):
+  # if(len(p)==2):
 
-  else:
+  # else:
 
               
 def p_forbody(p):
@@ -266,9 +275,10 @@ def p_ifheader(p):
   '''IfHeader : OSimpleStmt
            | OSimpleStmt SEMICOL OSimpleStmt'''
   if(len(p)==2):
-    #nothing
-  else:
     bypass(p,1)
+  else:
+    bypass(p,3)
+  #print("tus ",p[0])
 
 def p_ifstmt(p):
   '''IfStmt : IF IfHeader LoopBody ElseIfList Else'''
@@ -277,12 +287,13 @@ def p_ifstmt(p):
 
 def p_elseif(p):
   '''ElseIf : ELSE IF IfHeader LoopBody'''
+  pass_empty(p)
        
 def p_elseiflist(p):
   '''ElseIfList : 
                 | ElseIfList ElseIf'''
   if(len(p)==1):
-
+    pass_empty(p)
   else:
     pass_empty(p)
            
@@ -301,18 +312,18 @@ def p_ntype(p):
            |  DotName
            |  LPAREN NType RPAREN
            |  NewType'''
-  if(len(p)==2):
+  # if(len(p)==2):
+  # else:
 
-  else:
 
       
 def p_nonexprtype(p):
   '''NonExprType : FuncType
                  | OtherType
                  | TIMES NonExprType'''
-  if(len(p)==2):
+  # if(len(p)==2):
     
-  else:
+  # else:
 
             
 def p_othertype(p):
@@ -320,26 +331,26 @@ def p_othertype(p):
                | StructType
                | InterfaceType
                | ChannelType'''
-  if(len(p)==2):
+  # if(len(p)==2):
     
-  else:
+  # else:
 
 
 def p_channeltype(p):
   '''ChannelType : CHAN NewType
                  | CHAN LMINUS NewType
                  | LMINUS CHAN NewType'''
-  if(len(p)==3):
+  # if(len(p)==3):
 
-  else:
+  # else:
 
 
 def p_structtype(p):
   '''StructType : STRUCT LBRACE StructDeclList OSemi RBRACE
                 | STRUCT LBRACE RBRACE'''
-  if(len(p)==4):
+  # if(len(p)==4):
     
-  else:
+  # else:
 
            
 def p_interfacetype(p):
@@ -423,13 +434,13 @@ def p_structdec1(p):
                 | TIMES Embed OLiteral
                 | LPAREN TIMES Embed RPAREN OLiteral
                 | TIMES LPAREN Embed RPAREN OLiteral'''
-  if(len(p)==3):
+  # if(len(p)==3):
     
-  elif(len(p)==4):
+  # elif(len(p)==4):
 
-  elif(len(p)==5):
+  # elif(len(p)==5):
 
-  else:
+  # else:
 
            
 def p_interfacedec1(p):
@@ -438,10 +449,10 @@ def p_interfacedec1(p):
                    | LPAREN IDENTIFIER RPAREN'''
   if(len(p)==2):
     bypass(p,1);
-  elif(len(p)==3):
-    #later
-  else:
-    #later
+  # elif(len(p)==3):
+  #   #later
+  # else:
+  #   #later
               
 def p_indecl(p):
   '''InDecl : LPAREN OArgTypeListOComma RPAREN FuncRes'''
@@ -471,36 +482,38 @@ def p_funcrettype(p):
 def p_dotname(p):
   '''DotName : Name
              | Name DOT IDENTIFIER'''
-  if(len(p)==2):
+  # if(len(p)==2):
     
-  else:
+  # else:
 
         
 def p_ocomma(p):
   '''OComma : 
             | COMMA'''
   #no_need
-  if(len(p)==1):
+  # if(len(p)==1):
     
-  else:
+  # else:
 
        
 def p_osemi(p):
   '''OSemi : 
            | SEMICOL'''
   #no need
-  if(len(p)==1):
+  # if(len(p)==1):
 
-  else:
+  # else:
 
       
 def p_osimplestmt(p):
   '''OSimpleStmt : 
                  | SimpleStmt'''
-  if(len(p)==1):
+  if(len(p)==2):
     bypass(p,1)
+    #print("tus3", p[0])
   else:
     pass_empty(p)
+    #print("tus4", p[0])
     
 def p_onewname(p):
   '''ONewName : 
@@ -544,9 +557,9 @@ def p_exprlist(p):
 def p_exprortypelist(p):
   '''ExprOrTypeList : ExprOrType
                     | ExprOrTypeList COMMA ExprOrType'''
-  if(len(p)==2):
+  # if(len(p)==2):
 
-  else:
+  # else:
 
                
 def p_oliteral(p):
@@ -579,39 +592,39 @@ def p_dec1list(p):
 def p_var_dec_list(p):
   '''VarDeclList : VarDecl 
                    | VarDeclList SEMICOL VarDecl'''
-  if(len(p)==2):
+  # if(len(p)==2):
 
-  else:
+  # else:
 
 
 def p_const_dec_list(p):
   '''ConstDeclList : ConstDecl1
                      | ConstDeclList SEMICOL ConstDecl1'''
-  if(len(p)==2):
+  # if(len(p)==2):
 
-  else:
+  # else:
 
 
 def p_type_decl_list(p): 
   '''TypeDeclList : TypeDecl
                     | TypeDeclList SEMICOL TypeDecl'''
-  if(len(p)==2):
+  # if(len(p)==2):
     
-  else:
+  # else:
 
 
 def p_decl_name_list(p):
   '''DeclNameList : DeclName
                     | DeclNameList COMMA DeclName'''
-  if(len(p)==2):
+  # if(len(p)==2):
     
-  else:
+  # else:
 
 
 def p_stmtlist(p):
   '''StmtList : Stmt SEMICOL
                 | StmtList cmtlist Stmt SEMICOL'''
-  if(len(p)==3):
+  if(len(p)==5):
     bypass(p,1)
     add_child(p,0,[3])
   else:
@@ -620,9 +633,9 @@ def p_stmtlist(p):
 def p_newnamelist(p):
   '''NewNameList : NewName
                    | NewNameList COMMA NewName'''
-  if(len(p)==2):
+  # if(len(p)==2):
     
-  else:
+  # else:
 
 ###############################################################################################################
 def p_keyvallist(p):
@@ -630,19 +643,19 @@ def p_keyvallist(p):
                   | BareCompLitExpr
                   | KeyvalList COMMA Keyval
                   | KeyvalList COMMA BareCompLitExpr'''
-  if(len(p)==2):
+  # if(len(p)==2):
 
-  elif(len(p)==4):
+  # elif(len(p)==4):
 
-  else:
+  # else:
 
 
 def p_bracedkeyvallist(p):
   '''BracedKeyvalList : 
                         | KeyvalList OComma'''
-  if(len(p)==1):
+  # if(len(p)==1):
     
-  else:
+  # else:
 
 
 def p_declname(p):
@@ -928,7 +941,7 @@ parser = yacc.yacc()            # Build the parser
 with open('../../tests/parser/test1.go','r') as f:
     input_str = f.read()
 
-parser.parse(input_str,debug=0)
+parser.parse(input_str,debug=1)
 
 
 graph+="}"
