@@ -279,12 +279,12 @@ def p_ifheader(p):
 
 def p_ifstmt(p):
   '''IfStmt : IF IfHeader LoopBody ElseIfList Else'''
-  make_node(p,"if-else",[2,3,5])
+  make_node(p,"if",[2,3,5])
 
 
 def p_elseif(p):
   '''ElseIf : ELSE IF IfHeader LoopBody'''
-  pass_empty(p)
+  make_node(p,"else if",[3,4])
        
 def p_elseiflist(p):
   '''ElseIfList : 
@@ -292,7 +292,7 @@ def p_elseiflist(p):
   if(len(p)==1):
     pass_empty(p)
   else:
-    pass_empty(p)
+    
            
 def p_else(p):
   '''Else : 
