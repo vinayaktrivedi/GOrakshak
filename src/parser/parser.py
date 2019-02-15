@@ -217,7 +217,7 @@ def p_simplestmt(p):
   elif(len(p)==3):
     make_leaf(p,2)
     bypass(p,2)
-    add_child(p,0,[1,3])
+    add_child(p,0,[1])
   else:
     make_leaf(p,2)
     bypass(p,2)
@@ -867,7 +867,8 @@ def p_prec5expr_(p):
     bypass(p,1)
   else:
     make_leaf(p,2)
-    add_child(p,0,[1,2,3])
+    bypass(p,2)
+    add_child(p,0,[1,3])
 
 def p_prec4expr_(p):
   '''Prec4Expr_ : Prec5Expr_
@@ -879,7 +880,8 @@ def p_prec4expr_(p):
     bypass(p,1)
   else:
     make_leaf(p,2)
-    add_child(p,0,[1,2,3])
+    bypass(p,2)
+    add_child(p,0,[1,3])
 
 def p_prec3expr_(p):
   '''Prec3Expr_ : Prec4Expr_
