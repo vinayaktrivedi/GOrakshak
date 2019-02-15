@@ -212,7 +212,6 @@ def p_simplestmt(p):
            | Expr MINUSMIN'''
   if(len(p)==2):
     bypass(p,1)
-    print("tus2", p[0])
   elif(len(p)==3):
     make_leaf(p,2)
     bypass(p,2)
@@ -295,7 +294,6 @@ def p_ifheader(p):
     bypass(p,1)
   else:
     bypass(p,3)
-  #print("tus ",p[0])
 
 def p_ifstmt(p):
   '''IfStmt : IF IfHeader LoopBody ElseIfList'''
@@ -533,10 +531,8 @@ def p_osimplestmt(p):
                  | SimpleStmt'''
   if(len(p)==2):
     bypass(p,1)
-    #print("tus3", p[0])
   else:
     pass_empty(p)
-    #print("tus4", p[0])
     
 def p_onewname(p):
   '''ONewName : 
