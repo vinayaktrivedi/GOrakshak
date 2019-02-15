@@ -190,6 +190,7 @@ def p_simplestmt(p):
   if(len(p)==2):
     bypass(p,1)
   elif(len(p)==3):
+    make_leaf(p,2);
     bypass(p,2)
     add_child(p,0,[1,3])
   else:
@@ -263,12 +264,14 @@ def p_ifheader(p):
   '''IfHeader : OSimpleStmt
            | OSimpleStmt SEMICOL OSimpleStmt'''
   if(len(p)==2):
-
+    #nothing
   else:
-
+    bypass(p,1)
 
 def p_ifstmt(p):
   '''IfStmt : IF IfHeader LoopBody ElseIfList Else'''
+  make_node(p,"if-else",[2,3,5])
+
 
 def p_elseif(p):
   '''ElseIf : ELSE IF IfHeader LoopBody'''
@@ -279,15 +282,15 @@ def p_elseiflist(p):
   if(len(p)==1):
 
   else:
-
+    pass_empty(p)
            
 def p_else(p):
   '''Else : 
           | ELSE CompoundStmt'''
-  if(len(p)==1):
-    
+  if(len(p)==3):
+    bypass(p,2)
   else:
-
+    pass_empty(p)
      
 def p_ntype(p):
   '''NType : FuncType
@@ -422,11 +425,11 @@ def p_interfacedec1(p):
                    | IDENTIFIER
                    | LPAREN IDENTIFIER RPAREN'''
   if(len(p)==2):
-
+    bypass(p,1);
   elif(len(p)==3):
-    
+    #later
   else:
-
+    #later
               
 def p_indecl(p):
   '''InDecl : LPAREN OArgTypeListOComma RPAREN FuncRes'''
@@ -597,9 +600,10 @@ def p_stmtlist(p):
   '''StmtList : Stmt SEMICOL
                 | StmtList cmtlist Stmt SEMICOL'''
   if(len(p)==3):
-
+    bypass(p,1)
+    add_child(p,0,[3])
   else:
-
+    make_node(p,"stmtlist",[1])
 
 def p_newnamelist(p):
   '''NewNameList : NewName
@@ -832,7 +836,8 @@ def p_prec3expr_(p):
     bypass(p,1)
   else:
     make_leaf(p,2)
-    add_child(p,0,[1,2,3])
+    bypass(p,2)
+    add_child(p,0,[1,3])
 
 def p_prec2expr_(p):
   '''Prec2Expr_ : Prec3Expr_
