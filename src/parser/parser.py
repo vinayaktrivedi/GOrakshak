@@ -228,11 +228,15 @@ def p_case(p):
      | CASE ExprOrTypeList EQUAL Expr COLON
      | CASE ExprOrTypeList COLONEQ Expr COLON
      | DEFAULT COLON'''
-  # if(len(p)==3):
-    
-  # elif(len(p)==4):
+  if(len(p)==3):
+    make_leaf(p,1)
+    bypass(p,1)
 
-  # else:
+  elif(len(p)==4):
+    bypass(p,2)
+  else:
+    add_child(p,3,[2,4])
+    bypass(p,3)
 
 
 def p_compoundstmt(p):
@@ -755,6 +759,7 @@ def p_nondeclstmt(p):
     bypass(p,1)
   elif(len(p)==3):
     make_leaf(p,1)
+    bypass(p,1)
     add_child(p,0,[1,2])
   else:
     add_child(p,0,[1,3])
@@ -767,6 +772,7 @@ def p_dotdotdot(p):
     bypass(p,1)
   else:
     make_leaf(p,1)
+    bypass(p,1)
     add_child(p,0,[1,2])
 
 def p_pexpr(p):
@@ -796,7 +802,8 @@ def p_pexprnoparen(p):
     bypass(p,1)
   elif(len(p)==4):
     make_leaf(p,2)
-    add_child(p,[1,3])
+    bypass(p,2)
+    add_child(p,0,[1,3])
   elif(len(p)==5):
     add_child(p,0,[1,4])
   elif(len(p)==6):
@@ -851,6 +858,7 @@ def p_nameortype(p):
 def p_switchstmt(p):
   '''SwitchStmt : SWITCH IfHeader LBRACE CaseBlockList RBRACE'''
   make_leaf(p,1)
+  bypass(p,1)
   add_child(p,0,[1,2,4])
 
 
@@ -906,6 +914,7 @@ def p_prec2expr_(p):
     bypass(p,1)
   else:
     make_leaf(p,2)
+    bypass(p,2)
     add_child(p,0,[1,2,3])
 
 def p_expr(p):
@@ -918,13 +927,14 @@ def p_expr(p):
     bypass(p,1)
   else:
     make_leaf(p,2)
+    bypass(p,2)
     add_child(p,0,[1,2,3])
 
 def p_chexpr(p):
   '''Chexpr : LMINUS IDENTIFIER'''
   make_leaf(p,1)
   make_leaf(p,2)
-  add_child(p,0,[1,2])
+  make_node(p,"Change expression",[1,2])
 
 def p_arrayexp(p):
   '''Arrayexp : OtherType LBRACE ExprList RBRACE'''
