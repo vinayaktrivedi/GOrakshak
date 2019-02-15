@@ -320,7 +320,7 @@ def p_structtype(p):
   '''StructType : STRUCT LBRACE StructDeclList OSemi RBRACE
                 | STRUCT LBRACE RBRACE'''
   if(len(p)==4):
-
+    
   else:
 
            
@@ -374,17 +374,19 @@ def p_structdeclist(p):
   '''StructDeclList : StructDecl
                     | StructDeclList SEMICOL StructDecl'''
   if(len(p)==2):
-
+    bypass(p,1)                        
   else:
-
+    bypass(p,1)
+    add_child(p,0,[3])
                
 def p_interfacedec1list(p):
   '''InterfaceDeclList : InterfaceDecl
                        | InterfaceDeclList SEMICOL InterfaceDecl'''
   if(len(p)==2):
-
+    bypass(p,1)       
   else:
-
+    bypass(p,1)
+    add_child(p,0,[3])
                   
 def p_structdec1(p):
   '''StructDecl : NewNameList NType OLiteral
@@ -394,7 +396,7 @@ def p_structdec1(p):
                 | LPAREN TIMES Embed RPAREN OLiteral
                 | TIMES LPAREN Embed RPAREN OLiteral'''
   if(len(p)==3):
-
+    
   elif(len(p)==4):
 
   elif(len(p)==5):
@@ -415,12 +417,17 @@ def p_interfacedec1(p):
               
 def p_indecl(p):
   '''InDecl : LPAREN OArgTypeListOComma RPAREN FuncRes'''
+  bypass(p,1)
 
 def p_labelname(p):
   '''LabelName : NewName'''
+  bypass(p,1)
 
 def p_newname(p):
   '''NewName : IDENTIFIER'''
+  make_leaf(p,1)
+  bypass(p,1)
+
         
 def p_ptrtype(p):
   '''PtrType : TIMES NType'''
