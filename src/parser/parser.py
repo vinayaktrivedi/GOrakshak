@@ -238,16 +238,17 @@ def p_caseblocklist(p):
 def p_loopbody(p):
 
   '''LoopBody : LBRACE cmtlist StmtList  cmtlist RBRACE'''
-  bypass(p,3)
+  
 
 def p_rangestmt(p):
 
   '''RangeStmt : ExprList EQUAL RANGE Expr
                | ExprList COLONEQ RANGE Expr
                | RANGE Expr'''
-  # if(len(p)==3):
 
-  # else:
+  if(len(p)==3):
+    
+  else:
 
 
 def p_forheader(p):
@@ -263,10 +264,12 @@ def p_forheader(p):
 def p_forbody(p):
 
   '''ForBody : ForHeader LoopBody'''
+  make_node(p,"loop",[1,2])
         
 def p_forstmt(p):
 
   '''ForStmt : FOR ForBody'''
+  bypass(p,2)
 
 def p_ifheader(p):
   '''IfHeader : OSimpleStmt
