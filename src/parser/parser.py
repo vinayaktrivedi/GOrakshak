@@ -1,8 +1,25 @@
+import sys
+import csv
+import re
+import argparse
 import ply.yacc as yacc
 import lexer            # Import lexer information
 tokens = lexer.tokens   # Need token list
 
-# Rune part yet to be done
+ap = argparse.ArgumentParser()
+ap.add_argument("-i", "--input",help="name of GO input file")
+ap.add_argument("-o", "--output",help="name of output file")
+args = vars(ap.parse_args())
+
+if args["input"] is None:
+    args["input"] = "../tests/input1/test1.go"
+
+if args["output"] is None:
+    args["output"] = "../tests/output/output1.gv"
+
+file = args["input"]
+outfile = open(args["output"],"w")
+
 graph="digraph finite_state_machine {ordering=out;rankdir=UD;size=\"8,5\";node [shape = circle];\n"
 cnt=0
 
@@ -936,11 +953,14 @@ def p_error(p):
 
 parser = yacc.yacc()            # Build the parser
 
-with open('../../tests/parser/test1.go','r') as f:
+with open(file,'r') as f:
     input_str = f.read()
 
-parser.parse(input_str,debug=1)
+parser.parse(input_str,debug=0)
 
 
 graph+="}"
-print(graph)
+# output = "graph.gv"
+outfile.write(graph)
+
+
