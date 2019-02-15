@@ -247,9 +247,7 @@ def p_rangestmt(p):
                | ExprList COLONEQ RANGE Expr
                | RANGE Expr'''
 
-  if(len(p)==3):
-    
-  else:
+  
 
 
 def p_forheader(p):
@@ -295,7 +293,6 @@ def p_elseiflist(p):
                 | ElseIfList ElseIf'''
   if(len(p)==1):
     pass_empty(p)
-  else:
     
            
 def p_else(p):
