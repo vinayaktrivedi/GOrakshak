@@ -1,8 +1,25 @@
+import sys
+import csv
+import re
+import argparse
 import ply.yacc as yacc
 import lexer            # Import lexer information
 tokens = lexer.tokens   # Need token list
 
-# Rune part yet to be done
+ap = argparse.ArgumentParser()
+ap.add_argument("-i", "--input",help="name of GO input file")
+ap.add_argument("-o", "--output",help="name of output file")
+args = vars(ap.parse_args())
+
+if args["input"] is None:
+    args["input"] = "../tests/input1/test1.go"
+
+if args["output"] is None:
+    args["output"] = "../tests/output/output1.gv"
+
+file = args["input"]
+outfile = open(args["output"],"w")
+
 graph="digraph finite_state_machine {ordering=out;rankdir=UD;size=\"8,5\";node [shape = circle];\n"
 cnt=0
 
@@ -281,8 +298,8 @@ def p_ifheader(p):
   #print("tus ",p[0])
 
 def p_ifstmt(p):
-  '''IfStmt : IF IfHeader LoopBody ElseIfList Else'''
-  make_node(p,"if",[2,3,5])
+  '''IfStmt : IF IfHeader LoopBody ElseIfList'''
+  make_node(p,"if",[2,3,4])
 
 
 def p_elseif(p):
@@ -291,16 +308,24 @@ def p_elseif(p):
        
 def p_elseiflist(p):
   '''ElseIfList : 
-                | ElseIfList ElseIf'''
+                | ElseIf ElseIfList 
+                | Else'''
   if(len(p)==1):
     pass_empty(p)
+  elif(len(p)==3):
+    bypass(p,1)
+    add_child(p,0,[2])
+  else:
+    bypass(p,1)
+
+
     
            
 def p_else(p):
   '''Else : 
           | ELSE CompoundStmt'''
   if(len(p)==3):
-    bypass(p,2)
+    make_node(p,"else",[2])
   else:
     pass_empty(p)
      
@@ -937,11 +962,14 @@ def p_error(p):
 
 parser = yacc.yacc()            # Build the parser
 
-with open('../../tests/parser/test1.go','r') as f:
+with open(file,'r') as f:
     input_str = f.read()
 
-parser.parse(input_str,debug=1)
+parser.parse(input_str,debug=0)
 
 
 graph+="}"
-print(graph)
+# output = "graph.gv"
+outfile.write(graph)
+
+
