@@ -1,8 +1,8 @@
 package main;
 
-import gt "go/token"
+import gt "go/token";
 
 const (
-	b int = c
-	a int = gt
-)
+	b int = c;
+	a int = gt;
+);
