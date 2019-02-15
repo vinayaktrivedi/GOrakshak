@@ -7,7 +7,13 @@ func main(){
 		b = c;
 	}
 	else{
-		b = a;
-		b = 10;
+		if(b>0){
+			a = 9 - 18;
+			b = 0;
+		}
+		else{
+			a = 10;
+			bb = 0;
+		};
 	};
 };
