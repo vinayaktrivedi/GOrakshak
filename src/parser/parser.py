@@ -333,7 +333,7 @@ def p_structtype(p):
   '''StructType : STRUCT LBRACE StructDeclList OSemi RBRACE
                 | STRUCT LBRACE RBRACE'''
   if(len(p)==4):
-
+    
   else:
 
            
@@ -362,8 +362,7 @@ def p_arglist(p):
   if(len(p)==4):
 
   else:
-
-        
+    
 def p_funcbody(p):
   '''FuncBody : 
               | LBRACE  cmtlist StmtList  cmtlist RBRACE'''
@@ -371,7 +370,8 @@ def p_funcbody(p):
 
   else:
 
-         
+
+        
 def p_funcres(p):
   '''FuncRes : 
              | FuncRetType
@@ -381,22 +381,25 @@ def p_funcres(p):
   elif(len(p)==2):
 
   else:
-        
+
+######################################################################################################        
 def p_structdeclist(p):
   '''StructDeclList : StructDecl
                     | StructDeclList SEMICOL StructDecl'''
   if(len(p)==2):
-
+    bypass(p,1)                        
   else:
-
+    bypass(p,1)
+    add_child(p,0,[3])
                
 def p_interfacedec1list(p):
   '''InterfaceDeclList : InterfaceDecl
                        | InterfaceDeclList SEMICOL InterfaceDecl'''
   if(len(p)==2):
-
+    bypass(p,1)       
   else:
-
+    bypass(p,1)
+    add_child(p,0,[3])
                   
 def p_structdec1(p):
   '''StructDecl : NewNameList NType OLiteral
@@ -406,7 +409,7 @@ def p_structdec1(p):
                 | LPAREN TIMES Embed RPAREN OLiteral
                 | TIMES LPAREN Embed RPAREN OLiteral'''
   if(len(p)==3):
-
+    
   elif(len(p)==4):
 
   elif(len(p)==5):
@@ -427,12 +430,17 @@ def p_interfacedec1(p):
               
 def p_indecl(p):
   '''InDecl : LPAREN OArgTypeListOComma RPAREN FuncRes'''
+  bypass(p,1)
 
 def p_labelname(p):
   '''LabelName : NewName'''
+  bypass(p,1)
 
 def p_newname(p):
   '''NewName : IDENTIFIER'''
+  make_leaf(p,1)
+  bypass(p,1)
+
         
 def p_ptrtype(p):
   '''PtrType : TIMES NType'''
@@ -443,18 +451,20 @@ def p_funcrettype(p):
                  | PtrType
                  | DotName
                  | NewType'''
-            
+  #no need  
+
 def p_dotname(p):
   '''DotName : Name
              | Name DOT IDENTIFIER'''
   if(len(p)==2):
-
+    
   else:
 
         
 def p_ocomma(p):
   '''OComma : 
             | COMMA'''
+  #no_need
   if(len(p)==1):
     
   else:
@@ -463,6 +473,7 @@ def p_ocomma(p):
 def p_osemi(p):
   '''OSemi : 
            | SEMICOL'''
+  #no need
   if(len(p)==1):
 
   else:
@@ -472,32 +483,33 @@ def p_osimplestmt(p):
   '''OSimpleStmt : 
                  | SimpleStmt'''
   if(len(p)==1):
-    
+    bypass(p,1)
   else:
-
+    pass_empty(p)
     
 def p_onewname(p):
   '''ONewName : 
               | NewName'''
   if(len(p)==1):
-
+    bypass(p,1)
   else:
-      
+    pass_empty(p)
+
 def p_oexpr(p):
   '''OExpr : 
            | Expr'''
   if(len(p)==1):
-
+    bypass(p,1)
   else:
-
+    pass_empty(p)
       
 def p_oexprlist(p):
   '''OExprList : 
                | ExprList'''
   if(len(p)==1):
-    
+    bypass(p,1)
   else:
-
+    pass_empty(p)
           
 def p_funcliteraldecl(p):
   '''FuncLiteralDecl : FuncType'''
@@ -509,9 +521,10 @@ def p_exprlist(p):
   '''ExprList : Expr
               | ExprList COMMA Expr'''
   if(len(p)==2):
-
+    bypass(p,1);
   else:
-
+    bypass(p,1)
+    add_child(p,0,[3])
          
 def p_exprortypelist(p):
   '''ExprOrTypeList : ExprOrType
@@ -525,14 +538,16 @@ def p_oliteral(p):
   '''OLiteral : 
               | Literal'''
   if(len(p)==1):
-    
+    bypass(p,1);
   else:
-
+    pass_empty(p);
          
 def p_literal(p):
   '''Literal : INTEGER
              | FLOAT
              | STRING'''
+  make_leaf(p,1);
+  bypass(p,1);
         
 def p_embed(p):
   '''Embed : IDENTIFIER'''
@@ -593,7 +608,7 @@ def p_newnamelist(p):
     
   else:
 
-
+###############################################################################################################
 def p_keyvallist(p):
   '''KeyvalList : Keyval
                   | BareCompLitExpr
@@ -721,52 +736,60 @@ def p_pexprnoparen(p):
     make_leaf(p,2)
     add_child(p,[1,3])
   elif(len(p)==5):
-
+    add_child(p,0,[1,4])
   elif(len(p)==6):
-
+    add_child(p,0,[1,3])
   elif(len(p)==7):
-
+    add_child(p,0,[1,3,5])
   else:
-    
+    add_child(p,0,[1,3,5,7])
 
 def p_NewType(p):
   '''NewType : TYPE'''
+  bypass(p,1)
 
 def p_convtype(p):
   '''ConvType : FuncType
                 | OtherType'''
+  bypass(p,1)
 
 def p_comptype(p):
   '''CompType : OtherType'''
+  bypass(p,1)
 
 def p_keyval(p):
   '''Keyval : Expr COLON CompLitExpr'''
+  add_child(p,0,[1,3])
 
 def p_barecomplitexpr(p):
   '''BareCompLitExpr : Expr
                        | LEFT_LEFT BracedKeyvalList RIGHT_RIGHT'''
   if(len(p)==2):
-
+    bypass(p,1)
   else:
-
+    bypass(p,2)
 
 def p_complitexpr(p):
   '''CompLitExpr : Expr
                    | LEFT_LEFT BracedKeyvalList RIGHT_RIGHT'''
   if(len(p)==2):
-    
+    bypass(p,1)
   else:
-
+    bypass(p,2)
 
 def p_exportype(p):
   '''ExprOrType : Expr
                   | NonExprType'''
+  bypass(p,1)
 
 def p_nameortype(p):
   '''NameOrType : NType'''
+  bypass(p,1)
 
 def p_switchstmt(p):
   '''SwitchStmt : SWITCH IfHeader LBRACE CaseBlockList RBRACE'''
+  make_leaf(p,1)
+  add_child(p,0,[1,2,4])
 
 
 def p_prec5expr_(p):
@@ -779,9 +802,10 @@ def p_prec5expr_(p):
                   | Prec5Expr_ AMPCAR UExpr
                   | Prec5Expr_ TIMES UExpr'''
   if(len(p)==2):
-    
+    bypass(p,1)
   else:
-
+    make_leaf(p,2)
+    add_child(p,0,[1,2,3])
 
 def p_prec4expr_(p):
   '''Prec4Expr_ : Prec5Expr_
@@ -790,9 +814,10 @@ def p_prec4expr_(p):
                   | Prec4Expr_ XOR Prec5Expr_
                   | Prec4Expr_ OR Prec5Expr_'''
   if(len(p)==2):
-    
+    bypass(p,1)
   else:
-
+    make_leaf(p,2)
+    add_child(p,0,[1,2,3])
 
 def p_prec3expr_(p):
   '''Prec3Expr_ : Prec4Expr_
@@ -804,17 +829,19 @@ def p_prec3expr_(p):
                   | Prec3Expr_ LESS Prec4Expr_
                 '''
   if(len(p)==2):
-    
+    bypass(p,1)
   else:
-
+    make_leaf(p,2)
+    add_child(p,0,[1,2,3])
 
 def p_prec2expr_(p):
   '''Prec2Expr_ : Prec3Expr_
                   | Prec2Expr_ AMPAMP Prec3Expr_'''
   if(len(p)==2):
-
+    bypass(p,1)
   else:
-
+    make_leaf(p,2)
+    add_child(p,0,[1,2,3])
 
 def p_expr(p):
   '''Expr : Prec2Expr_
@@ -823,15 +850,20 @@ def p_expr(p):
             | Chexpr
             | Arrayexp'''
   if(len(p)==2):
-
+    bypass(p,1)
   else:
-
+    make_leaf(p,2)
+    add_child(p,0,[1,2,3])
 
 def p_chexpr(p):
   '''Chexpr : LMINUS IDENTIFIER'''
+  make_leaf(p,1)
+  make_leaf(p,2)
+  add_child(p,0,[1,2])
 
 def p_arrayexp(p):
   '''Arrayexp : OtherType LBRACE ExprList RBRACE'''
+  add_child(p,0,[1,3])
 
 def p_uexpr(p):
   '''UExpr : PExpr
@@ -842,31 +874,33 @@ def p_uexpr(p):
              | MINUS UExpr
              | XOR UExpr'''
   if(len(p)==2):
-
+    bypass(p,1)
   else:
-
+    make_leaf(p,1)
+    add_child(p,0,[1,2])
 
 def p_forcompexpr(p):
   '''ForCompExpr : LBRACK Expr PIPE RangeStmt RBRACK'''
+  add_child(p,0,[2,3,4])
 
 def p_pseudocall(p):
   '''PseudoCall : PExpr LPAREN RPAREN
                   | PExpr LPAREN ExprOrTypeList OComma RPAREN
                   | PExpr LPAREN ExprOrTypeList DDD OComma RPAREN'''
   if(len(p)==4):
-
+    bypass(p,1)
   elif(len(p)==6):
-
+    add_child(p,0,[1,3])
   else:
-
+    add_child(p,0,[1,3])
 
 def p_cmtlist(p):
   '''cmtlist : 
               | cmtlist COMMENT'''
   if(len(p)==1):
-
+    pass_empty(p)
   else:
-
+    pass_empty(p)
 
 def p_error(p):
   print("Syntax error in input!")
