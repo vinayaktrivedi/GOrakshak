@@ -8,4 +8,8 @@ func main(){
 		a = b+c*d+e;
 		a ++;
 	};
+	switch a {
+		case 10 : a=b;
+		default : b=c;
+	};
 };

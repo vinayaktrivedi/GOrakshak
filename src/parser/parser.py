@@ -250,10 +250,10 @@ def p_caseblocklist(p):
   '''CaseBlockList : 
                    | CaseBlockList CaseBlock'''
   if(len(p)==1):
-    pass_empty(p)
+    make_node(p,"Cases",[])
   else:
     bypass(p,1)
-    add_child(p,0,2)
+    add_child(p,0,[2])
       
 def p_loopbody(p):
 
@@ -580,10 +580,11 @@ def p_exprlist(p):
 def p_exprortypelist(p):
   '''ExprOrTypeList : ExprOrType
                     | ExprOrTypeList COMMA ExprOrType'''
-  # if(len(p)==2):
-
-  # else:
-
+  if(len(p)==2):
+    bypass(p,1)
+  else:
+    bypass(p,1)
+    add_child(p,0,[3])
                
 def p_oliteral(p):
   '''OLiteral : 
@@ -857,7 +858,7 @@ def p_switchstmt(p):
   '''SwitchStmt : SWITCH IfHeader LBRACE CaseBlockList RBRACE'''
   make_leaf(p,1)
   bypass(p,1)
-  add_child(p,0,[1,2,4])
+  add_child(p,0,[2,4])
 
 
 def p_prec5expr_(p):
