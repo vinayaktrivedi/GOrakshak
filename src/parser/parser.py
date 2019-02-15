@@ -9,18 +9,18 @@ tokens = lexer.tokens   # Need token list
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--input",help="name of GO input file")
-ap.add_argument("-o", "--output",help="name of output file")
+ap.add_argument("-o", "--output",help="name of output file(.gv)")
 args = vars(ap.parse_args())
 
 if args["input"] is None:
     args["input"] = "../tests/input1/test1.go"
 
 if args["output"] is None:
-    args["output"] = "../tests/output/output1.ps"
+    args["output"] = "../tests/output/output1.gv"
 
 file = args["input"]
-# ofile = open(args["output"],"w")
-outfile = open("graph.gv","w")
+outfile = open(args["output"],"w")
+# outfile = open("graph.gv","w")
 
 graph="digraph finite_state_machine {ordering=out;rankdir=UD;size=\"8,5\";node [shape = circle];\n"
 cnt=0
@@ -980,10 +980,6 @@ parser.parse(input_str,debug=0)
 
 
 graph+="}"
-# output = "graph.gv"
 outfile.write(graph)
-print("dot -Tps graph.gv -o " + args["output"])
-string = "dot -Tps graph.gv -o " + args["output"]
-os.system(string)
 
 
