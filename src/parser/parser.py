@@ -163,10 +163,12 @@ def p_constdecl1(p):
 
 def p_typedeclname(p):
   '''TypeDeclName : IDENTIFIER'''
-  
+  make_leaf(p,1)
+  bypass(p,1)
 
 def p_typedecl(p):
   '''TypeDecl : TypeDeclName NType'''
+  make_node(p,"type",[1,2])
 
 def p_simplestmt(p):
   '''SimpleStmt : Expr
@@ -186,10 +188,13 @@ def p_simplestmt(p):
            | Expr PLUSPLUS
            | Expr MINUSMIN'''
   if(len(p)==2):
-    
+    bypass(p,1)
   elif(len(p)==3):
-    
+    bypass(p,2)
+    add_child(p,0,[1,3])
   else:
+    bypass(p,2)
+    add_child(p,0,[1])
 
 def p_case(p):
   '''Case : CASE ExprOrTypeList COLON
@@ -205,22 +210,26 @@ def p_case(p):
 
 def p_compoundstmt(p):
   '''CompoundStmt : LBRACE cmtlist StmtList cmtlist RBRACE'''
+    bypass(p,3)
 
 def p_caseblock(p):
   '''CaseBlock : Case StmtList'''
+  make_node(p,"case",[1,2])
 
 def p_caseblocklist(p):
 
   '''CaseBlockList : 
                    | CaseBlockList CaseBlock'''
   if(len(p)==1):
-
+    pass_empty(p)
   else:
-
+    bypass(p,1)
+    add_child(p,0,2)
       
 def p_loopbody(p):
 
   '''LoopBody : LBRACE cmtlist StmtList  cmtlist RBRACE'''
+  bypass(p,3)
 
 def p_rangestmt(p):
 
@@ -758,6 +767,7 @@ def p_nameortype(p):
 
 def p_switchstmt(p):
   '''SwitchStmt : SWITCH IfHeader LBRACE CaseBlockList RBRACE'''
+
 
 def p_prec5expr_(p):
   '''Prec5Expr_ : UExpr
