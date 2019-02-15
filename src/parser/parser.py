@@ -93,7 +93,8 @@ def p_importstmtlist(p):
   if(len(p)==2):
     bypass(p,1)
   else:
-    make_node(p,"multi_imports",[1,3])
+    bypass(p,1)
+    add_child(p,0,[3])
 
 def p_importhere(p):
   '''ImportHere : 
@@ -105,7 +106,7 @@ def p_declaration(p):
   '''Declaration : CommonDecl
             | FuncDecl
             | NonDeclStmt'''
-  bypass(p,1)
+  make_node(p,"Declaration",[1])
 
 
 def p_commondecl(p):
@@ -135,31 +136,34 @@ def p_vardecl(p):
           | DeclNameList EQUAL ExprList'''
   if(len(p)==3):
     #something
+    make_node(p,"VAR",[1,2])
   elif(len(p)==4):
     #something
+    make_node(p,"VAR",[1,2,3])
   else:
     #something
-  
+    make_node(p,"VAR",[1,2,3,4])
+
 def p_constdecl(p):
   '''ConstDecl : DeclNameList NType EQUAL ExprList
+          | DeclNameList NType
           | DeclNameList EQUAL ExprList'''
   if(len(p)==4):
-    
+    make_node(p,"CONS",[1,2,3])
+  elif(len(p)==5):
+    make_node(p,"CONS",[1,2,3,4])
   else:
-
+    make_node(p,"CONS",[1,2])
 
 def p_constdecl1(p):
   '''ConstDecl1 : ConstDecl
-           | DeclNameList NType
            | DeclNameList'''
-  if(len(p)==2):
-
-  else:
-
+  bypass(p,1)
+    
 
 def p_typedeclname(p):
   '''TypeDeclName : IDENTIFIER'''
-
+  
 
 def p_typedecl(p):
   '''TypeDecl : TypeDeclName NType'''
