@@ -255,9 +255,10 @@ def p_forheader(p):
   '''ForHeader : OSimpleStmt SEMICOL OSimpleStmt SEMICOL OSimpleStmt
                | OSimpleStmt
                | RangeStmt'''
-  # if(len(p)==2):
-
-  # else:
+  if(len(p)==2):
+    bypass(p,1)
+  else:
+    make_node(p,"loop_initial",[1,3,5])
 
               
 def p_forbody(p):
@@ -355,7 +356,7 @@ def p_interfacetype(p):
   '''InterfaceType : INTERFACE LBRACE InterfaceDeclList OSemi RBRACE
                    | INTERFACE LBRACE RBRACE'''
               
-
+  
 def p_funcdec1(p):
   '''FuncDecl : FUNCTION FuncDecl_ FuncBody'''
   bypass(p,2)
