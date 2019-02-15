@@ -1,4 +1,5 @@
 import sys
+import os
 import csv
 import re
 import argparse
@@ -15,10 +16,11 @@ if args["input"] is None:
     args["input"] = "../tests/input1/test1.go"
 
 if args["output"] is None:
-    args["output"] = "../tests/output/output1.gv"
+    args["output"] = "../tests/output/output1.ps"
 
 file = args["input"]
-outfile = open(args["output"],"w")
+# ofile = open(args["output"],"w")
+outfile = open("graph.gv","w")
 
 graph="digraph finite_state_machine {ordering=out;rankdir=UD;size=\"8,5\";node [shape = circle];\n"
 cnt=0
@@ -978,5 +980,8 @@ parser.parse(input_str,debug=0)
 graph+="}"
 # output = "graph.gv"
 outfile.write(graph)
+print("dot -Tps graph.gv -o " + args["output"])
+string = "dot -Tps graph.gv -o " + args["output"]
+os.system(string)
 
 
