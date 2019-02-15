@@ -202,7 +202,7 @@ def p_case(p):
      | CASE ExprOrTypeList COLONEQ Expr COLON
      | DEFAULT COLON'''
   if(len(p)==3):
-
+    
   elif(len(p)==4):
 
   else:
@@ -344,43 +344,53 @@ def p_interfacetype(p):
 
 def p_funcdec1(p):
   '''FuncDecl : FUNCTION FuncDecl_ FuncBody'''
+  make_leaf(p,1)
+  add_child(p,2,[3])
+  add_child(p,1,[2])
          
 def p_funcdec1_(p):
   '''FuncDecl_ : IDENTIFIER ArgList FuncRes
                | LEFT_OR OArgTypeListOComma OR_RIGHT IDENTIFIER ArgList FuncRes'''
   if(len(p)==4):
-
+    make_leaf(p,1)
+    add_child(p,0,[1,2])
   else:
+    make_leaf(p,5)
+    add_child(p,0,[2,5])
 
-          
 def p_functype(p):
   '''FuncType : FUNCTION ArgList FuncRes'''
+  make_leaf(p,1)
+  bypass(p,1)
+  add_child(p,2)
          
 def p_arglist(p):
   '''ArgList : LPAREN OArgTypeListOComma RPAREN
              | ArgList LPAREN OArgTypeListOComma RPAREN'''
   if(len(p)==4):
-
+    bypass(p,2)
   else:
-    
+    bypass(p,1)
+    add_child(p,0,[3])
 def p_funcbody(p):
   '''FuncBody : 
               | LBRACE  cmtlist StmtList  cmtlist RBRACE'''
   if(len(p)==1):
-
+    pass_empty(p)
   else:
-
+    bypass(p,3)
 
         
 def p_funcres(p):
   '''FuncRes : 
              | FuncRetType
              | LEFT_OR OArgTypeListOComma OR_RIGHT'''
-  if(len(p)==1):
-    
-  elif(len(p)==2):
+  pass_empty(p)
+  # if(len(p)==1):
+  #   pass_empty(p)
+  # elif(len(p)==2):
 
-  else:
+  # else:
 
 ######################################################################################################        
 def p_structdeclist(p):
