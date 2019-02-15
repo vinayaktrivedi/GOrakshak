@@ -1,7 +1,13 @@
 package main;
 
-import . "fmt";
+import "fmt";
 
 func main(){
-	i = 0;
+	if a < 10{
+		b = c;
+	}
+	else{
+		b = a;
+		b = 10;
+	};
 };
