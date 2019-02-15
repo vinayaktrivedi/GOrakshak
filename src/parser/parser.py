@@ -280,8 +280,8 @@ def p_ifheader(p):
   #print("tus ",p[0])
 
 def p_ifstmt(p):
-  '''IfStmt : IF IfHeader LoopBody ElseIfList Else'''
-  make_node(p,"if",[2,3,5])
+  '''IfStmt : IF IfHeader LoopBody ElseIfList'''
+  make_node(p,"if",[2,3,4])
 
 
 def p_elseif(p):
@@ -290,16 +290,24 @@ def p_elseif(p):
        
 def p_elseiflist(p):
   '''ElseIfList : 
-                | ElseIfList ElseIf'''
+                | ElseIf ElseIfList 
+                | Else'''
   if(len(p)==1):
     pass_empty(p)
+  elif(len(p)==3):
+    bypass(p,1)
+    add_child(p,0,[2])
+  else:
+    bypass(p,1)
+
+
     
            
 def p_else(p):
   '''Else : 
           | ELSE CompoundStmt'''
   if(len(p)==3):
-    bypass(p,2)
+    make_node(p,"else",[2])
   else:
     pass_empty(p)
      
