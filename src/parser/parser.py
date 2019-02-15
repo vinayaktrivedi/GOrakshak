@@ -616,33 +616,43 @@ def p_dec1list(p):
 def p_var_dec_list(p):
   '''VarDeclList : VarDecl 
                    | VarDeclList SEMICOL VarDecl'''
-  # if(len(p)==2):
+  if(len(p)==2):
+    bypass(p,1)
 
-  # else:
-
+  else:
+    bypass(p,1)
+    add_child(p,3)
 
 def p_const_dec_list(p):
   '''ConstDeclList : ConstDecl1
                      | ConstDeclList SEMICOL ConstDecl1'''
-  # if(len(p)==2):
+  if(len(p)==2):
+    bypass(p,1)
 
-  # else:
+  else:
+    bypass(p,1)
+    add_child(p,3)
 
 
 def p_type_decl_list(p): 
   '''TypeDeclList : TypeDecl
                     | TypeDeclList SEMICOL TypeDecl'''
-  # if(len(p)==2):
-    
-  # else:
+  if(len(p)==2):
+    bypass(p,1)
+  else:
+    bypass(p,1)
+    add_child(p,3)
 
 
 def p_decl_name_list(p):
   '''DeclNameList : DeclName
                     | DeclNameList COMMA DeclName'''
-  # if(len(p)==2):
+  if(len(p)==2):
+    bypass(p,1)
     
-  # else:
+  else:
+    bypass(p,1)
+    add_child(p,3)
 
 
 def p_stmtlist(p):
@@ -657,9 +667,11 @@ def p_stmtlist(p):
 def p_newnamelist(p):
   '''NewNameList : NewName
                    | NewNameList COMMA NewName'''
-  # if(len(p)==2):
-    
-  # else:
+  if(len(p)==2):
+    bypass(p,1)
+  else:
+    bypass(p,1)
+    add_child(p,3)
 
 ###############################################################################################################
 def p_keyvallist(p):
