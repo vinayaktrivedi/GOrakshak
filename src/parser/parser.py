@@ -865,7 +865,8 @@ def p_prec5expr_(p):
     bypass(p,1)
   else:
     make_leaf(p,2)
-    add_child(p,0,[1,2,3])
+    bypass(p,2)
+    add_child(p,0,[1,3])
 
 def p_prec4expr_(p):
   '''Prec4Expr_ : Prec5Expr_
