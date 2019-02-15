@@ -322,8 +322,7 @@ def p_elseiflist(p):
     
            
 def p_else(p):
-  '''Else : 
-          | ELSE CompoundStmt'''
+  '''Else : ELSE CompoundStmt'''
   if(len(p)==3):
     make_node(p,"else",[2])
   else:
