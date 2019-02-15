@@ -117,9 +117,9 @@ def p_commondecl(p):
            | VAR VarDecl
            | VAR LPAREN VarDeclList OSemi RPAREN
            | VAR LPAREN RPAREN
-           | TYPE TypeDecl
-           | TYPE LPAREN TypeDeclList OSemi RPAREN
-           | TYPE LPAREN RPAREN'''
+           | NewType TypeDecl
+           | NewType LPAREN TypeDeclList OSemi RPAREN
+           | NewType LPAREN RPAREN'''
   if(len(p)==3):
     bypass(p,2)
   elif(len(p)==6):
@@ -286,7 +286,7 @@ def p_ntype(p):
            |  PtrType
            |  DotName
            |  LPAREN NType RPAREN
-           |  TYPE'''
+           |  NewType'''
   if(len(p)==2):
 
   else:
@@ -312,9 +312,9 @@ def p_othertype(p):
 
 
 def p_channeltype(p):
-  '''ChannelType : CHAN TYPE
-                 | CHAN LMINUS TYPE
-                 | LMINUS CHAN TYPE'''
+  '''ChannelType : CHAN NewType
+                 | CHAN LMINUS NewType
+                 | LMINUS CHAN NewType'''
   if(len(p)==3):
 
   else:
@@ -433,7 +433,7 @@ def p_funcrettype(p):
                  | OtherType
                  | PtrType
                  | DotName
-                 | TYPE'''
+                 | NewType'''
             
 def p_dotname(p):
   '''DotName : Name
@@ -607,9 +607,13 @@ def p_bracedkeyvallist(p):
 
 def p_declname(p):
   '''DeclName : IDENTIFIER'''
+  make_leaf(p,1)
+  bypass(p,1)
   
 def p_name(p):
   '''Name : IDENTIFIER'''
+  make_leaf(p,1)
+  bypass(p,1)
 
 def p_argtype(p):
   '''ArgType : NameOrType
@@ -617,25 +621,28 @@ def p_argtype(p):
                | IDENTIFIER DotDotDot
                | DotDotDot'''
   if(len(p)==2):
-    
+    pass_empty(p)
   else:
+    make_leaf(p,1)
+    bypass(p,1)
 
 
 def p_argtypelist(p):
   '''ArgTypeList : ArgType
                    | ArgTypeList COMMA ArgType'''
   if(len(p)==2):
-
+    bypass(p,1)
   else:
-
+    bypass(p,1)
+    add_child(p,0,[3])
 
 def p_oargtypelistocomma(p):
   '''OArgTypeListOComma : 
                           | ArgTypeList OComma'''
   if(len(p)==1):
-
+    pass_empty(p)
   else:
-
+    bypass(p,1)
 
 def p_stmt(p):
   '''Stmt : 
@@ -643,9 +650,9 @@ def p_stmt(p):
             | CommonDecl
             | NonDeclStmt'''
   if(len(p)==1):
-
+    pass_empty(p)
   else:
-
+    bypass(p,1)
 
 def p_nondeclstmt(p):
   '''NonDeclStmt : SimpleStmt
@@ -659,34 +666,37 @@ def p_nondeclstmt(p):
                    | GOTO NewName
                    | RETURN OExprList'''
   if(len(p)==2):
-
+    bypass(p,1)
   elif(len(p)==3):
-
+    make_leaf(p,1)
+    add_child(p,0,[1,2])
   else:
-
+    add_child(p,0,[1,3])
 
 def p_dotdotdot(p):
   '''DotDotDot : DDD
                  | DDD NType'''
   if(len(p)==2):
-    
+    make_leaf(p,1)
+    bypass(p,1)
   else:
-
+    make_leaf(p,1)
+    add_child(p,0,[1,2])
 
 def p_pexpr(p):
   '''PExpr : PExprNoParen
              | LPAREN ExprOrType RPAREN'''
   if(len(p)==2):
-
+    bypass(p,1)
   else:
-
+    bypass(p,2)
 
 def p_pexprnoparen(p):
   '''PExprNoParen : Literal
                     | Name
                     | PExpr DOT IDENTIFIER
                     | PExpr DOT LPAREN ExprOrType RPAREN
-                    | PExpr DOT LPAREN TYPE RPAREN
+                    | PExpr DOT LPAREN NewType RPAREN
                     | PExpr LBRACK Expr RBRACK
                     | PExpr LBRACK OExpr COLON OExpr RBRACK
                     | PExpr LBRACK OExpr COLON OExpr COLON OExpr RBRACK
@@ -697,9 +707,10 @@ def p_pexprnoparen(p):
                     | FuncLiteral
                     | ForCompExpr'''
   if(len(p)==2):
-
+    bypass(p,1)
   elif(len(p)==4):
-    
+    make_leaf(p,2)
+    add_child(p,[1,3])
   elif(len(p)==5):
 
   elif(len(p)==6):
@@ -708,6 +719,9 @@ def p_pexprnoparen(p):
 
   else:
     
+
+def p_NewType(p):
+  '''NewType : TYPE'''
 
 def p_convtype(p):
   '''ConvType : FuncType
@@ -842,7 +856,7 @@ def p_cmtlist(p):
   if(len(p)==1):
 
   else:
-    
+
 
 def p_error(p):
   print("Syntax error in input!")
