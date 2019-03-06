@@ -5,11 +5,10 @@ import "fmt";
 func main(){
 	
 	for i=0; i<10; i++ {
-		a = b+c*d+e;
-		a ++;
-	};
-	switch a {
+		switch a {
 		case 10 : a=b;
 		default : b=c;
+		};
 	};
+	
 };
