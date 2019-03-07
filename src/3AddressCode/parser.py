@@ -21,6 +21,37 @@ if args["output"] is None:
 file = args["input"]
 outfile = open(args["output"],"w")
 
+globalsymboltable = {}
+stack = []
+stack.append(globalsymboltable)
+
+def make_symbol_table(func_name):
+  prev_table = stack[-1]
+  local_symbol_table = {}
+  prev_table[func_name]['symbol'] = local_symbol_table
+  stack.append(local_symbol_table)
+  return local_symbol_table
+
+def add_variable_attribute(variable,attribute,value):
+  symbol_table = stack[-1]
+  if symbol_table[variable]['exists'] == 0:
+    return 0
+  symbol_table[variable][attribute] = value 
+  return 1
+
+def register_variable(variable):
+  symbol_table = stack[-1]
+  symbol_table[variable]['exists'] = 1
+  return
+
+def check_if_variable_declared(variable):
+  i = len(stack)-1
+  while(i>=0):
+    symbol_table = stack[i]
+    if symbol_table[variable]['exists'] == 1:
+      return 1
+    i = i-1
+
 def p_start(p):
   '''start : SourceFile'''
 
