@@ -44,7 +44,7 @@ def register_variable(variable):
   symbol_table[variable]['exists'] = 1
   return
 
-def check_if_variable_declared(variable):   #shouldn't we check only in enclosing procedures?
+def check_if_variable_declared(variable):
     i = len(stack)-1
     while(i>=0):
         symbol_table = stack[i]
