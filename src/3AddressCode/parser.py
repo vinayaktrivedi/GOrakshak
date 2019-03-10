@@ -36,7 +36,7 @@ def add_variable_attribute(variable,attribute,value):
   symbol_table = stack[-1]
   if symbol_table[variable]['exists'] == 0:
     return 0
-  symbol_table[variable][attribute] = value 
+  symbol_table[variable][attribute] = value
   return 1
 
 def register_variable(variable):
@@ -44,13 +44,15 @@ def register_variable(variable):
   symbol_table[variable]['exists'] = 1
   return
 
-def check_if_variable_declared(variable):
-  i = len(stack)-1
-  while(i>=0):
-    symbol_table = stack[i]
-    if symbol_table[variable]['exists'] == 1:
-      return 1
-    i = i-1
+def check_if_variable_declared(variable):   #shouldn't we check only in enclosing procedures?
+    i = len(stack)-1
+    while(i>=0):
+        symbol_table = stack[i]
+        if symbol_table[variable]['exists'] == 1:
+            return 1
+        i = i-1
+    return 0
+
 
 def p_start(p):
   '''start : SourceFile'''
