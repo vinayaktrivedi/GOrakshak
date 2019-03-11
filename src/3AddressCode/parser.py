@@ -62,29 +62,46 @@ def check_if_variable_declared(variable):
 
 def p_start(p):
   '''start : SourceFile'''
-
+  p[0]['code'] = p[1]['code']
 
 def p_sourcefile(p):
   '''SourceFile : cmtlist PackageClause cmtlist Imports cmtlist DeclList cmtlist
                 | cmtlist PackageClause cmtlist DeclList cmtlist
                 | cmtlist PackageClause cmtlist Imports cmtlist
                 | cmtlist PackageClause cmtlist'''
+  if(len(p) == 8):
+    p[0]['code'] = p[2]['code'] + "\n" + p[4]['code'] + "\n" + p[6]['code']
+  elif(len(p) == 5):
+    p[0]['code'] = p[2]['code'] + "\n" + p[4]['code']
+  else:
+    p[0]['code'] = p[2]['code']
 
 def p_packegeclause(p):
   '''PackageClause : PACKAGE IDENTIFIER SEMICOL'''
+  register_variable(str(p[2]))
+  add_variable_attribute(str(p[2]),"package",1)
+  p[0]['code'] = 'package '+str(p[2])
 
 def p_imports(p):
   '''Imports : Import SEMICOL
            | Imports cmtlist Import SEMICOL'''
-
+  if(len(p)==2):
+    p[0]['code'] = p[1]['code']
+  else:
+    p[0]['code'] = p[1]['code'] + "\n" + p[3]['code']
 
 def p_import(p):
   '''Import : IMPORT ImportStmt
            | IMPORT LPAREN ImportStmtList OSemi RPAREN
            | IMPORT LPAREN RPAREN'''
+  if(len(p)==3):
+    p[0]['code'] = p[2]['code']
 
 def p_importstmt(p):
   '''ImportStmt : ImportHere STRING'''
+  p[0]['code'] = 'import '+str(p[2])
+  register_variable(str(p[2]))
+  add_variable_attribute(str(p[2]),"import",1)
 
 def p_importstmtlist(p):
   '''ImportStmtList : ImportStmt
