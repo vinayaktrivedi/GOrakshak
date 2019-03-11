@@ -25,12 +25,15 @@ globalsymboltable = {}
 stack = []
 stack.append(globalsymboltable)
 
-def make_symbol_table(func_name):
+def make_symbol_table(func_name,label):
   prev_table = stack[-1]
   local_symbol_table = {}
-  prev_table[func_name]['symbol'] = local_symbol_table
+  prev_table[func_name][label] = local_symbol_table
   stack.append(local_symbol_table)
   return local_symbol_table
+
+def go_one_level_up():
+  stack = stack[:-1]
 
 def add_variable_attribute(variable,attribute,value):
     symbol_table = stack[-1]
@@ -42,10 +45,19 @@ def add_variable_attribute(variable,attribute,value):
     symbol_table[variable][attribute] = value
     return 1
 
+
 def register_variable(variable):
   symbol_table = stack[-1]
   symbol_table[variable]['exists'] = 1
   return
+
+def add_variable_attribute_api(variable,attribute,value):
+  if(value['val'] == 'struct'):
+    make_symbol_table(variable,'struct')
+    for objects in value['struct_fields']:
+      register_variable(objects['name'])
+      add_variable_attribute(objects['name'],'type',objects['type'])
+    go_one_level_up()
 
 def check_if_variable_declared(variable):
     i = len(stack)-1
@@ -130,6 +142,7 @@ def p_commondecl(p):
            | NewType LPAREN TypeDeclList OSemi RPAREN
            | NewType LPAREN RPAREN'''
 
+
 def p_vardecl(p):
   '''VarDecl   : DeclNameList NType
           | DeclNameList NType EQUAL ExprList
@@ -139,6 +152,20 @@ def p_constdecl(p):
   '''ConstDecl : DeclNameList NType EQUAL ExprList
           | DeclNameList NType
           | DeclNameList EQUAL ExprList'''
+  if(len(p)==3):
+    for var in p[1]['variable']:
+      add_variable_attribute_api(var,'type',p[2]['type'])
+  elif(len(p)==4):
+    for var in p[1]['variable']:
+      add_variable_attribute_api(var,'type',p[3]['type'])
+  else:
+    if(p[4]['type'] != p[2]['type']):
+      print("Error!!")
+      exit(1)
+    else:
+      for var in p[1]['variable']:
+        add_variable_attribute_api(var,'type',p[2]['type'])
+
 
 def p_constdecl1(p):
   '''ConstDecl1 : ConstDecl
@@ -152,7 +179,7 @@ def p_typedecl(p):
   '''TypeDecl : TypeDeclName NType'''
 
 def p_simplestmt(p):
-  '''SimpleStmt : Expr
+    '''SimpleStmt : Expr
            | Expr PLUSEQ Expr
            | Expr MINUSEQ Expr
            | Expr TIMESEQ Expr
@@ -168,6 +195,98 @@ def p_simplestmt(p):
            | ExprList COLONEQ ExprList
            | Expr PLUSPLUS
            | Expr MINUSMIN'''
+    if(len(p) == 2):
+        p[0]['code'] = p[1]['code']
+        p[0]['type'] = "void"
+    if(len(p) == 3):
+        typ = p[1]['type']
+        p[0]['code'] = p[1]['code'] + "\n"
+        if(str(p[2]) == "++"):
+            p[0]['code'] += (p[1]['code'] + " +" + type + " 1")
+        else:
+            p[0]['code'] += (p[1]['code'] + " -" + type + " 1")
+    if(len(p) == 4):
+        if(str(p[2]) == "+="):
+            op = "+"
+            typ = p[1]['type']
+            if(p[2]['type'] == "float"):
+                typ = "float"
+        if(str(p[2]) == "-="):
+            op = "-"
+            typ = p[1]['type']
+            if(p[2]['type'] == "float"):
+                typ = "float"
+        if(str(p[2]) == "*="):
+            op = "*"
+            typ = p[1]['type']
+            if(p[2]['type'] == "float"):
+                typ = "float"
+        if(str(p[2]) == "/="):
+            op = "/"
+            typ = p[1]['type']
+            if(p[2]['type'] == "float"):
+                typ = "float"
+        if(str(p[2]) == "%="):
+            op = "%"
+            typ = p[1]['type']
+            if(p[1]['type'] != "int" || p[3]['type'] != "int"):
+                print("error!")
+                exit(1)
+        if(str(p[2]) == "|="):
+            op = "|"
+            typ = p[1]['type']
+            if((p[1]['type'] != "int" || p[3]['type'] != "int") && (p[1]['type'] != "bool" || p[3]['type'] != "bool")):
+                print("error!")
+                exit(1)
+        if(str(p[2]) == "&="):
+            op = "&"
+            typ = p[1]['type']
+            if((p[1]['type'] != "int" || p[3]['type'] != "int") && (p[1]['type'] != "bool" || p[3]['type'] != "bool")):
+                print("error!")
+                exit(1)
+        if(str(p[2]) == "<<="):
+            op = "<<"
+            typ = p[1]['type']
+            if(p[1]['type'] != "int" || p[3]['type'] != "int"):
+                print("error!")
+                exit(1)
+
+        if(str(p[2]) == ">>="):
+            op = ">>"
+            typ = p[1]['type']
+            if(p[1]['type'] != "int" || p[3]['type'] != "int"):
+                print("error!")
+                exit(1)
+
+        if(str(p[2]) == "&^="):
+            op = ""
+
+        flag = 0
+        if(str(p[2]) == "="):
+            flag = 1
+            if(len(p[1]['exprs']) != len(p[3]['exprs'])):
+                print("error!")
+                exit(1)
+            p[0]['code'] = ""
+            for i in range(0,len(p[1]['exprs'])):
+                if(p[1]['exprs'][i]['type'] != p[3]['exprs'][i]['type']):
+                    p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
+                else:
+                    print("error!")
+                    exit(1)
+
+        if(str(p[2]) == ":="):
+            flag = 1
+            if(len(p[1]['exprs']) != len(p[3]['exprs'])):
+                print("error!")
+                exit(1)
+            p[0]['code'] = ""
+            for i in range(0,len(p[1]['exprs'])):
+                p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
+
+        if(flag == 0):
+            p[0]['code'] = p[1]['code'] + " = " + p[1]['code'] + " " + op + typ + " " + p[3]['code']
+
 
 def p_case(p):
   '''Case : CASE ExprOrTypeList COLON
@@ -281,6 +400,11 @@ def p_ntype(p):
            |  DotName
            |  LPAREN NType RPAREN
            |  NewType'''
+  if(len(p)==4):
+    p[0]['type'] = p[2]['type']
+  else:
+    p[0]['type'] = p[1]['type']
+
 
 
 def p_nonexprtype(p):
@@ -294,6 +418,18 @@ def p_othertype(p):
                | StructType
                | InterfaceType
                | ChannelType'''
+  if(len(p) == 2):
+    p[0]['type'] = p[1]['type']
+
+  else:
+    if(p[2]['type'] == 'int' || p[2]['type'] == 'void'):
+      p[0]['type'] = {}
+      p[0]['type']['val'] = 'array'
+      p[0]['type']['arr_length'] = p[2]['value']
+      p[0]['type']['arr_type'] = p[4]['type']['val']
+    else:
+      print("Array definition not good")
+      exit(1)
 
 
 def p_channeltype(p):
@@ -305,6 +441,12 @@ def p_channeltype(p):
 def p_structtype(p):
   '''StructType : STRUCT LBRACE StructDeclList OSemi RBRACE
                 | STRUCT LBRACE RBRACE'''
+  p[0]['type'] = {}
+  p[0]['type']['val'] = 'struct'
+  p[0]['type']['struct_fields'] = []
+  if(len(p) == 6):
+    p[0]['type']['struct_fields'] = p[3]['struct_fields']
+
 
 
 def p_interfacetype(p):
@@ -342,6 +484,13 @@ def p_structdeclist(p):
   '''StructDeclList : StructDecl
                     | StructDeclList SEMICOL StructDecl'''
 
+  if(len(p)==2):
+    p[0]['struct_fields'] = []
+    p[0]['struct_fields'].append(p[1]['struct_fields'])
+  else:
+    p[0]['struct_fields'] = p[1]['struct_fields']
+    p[0]['struct_fields'].append(p[3]['struct_fields'])
+
 
 def p_interfacedec1list(p):
   '''InterfaceDeclList : InterfaceDecl
@@ -355,7 +504,13 @@ def p_structdec1(p):
                 | TIMES Embed OLiteral
                 | LPAREN TIMES Embed RPAREN OLiteral
                 | TIMES LPAREN Embed RPAREN OLiteral'''
-
+  if(len(p) == 4 and str(p[1])!='*'):
+    p[0]['struct_fields'] = []
+    for names in p[1]['names']:
+      x = {}
+      x['name'] = names 
+      x['type'] = p[2]['type']
+      p[0]['struct_fields'].append(x)
 
 
 def p_interfacedec1(p):
@@ -371,10 +526,14 @@ def p_labelname(p):
 
 def p_newname(p):
   '''NewName : IDENTIFIER'''
+  p[0]['names'] = str(p[1])
 
 
 def p_ptrtype(p):
   '''PtrType : TIMES NType'''
+  p[0]['type'] = {}
+  p[0]['type']['val'] = 'pointer'
+  p[0]['type']['pointer_type'] = p[2]['type']['val']
 
 def p_funcrettype(p):
   '''FuncRetType : FuncType
@@ -386,6 +545,7 @@ def p_funcrettype(p):
 def p_dotname(p):
   '''DotName : Name
              | Name DOT IDENTIFIER'''
+
 
 
 def p_ocomma(p):
@@ -409,10 +569,18 @@ def p_onewname(p):
 def p_oexpr(p):
   '''OExpr :
            | Expr'''
+  if(len(p)==2):
+    p[0]['type'] = p[1]['type']
+    p[0]['value'] = p[1]['value']
+  else:
+    p[0]['type'] = 'void'
+    p[0]['value'] = 0
+
 
 def p_oexprlist(p):
-  '''OExprList :
+    '''OExprList :
                | ExprList'''
+    p[0]['exprs'] = p[1]['exprs']
 
 def p_funcliteraldecl(p):
   '''FuncLiteralDecl : FuncType'''
@@ -421,8 +589,15 @@ def p_funcliteral(p):
   '''FuncLiteral : FuncLiteralDecl LBRACE cmtlist StmtList cmtlist RBRACE'''
 
 def p_exprlist(p):
-  '''ExprList : Expr
+    '''ExprList : Expr
               | ExprList COMMA Expr'''
+    if(len(p)==2):
+        p[0]['exprs'].append({'exp':p[1]['code'],'type':p[1]['type']})
+        p[0]['code'] = p[1]['code']
+    if(len(p)==4):
+        p[0]['exprs'].extend(p[1]['exprs'])
+        p[0]['exprs'].append({'exp':p[3]['code'],'type':p[3]['type']})
+
 
 def p_exprortypelist(p):
   '''ExprOrTypeList : ExprOrType
@@ -461,6 +636,12 @@ def p_type_decl_list(p):
 def p_decl_name_list(p):
   '''DeclNameList : DeclName
                     | DeclNameList COMMA DeclName'''
+  if(len(p)==2):
+    p[0]['variable'] = []
+    p[0]['variable'].append(p[1]['variable'])
+  else:
+    p[0]['variable'] = p[1]['variable']
+    p[0]['variable'].append(p[3]['variable'])
 
 
 def p_stmtlist(p):
@@ -470,6 +651,12 @@ def p_stmtlist(p):
 def p_newnamelist(p):
   '''NewNameList : NewName
                    | NewNameList COMMA NewName'''
+  p[0]['names'] = []
+  if(len(p)==2):
+    p[0]['names'] = p[1]['names']
+  else:
+    p[0]['names'] = p[1]['names']
+    p[0]['names'].append(p[3]['names'])
 
 
 def p_keyvallist(p):
@@ -486,6 +673,8 @@ def p_bracedkeyvallist(p):
 
 def p_declname(p):
   '''DeclName : IDENTIFIER'''
+  register_variable(str(p[1]))
+  p[0]['variable'] = str(p[1])
 
 
 def p_name(p):
@@ -507,13 +696,14 @@ def p_oargtypelistocomma(p):
                           | ArgTypeList OComma'''
 
 def p_stmt(p):
-  '''Stmt :
+    '''Stmt :
             | CompoundStmt
             | CommonDecl
             | NonDeclStmt'''
+    p[0]['code'] = p[1]['code']
 
 def p_nondeclstmt(p):
-  '''NonDeclStmt : SimpleStmt
+    '''NonDeclStmt : SimpleStmt
                    | ForStmt
                    | SwitchStmt
                    | IfStmt
@@ -523,6 +713,25 @@ def p_nondeclstmt(p):
                    | CONTINUE ONewName
                    | GOTO NewName
                    | RETURN OExprList'''
+    if(len(p)==2):
+        p[0]['code'] = p[1]['code']
+    if(len(p)==3):
+        string = ""
+        if(str(p[1]) == "break"):
+            string = "break"
+        if(str(p[1]) == "continue"):
+            string = "continue"
+        if(str(p[1]) == "goto"):
+            string = "goto"
+        flag = 0
+        if(str(p[1]) == "return"):
+            flag = 1
+            string = "return"
+        if(flag == 0):
+            p[0]['code'] = string + " " + p[2]['code']
+        # not done for return in multiple exp
+    if(len(p)==4):
+        # what to do
 
 def p_dotdotdot(p):
   '''DotDotDot : DDD
@@ -550,6 +759,8 @@ def p_pexprnoparen(p):
 
 def p_NewType(p):
   '''NewType : TYPE'''
+  p[0]['type'] = {}
+  p[0]['type']['val'] =  str(p[1])
 
 def p_convtype(p):
   '''ConvType : FuncType
