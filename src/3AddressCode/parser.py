@@ -135,7 +135,7 @@ def p_typedecl(p):
   '''TypeDecl : TypeDeclName NType'''
 
 def p_simplestmt(p):
-  '''SimpleStmt : Expr
+    '''SimpleStmt : Expr
            | Expr PLUSEQ Expr
            | Expr MINUSEQ Expr
            | Expr TIMESEQ Expr
@@ -151,6 +151,98 @@ def p_simplestmt(p):
            | ExprList COLONEQ ExprList
            | Expr PLUSPLUS
            | Expr MINUSMIN'''
+    if(len(p) == 2):
+        p[0]['code'] = p[1]['code']
+        p[0]['type'] = "void"
+    if(len(p) == 3):
+        typ = p[1]['type']
+        p[0]['code'] = p[1]['code'] + "\n"
+        if(str(p[2]) == "++"):
+            p[0]['code'] += (p[1]['code'] + " +" + type + " 1")
+        else:
+            p[0]['code'] += (p[1]['code'] + " -" + type + " 1")
+    if(len(p) == 4):
+        if(str(p[2]) == "+="):
+            op = "+"
+            typ = p[1]['type']
+            if(p[2]['type'] == "float"):
+                typ = "float"
+        if(str(p[2]) == "-="):
+            op = "-"
+            typ = p[1]['type']
+            if(p[2]['type'] == "float"):
+                typ = "float"
+        if(str(p[2]) == "*="):
+            op = "*"
+            typ = p[1]['type']
+            if(p[2]['type'] == "float"):
+                typ = "float"
+        if(str(p[2]) == "/="):
+            op = "/"
+            typ = p[1]['type']
+            if(p[2]['type'] == "float"):
+                typ = "float"
+        if(str(p[2]) == "%="):
+            op = "%"
+            typ = p[1]['type']
+            if(p[1]['type'] != "int" || p[3]['type'] != "int"):
+                print("error!")
+                exit(1)
+        if(str(p[2]) == "|="):
+            op = "|"
+            typ = p[1]['type']
+            if((p[1]['type'] != "int" || p[3]['type'] != "int") && (p[1]['type'] != "bool" || p[3]['type'] != "bool")):
+                print("error!")
+                exit(1)
+        if(str(p[2]) == "&="):
+            op = "&"
+            typ = p[1]['type']
+            if((p[1]['type'] != "int" || p[3]['type'] != "int") && (p[1]['type'] != "bool" || p[3]['type'] != "bool")):
+                print("error!")
+                exit(1)
+        if(str(p[2]) == "<<="):
+            op = "<<"
+            typ = p[1]['type']
+            if(p[1]['type'] != "int" || p[3]['type'] != "int"):
+                print("error!")
+                exit(1)
+
+        if(str(p[2]) == ">>="):
+            op = ">>"
+            typ = p[1]['type']
+            if(p[1]['type'] != "int" || p[3]['type'] != "int"):
+                print("error!")
+                exit(1)
+
+        if(str(p[2]) == "&^="):
+            op = ""
+
+        flag = 0
+        if(str(p[2]) == "="):
+            flag = 1
+            if(len(p[1]['exprs']) != len(p[3]['exprs'])):
+                print("error!")
+                exit(1)
+            p[0]['code'] = ""
+            for i in range(0,len(p[1]['exprs'])):
+                if(p[1]['exprs'][i]['type'] != p[3]['exprs'][i]['type']):
+                    p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
+                else:
+                    print("error!")
+                    exit(1)
+
+        if(str(p[2]) == ":="):
+            flag = 1
+            if(len(p[1]['exprs']) != len(p[3]['exprs'])):
+                print("error!")
+                exit(1)
+            p[0]['code'] = ""
+            for i in range(0,len(p[1]['exprs'])):
+                p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
+
+        if(flag == 0):
+            p[0]['code'] = p[1]['code'] + " = " + p[1]['code'] + " " + op + typ + " " + p[3]['code']
+
 
 def p_case(p):
   '''Case : CASE ExprOrTypeList COLON
