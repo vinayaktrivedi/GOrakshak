@@ -376,7 +376,7 @@ def p_othertype(p):
       p[0]['type']['arr_length'] = p[2]['value']
       p[0]['type']['arr_type'] = p[4]['type']
     else:
-      print("Array definition not good") 
+      print("Array definition not good")
       exit(1)
 
 
@@ -389,7 +389,7 @@ def p_channeltype(p):
 def p_structtype(p):
   '''StructType : STRUCT LBRACE StructDeclList OSemi RBRACE
                 | STRUCT LBRACE RBRACE'''
-  
+
 
 
 def p_interfacetype(p):
@@ -615,7 +615,7 @@ def p_stmt(p):
             | NonDeclStmt'''
 
 def p_nondeclstmt(p):
-  '''NonDeclStmt : SimpleStmt
+    '''NonDeclStmt : SimpleStmt
                    | ForStmt
                    | SwitchStmt
                    | IfStmt
@@ -625,6 +625,25 @@ def p_nondeclstmt(p):
                    | CONTINUE ONewName
                    | GOTO NewName
                    | RETURN OExprList'''
+    if(len(p)==2):
+        p[0]['code'] = p[1]['code']
+    if(len(p)==3):
+        string = ""
+        if(str(p[1]) == "break"):
+            string = "break"
+        if(str(p[1]) == "continue"):
+            string = "continue"
+        if(str(p[1]) == "goto"):
+            string = "goto"
+        flag = 0
+        if(str(p[1]) == "return"):
+            flag = 1
+            string = "return"
+        if(flag == 0):
+            p[0]['code'] = string + " " + p[2]['code']
+        # not done for return in multiple exp
+    if(len(p)==4):
+        # what to do
 
 def p_dotdotdot(p):
   '''DotDotDot : DDD
