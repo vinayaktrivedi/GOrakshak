@@ -113,6 +113,7 @@ def p_commondecl(p):
            | NewType LPAREN TypeDeclList OSemi RPAREN
            | NewType LPAREN RPAREN'''
 
+
 def p_vardecl(p):
   '''VarDecl   : DeclNameList NType
           | DeclNameList NType EQUAL ExprList
@@ -122,6 +123,20 @@ def p_constdecl(p):
   '''ConstDecl : DeclNameList NType EQUAL ExprList
           | DeclNameList NType
           | DeclNameList EQUAL ExprList'''
+  if(len(p)==3):
+    for var in p[1]['variable']:
+      add_variable_attribute(var,'type',p[2]['type'])
+  elif(len(p)==4):
+    for var in p[1]['variable']:
+      add_variable_attribute(var,'type',p[3]['type'])
+  else:
+    if(p[4]['type'] != p[2]['type']):
+      print("Error!!")
+      exit(1)
+    else:
+      for var in p[1]['variable']:
+        add_variable_attribute(var,'type',p[2]['type'])
+
 
 def p_constdecl1(p):
   '''ConstDecl1 : ConstDecl
@@ -226,6 +241,10 @@ def p_ntype(p):
            |  DotName
            |  LPAREN NType RPAREN
            |  NewType'''
+  if(len(p)==4):
+    p[0]['type'] = p[2]['type']
+  else:
+    p[0]['type'] = p[1]['type']
 
 
 def p_nonexprtype(p):
@@ -239,6 +258,17 @@ def p_othertype(p):
                | StructType
                | InterfaceType
                | ChannelType'''
+  if(len(p) == 2):
+    p[0]['type'] = p[1]['type']
+  else:
+    if(p[2]['type'] == 'int' || p[2]['type'] == 'void'):
+      p[0]['type'] = {}
+      p[0]['type']['val'] = 'array'
+      p[0]['type']['arr_length'] = p[2]['value']
+      p[0]['type']['arr_type'] = p[4]['type']
+    else:
+      print("Array definition not good") 
+      exit(1)
 
 
 def p_channeltype(p):
@@ -250,6 +280,7 @@ def p_channeltype(p):
 def p_structtype(p):
   '''StructType : STRUCT LBRACE StructDeclList OSemi RBRACE
                 | STRUCT LBRACE RBRACE'''
+  
 
 
 def p_interfacetype(p):
@@ -267,6 +298,8 @@ def p_funcdec1_(p):
 
 def p_functype(p):
   '''FuncType : FUNCTION ArgList FuncRes'''
+  p[0]['type'] = {}
+  p[0]['type']['val'] = 'function'
 
 def p_arglist(p):
   '''ArgList : LPAREN OArgTypeListOComma RPAREN
@@ -354,6 +387,13 @@ def p_onewname(p):
 def p_oexpr(p):
   '''OExpr :
            | Expr'''
+  if(len(p)==2):
+    p[0]['type'] = p[1]['type']
+    p[0]['value'] = p[1]['value']
+  else:
+    p[0]['type'] = 'void'
+    p[0]['value'] = 0
+
 
 def p_oexprlist(p):
   '''OExprList :
@@ -406,6 +446,12 @@ def p_type_decl_list(p):
 def p_decl_name_list(p):
   '''DeclNameList : DeclName
                     | DeclNameList COMMA DeclName'''
+  if(len(p)==2):
+    p[0]['variable'] = []
+    p[0]['variable'].append(p[1]['variable'])
+  else:
+    p[0]['variable'] = p[1]['variable']
+    p[0]['variable'].append(p[3]['variable'])
 
 
 def p_stmtlist(p):
@@ -431,6 +477,8 @@ def p_bracedkeyvallist(p):
 
 def p_declname(p):
   '''DeclName : IDENTIFIER'''
+  register_variable(str(p[1]))
+  p[0]['variable'] = str(p[1])
 
 
 def p_name(p):
@@ -495,6 +543,8 @@ def p_pexprnoparen(p):
 
 def p_NewType(p):
   '''NewType : TYPE'''
+  p[0]['type'] = {}
+  p[0]['type']['val'] =  str(p[1])
 
 def p_convtype(p):
   '''ConvType : FuncType
