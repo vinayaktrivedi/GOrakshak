@@ -368,6 +368,7 @@ def p_ntype(p):
     p[0]['type'] = p[1]['type']
 
 
+
 def p_nonexprtype(p):
   '''NonExprType : FuncType
                  | OtherType
@@ -387,7 +388,7 @@ def p_othertype(p):
       p[0]['type'] = {}
       p[0]['type']['val'] = 'array'
       p[0]['type']['arr_length'] = p[2]['value']
-      p[0]['type']['arr_type'] = p[4]['type']
+      p[0]['type']['arr_type'] = p[4]['type']['val']
     else:
       print("Array definition not good")
       exit(1)
@@ -492,6 +493,9 @@ def p_newname(p):
 
 def p_ptrtype(p):
   '''PtrType : TIMES NType'''
+  p[0]['type'] = {}
+  p[0]['type']['val'] = 'pointer'
+  p[0]['type']['pointer_type'] = p[2]['type']['val']
 
 def p_funcrettype(p):
   '''FuncRetType : FuncType
@@ -503,6 +507,7 @@ def p_funcrettype(p):
 def p_dotname(p):
   '''DotName : Name
              | Name DOT IDENTIFIER'''
+
 
 
 def p_ocomma(p):
