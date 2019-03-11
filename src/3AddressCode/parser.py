@@ -179,7 +179,7 @@ def p_typedecl(p):
   '''TypeDecl : TypeDeclName NType'''
 
 def p_simplestmt(p):
-  '''SimpleStmt : Expr
+    '''SimpleStmt : Expr
            | Expr PLUSEQ Expr
            | Expr MINUSEQ Expr
            | Expr TIMESEQ Expr
@@ -195,6 +195,98 @@ def p_simplestmt(p):
            | ExprList COLONEQ ExprList
            | Expr PLUSPLUS
            | Expr MINUSMIN'''
+    if(len(p) == 2):
+        p[0]['code'] = p[1]['code']
+        p[0]['type'] = "void"
+    if(len(p) == 3):
+        typ = p[1]['type']
+        p[0]['code'] = p[1]['code'] + "\n"
+        if(str(p[2]) == "++"):
+            p[0]['code'] += (p[1]['code'] + " +" + type + " 1")
+        else:
+            p[0]['code'] += (p[1]['code'] + " -" + type + " 1")
+    if(len(p) == 4):
+        if(str(p[2]) == "+="):
+            op = "+"
+            typ = p[1]['type']
+            if(p[2]['type'] == "float"):
+                typ = "float"
+        if(str(p[2]) == "-="):
+            op = "-"
+            typ = p[1]['type']
+            if(p[2]['type'] == "float"):
+                typ = "float"
+        if(str(p[2]) == "*="):
+            op = "*"
+            typ = p[1]['type']
+            if(p[2]['type'] == "float"):
+                typ = "float"
+        if(str(p[2]) == "/="):
+            op = "/"
+            typ = p[1]['type']
+            if(p[2]['type'] == "float"):
+                typ = "float"
+        if(str(p[2]) == "%="):
+            op = "%"
+            typ = p[1]['type']
+            if(p[1]['type'] != "int" || p[3]['type'] != "int"):
+                print("error!")
+                exit(1)
+        if(str(p[2]) == "|="):
+            op = "|"
+            typ = p[1]['type']
+            if((p[1]['type'] != "int" || p[3]['type'] != "int") && (p[1]['type'] != "bool" || p[3]['type'] != "bool")):
+                print("error!")
+                exit(1)
+        if(str(p[2]) == "&="):
+            op = "&"
+            typ = p[1]['type']
+            if((p[1]['type'] != "int" || p[3]['type'] != "int") && (p[1]['type'] != "bool" || p[3]['type'] != "bool")):
+                print("error!")
+                exit(1)
+        if(str(p[2]) == "<<="):
+            op = "<<"
+            typ = p[1]['type']
+            if(p[1]['type'] != "int" || p[3]['type'] != "int"):
+                print("error!")
+                exit(1)
+
+        if(str(p[2]) == ">>="):
+            op = ">>"
+            typ = p[1]['type']
+            if(p[1]['type'] != "int" || p[3]['type'] != "int"):
+                print("error!")
+                exit(1)
+
+        if(str(p[2]) == "&^="):
+            op = ""
+
+        flag = 0
+        if(str(p[2]) == "="):
+            flag = 1
+            if(len(p[1]['exprs']) != len(p[3]['exprs'])):
+                print("error!")
+                exit(1)
+            p[0]['code'] = ""
+            for i in range(0,len(p[1]['exprs'])):
+                if(p[1]['exprs'][i]['type'] != p[3]['exprs'][i]['type']):
+                    p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
+                else:
+                    print("error!")
+                    exit(1)
+
+        if(str(p[2]) == ":="):
+            flag = 1
+            if(len(p[1]['exprs']) != len(p[3]['exprs'])):
+                print("error!")
+                exit(1)
+            p[0]['code'] = ""
+            for i in range(0,len(p[1]['exprs'])):
+                p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
+
+        if(flag == 0):
+            p[0]['code'] = p[1]['code'] + " = " + p[1]['code'] + " " + op + typ + " " + p[3]['code']
+
 
 def p_case(p):
   '''Case : CASE ExprOrTypeList COLON
@@ -297,7 +389,7 @@ def p_othertype(p):
       p[0]['type']['arr_length'] = p[2]['value']
       p[0]['type']['arr_type'] = p[4]['type']
     else:
-      print("Array definition not good") 
+      print("Array definition not good")
       exit(1)
 
 
@@ -315,6 +407,7 @@ def p_structtype(p):
   p[0]['type']['struct_fields'] = []
   if(len(p) == 6):
     p[0]['type']['struct_fields'] = p[3]['struct_fields']
+
 
 
 def p_interfacetype(p):
@@ -442,8 +535,9 @@ def p_oexpr(p):
 
 
 def p_oexprlist(p):
-  '''OExprList :
+    '''OExprList :
                | ExprList'''
+    p[0]['exprs'] = p[1]['exprs']
 
 def p_funcliteraldecl(p):
   '''FuncLiteralDecl : FuncType'''
@@ -452,8 +546,15 @@ def p_funcliteral(p):
   '''FuncLiteral : FuncLiteralDecl LBRACE cmtlist StmtList cmtlist RBRACE'''
 
 def p_exprlist(p):
-  '''ExprList : Expr
+    '''ExprList : Expr
               | ExprList COMMA Expr'''
+    if(len(p)==2):
+        p[0]['exprs'].append({'exp':p[1]['code'],'type':p[1]['type']})
+        p[0]['code'] = p[1]['code']
+    if(len(p)==4):
+        p[0]['exprs'].extend(p[1]['exprs'])
+        p[0]['exprs'].append({'exp':p[3]['code'],'type':p[3]['type']})
+
 
 def p_exprortypelist(p):
   '''ExprOrTypeList : ExprOrType
@@ -552,13 +653,14 @@ def p_oargtypelistocomma(p):
                           | ArgTypeList OComma'''
 
 def p_stmt(p):
-  '''Stmt :
+    '''Stmt :
             | CompoundStmt
             | CommonDecl
             | NonDeclStmt'''
+    p[0]['code'] = p[1]['code']
 
 def p_nondeclstmt(p):
-  '''NonDeclStmt : SimpleStmt
+    '''NonDeclStmt : SimpleStmt
                    | ForStmt
                    | SwitchStmt
                    | IfStmt
@@ -568,6 +670,25 @@ def p_nondeclstmt(p):
                    | CONTINUE ONewName
                    | GOTO NewName
                    | RETURN OExprList'''
+    if(len(p)==2):
+        p[0]['code'] = p[1]['code']
+    if(len(p)==3):
+        string = ""
+        if(str(p[1]) == "break"):
+            string = "break"
+        if(str(p[1]) == "continue"):
+            string = "continue"
+        if(str(p[1]) == "goto"):
+            string = "goto"
+        flag = 0
+        if(str(p[1]) == "return"):
+            flag = 1
+            string = "return"
+        if(flag == 0):
+            p[0]['code'] = string + " " + p[2]['code']
+        # not done for return in multiple exp
+    if(len(p)==4):
+        # what to do
 
 def p_dotdotdot(p):
   '''DotDotDot : DDD
