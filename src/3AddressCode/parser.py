@@ -19,7 +19,7 @@ if args["output"] is None:
     args["output"] = "output1.gv"
 
 file = args["input"]
-outfile = open(args["output"],"w")
+# outfile = open(args["output"],"w")
 
 globalsymboltable = {}
 stack = []
@@ -33,11 +33,14 @@ def make_symbol_table(func_name):
   return local_symbol_table
 
 def add_variable_attribute(variable,attribute,value):
-  symbol_table = stack[-1]
-  if symbol_table[variable]['exists'] == 0:
-    return 0
-  symbol_table[variable][attribute] = value
-  return 1
+    symbol_table = stack[-1]
+    try:
+        if symbol_table[variable]['exists'] == 0:
+            return 0
+    except:
+        return 0
+    symbol_table[variable][attribute] = value
+    return 1
 
 def register_variable(variable):
   symbol_table = stack[-1]
@@ -48,8 +51,11 @@ def check_if_variable_declared(variable):
     i = len(stack)-1
     while(i>=0):
         symbol_table = stack[i]
-        if symbol_table[variable]['exists'] == 1:
-            return 1
+        try:
+            if symbol_table[variable]['exists'] == 1:
+                return 1
+        except:
+            return 0
         i = i-1
     return 0
 
