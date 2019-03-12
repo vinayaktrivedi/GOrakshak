@@ -29,6 +29,7 @@ def make_symbol_table(func_name,label):
   prev_table = stack[-1]
   local_symbol_table = {}
   prev_table[func_name][label] = local_symbol_table
+  # Does making a symbol table always require to set the current symbol table to the new one
   stack.append(local_symbol_table)
   return local_symbol_table
 
@@ -40,11 +41,11 @@ def add_variable_attribute(variable,attribute,value):
     try:
         if symbol_table[variable]['exists'] == 0:
             return 0
+        else:
+            symbol_table[variable][attribute] = value
+            return 1
     except:
         return 0
-    symbol_table[variable][attribute] = value
-    return 1
-
 
 def register_variable(variable):
   symbol_table = stack[-1]
@@ -66,9 +67,10 @@ def check_if_variable_declared(variable):
         try:
             if symbol_table[variable]['exists'] == 1:
                 return 1
+            else:
+                i = i - 1
         except:
-            return 0
-        i = i-1
+            i = i - 1
     return 0
 
 
@@ -197,7 +199,6 @@ def p_simplestmt(p):
            | Expr MINUSMIN'''
     if(len(p) == 2):
         p[0]['code'] = p[1]['code']
-        p[0]['type'] = "void"
     if(len(p) == 3):
         typ = p[1]['type']
         p[0]['code'] = p[1]['code'] + "\n"
@@ -259,6 +260,7 @@ def p_simplestmt(p):
                 exit(1)
 
         if(str(p[2]) == "&^="):
+            # what to do
             op = ""
 
         flag = 0
@@ -269,13 +271,14 @@ def p_simplestmt(p):
                 exit(1)
             p[0]['code'] = ""
             for i in range(0,len(p[1]['exprs'])):
-                if(p[1]['exprs'][i]['type'] != p[3]['exprs'][i]['type']):
+                if(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
                     p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
                 else:
                     print("error!")
                     exit(1)
 
         if(str(p[2]) == ":="):
+            # not sure about it
             flag = 1
             if(len(p[1]['exprs']) != len(p[3]['exprs'])):
                 print("error!")
@@ -285,6 +288,7 @@ def p_simplestmt(p):
                 p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
 
         if(flag == 0):
+            # can't use 'code' attribute directly
             p[0]['code'] = p[1]['code'] + " = " + p[1]['code'] + " " + op + typ + " " + p[3]['code']
 
 
@@ -575,13 +579,15 @@ def p_oexpr(p):
     p[0]['value'] = p[1]['value']
   else:
     p[0]['type'] = 'void'
+    # shouldn't the value be NULL
     p[0]['value'] = 0
 
 
 def p_oexprlist(p):
     '''OExprList :
                | ExprList'''
-    p[0]['exprs'] = p[1]['exprs']
+    if(len(p)==2):
+        p[0]['exprs'] = p[1]['exprs']
 
 def p_funcliteraldecl(p):
   '''FuncLiteralDecl : FuncType'''
@@ -592,12 +598,13 @@ def p_funcliteral(p):
 def p_exprlist(p):
     '''ExprList : Expr
               | ExprList COMMA Expr'''
-    if(len(p)==2):
-        p[0]['exprs'].append({'exp':p[1]['code'],'type':p[1]['type']})
-        p[0]['code'] = p[1]['code']
-    if(len(p)==4):
-        p[0]['exprs'].extend(p[1]['exprs'])
-        p[0]['exprs'].append({'exp':p[3]['code'],'type':p[3]['type']})
+    # if(len(p)==2):
+    #     p[0]['exprs'].append({'exp':p[1]['code'],'type':p[1]['type']})
+    #     p[0]['code'] = p[1]['code']
+    # if(len(p)==4):
+    #     p[0]['exprs'].extend(p[1]['exprs'])
+    #     p[0]['exprs'].append({'exp':p[3]['code'],'type':p[3]['type']})
+    # use 'place' attribute here
 
 
 def p_exprortypelist(p):
@@ -734,7 +741,7 @@ def p_nondeclstmt(p):
         # not done for return in multiple exp
     if(len(p)==4):
         # what to do
-        v = 0
+        dummy = 0
 
 def p_dotdotdot(p):
   '''DotDotDot : DDD
