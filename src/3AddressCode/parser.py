@@ -229,32 +229,32 @@ def p_simplestmt(p):
         if(str(p[2]) == "%="):
             op = "%"
             typ = p[1]['type']
-            if(p[1]['type'] != "int" || p[3]['type'] != "int"):
+            if(p[1]['type'] != "int" or p[3]['type'] != "int"):
                 print("error!")
                 exit(1)
         if(str(p[2]) == "|="):
             op = "|"
             typ = p[1]['type']
-            if((p[1]['type'] != "int" || p[3]['type'] != "int") && (p[1]['type'] != "bool" || p[3]['type'] != "bool")):
+            if((p[1]['type'] != "int" or p[3]['type'] != "int") and (p[1]['type'] != "bool" or p[3]['type'] != "bool")):
                 print("error!")
                 exit(1)
         if(str(p[2]) == "&="):
             op = "&"
             typ = p[1]['type']
-            if((p[1]['type'] != "int" || p[3]['type'] != "int") && (p[1]['type'] != "bool" || p[3]['type'] != "bool")):
+            if((p[1]['type'] != "int" or p[3]['type'] != "int") and (p[1]['type'] != "bool" or p[3]['type'] != "bool")):
                 print("error!")
                 exit(1)
         if(str(p[2]) == "<<="):
             op = "<<"
             typ = p[1]['type']
-            if(p[1]['type'] != "int" || p[3]['type'] != "int"):
+            if(p[1]['type'] != "int" or p[3]['type'] != "int"):
                 print("error!")
                 exit(1)
 
         if(str(p[2]) == ">>="):
             op = ">>"
             typ = p[1]['type']
-            if(p[1]['type'] != "int" || p[3]['type'] != "int"):
+            if(p[1]['type'] != "int" or p[3]['type'] != "int"):
                 print("error!")
                 exit(1)
 
@@ -345,24 +345,24 @@ def p_ifstmt(p):
   nextlabel = getlabel()
   exitlabel = getlabel()
   if(len(p[4]['extra']) == 0):
-    p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+exitlabel + "\n" + p[3]['code']  
+    p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+exitlabel + "\n" + p[3]['code']
   else:
-    p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+nextlabel + "\n" + p[3]['code'] + "\n" + "goto "+exitlabel 
-  
+    p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+nextlabel + "\n" + p[3]['code'] + "\n" + "goto "+exitlabel
+
   for i in range(0,len(p[4]['extra'])):
     if((i+1) == len(p[4]['extra'])):
       if(p[4]['extra'][i]['type']=="elseif"):
         p[0]['code'] += "\n" + nextlabel+":" + "\n" + p[4]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[4]['extra'][i]['ifheader_place'] +"=0 goto "+exitlabel + "\n" + p[4]['extra'][i]['body']
       else:
-        p[0]['code'] += "\n" + nextlabel+":" + "\n" + "else "+ "\n" + p[4]['extra'][i]['body'] 
+        p[0]['code'] += "\n" + nextlabel+":" + "\n" + "else "+ "\n" + p[4]['extra'][i]['body']
     else:
       nextlabel2= getlabel()
       if(p[4]['extra'][i]['type']=="elseif"):
-        p[0]['code'] += "\n" + nextlabel+":" + "\n" + p[4]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[4]['extra'][i]['ifheader_place'] +"=0 goto "+nextlabel2 + "\n" + p[4]['extra'][i]['body'] + "\n" + "goto "+exitlabel 
-      nextlabel = nextlabel2      
+        p[0]['code'] += "\n" + nextlabel+":" + "\n" + p[4]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[4]['extra'][i]['ifheader_place'] +"=0 goto "+nextlabel2 + "\n" + p[4]['extra'][i]['body'] + "\n" + "goto "+exitlabel
+      nextlabel = nextlabel2
   p[0]['code'] += "\n" + exitlabel+":"
-    
-   
+
+
 
 def p_elseif(p):
   '''ElseIf : ELSE IF IfHeader LoopBody'''
@@ -370,7 +370,7 @@ def p_elseif(p):
   p[0]['extra']['type'] = "elseif"
   p[0]['extra']['ifheader_code'] = p[3]['code']
   p[0]['extra']['ifheader_place'] = p[3]['place']
-   
+
 
 def p_elseiflist(p):
   '''ElseIfList :
@@ -389,9 +389,9 @@ def p_elseiflist(p):
 
 def p_else(p):
   '''Else : ELSE CompoundStmt'''
-  p[0]['extra']['body'] = p[2]['code'] 
-  p[0]['extra']['type'] = "else"  
-  
+  p[0]['extra']['body'] = p[2]['code']
+  p[0]['extra']['type'] = "else"
+
 
 def p_ntype(p):
   '''NType : FuncType
@@ -422,7 +422,7 @@ def p_othertype(p):
     p[0]['type'] = p[1]['type']
 
   else:
-    if(p[2]['type'] == 'int' || p[2]['type'] == 'void'):
+    if(p[2]['type'] == 'int' or p[2]['type'] == 'void'):
       p[0]['type'] = {}
       p[0]['type']['val'] = 'array'
       p[0]['type']['arr_length'] = p[2]['value']
@@ -508,7 +508,7 @@ def p_structdec1(p):
     p[0]['struct_fields'] = []
     for names in p[1]['names']:
       x = {}
-      x['name'] = names 
+      x['name'] = names
       x['type'] = p[2]['type']
       p[0]['struct_fields'].append(x)
 
@@ -734,6 +734,7 @@ def p_nondeclstmt(p):
         # not done for return in multiple exp
     if(len(p)==4):
         # what to do
+        v = 0
 
 def p_dotdotdot(p):
   '''DotDotDot : DDD
