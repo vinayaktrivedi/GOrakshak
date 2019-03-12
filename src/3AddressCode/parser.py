@@ -339,21 +339,59 @@ def p_ifheader(p):
   '''IfHeader : OSimpleStmt
            | OSimpleStmt SEMICOL OSimpleStmt'''
 
+
 def p_ifstmt(p):
   '''IfStmt : IF IfHeader LoopBody ElseIfList'''
-
+  nextlabel = getlabel()
+  exitlabel = getlabel()
+  if(len(p[4]['extra']) == 0):
+    p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+exitlabel + "\n" + p[3]['code']  
+  else:
+    p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+nextlabel + "\n" + p[3]['code'] + "\n" + "goto "+exitlabel 
+  
+  for i in range(0,len(p[4]['extra'])):
+    if((i+1) == len(p[4]['extra'])):
+      if(p[4]['extra'][i]['type']=="elseif"):
+        p[0]['code'] += "\n" + nextlabel+":" + "\n" + p[4]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[4]['extra'][i]['ifheader_place'] +"=0 goto "+exitlabel + "\n" + p[4]['extra'][i]['body']
+      else:
+        p[0]['code'] += "\n" + nextlabel+":" + "\n" + "else "+ "\n" + p[4]['extra'][i]['body'] 
+    else:
+      nextlabel2= getlabel()
+      if(p[4]['extra'][i]['type']=="elseif"):
+        p[0]['code'] += "\n" + nextlabel+":" + "\n" + p[4]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[4]['extra'][i]['ifheader_place'] +"=0 goto "+nextlabel2 + "\n" + p[4]['extra'][i]['body'] + "\n" + "goto "+exitlabel 
+      nextlabel = nextlabel2      
+  p[0]['code'] += "\n" + exitlabel+":"
+    
+   
 
 def p_elseif(p):
   '''ElseIf : ELSE IF IfHeader LoopBody'''
+  p[0]['extra']['body'] = p[4]['code']
+  p[0]['extra']['type'] = "elseif"
+  p[0]['extra']['ifheader_code'] = p[3]['code']
+  p[0]['extra']['ifheader_place'] = p[3]['place']
+   
 
 def p_elseiflist(p):
   '''ElseIfList :
                 | ElseIf ElseIfList
                 | Else'''
+  if(len(p)==3):
+    p[0]['extra'] = []
+    p[0]['extra'].append(p[1]['extra'])
+    p[0]['extra'].extend(p[2]['extra'])
+  elif(len(p)==2):
+    p[0]['extra'] = []
+    p[0]['extra'].append(p[1]['extra'])
+  else:
+    p[0]['extra'] = []
 
 
 def p_else(p):
   '''Else : ELSE CompoundStmt'''
+  p[0]['extra']['body'] = p[2]['code'] 
+  p[0]['extra']['type'] = "else"  
+  
 
 def p_ntype(p):
   '''NType : FuncType
@@ -366,6 +404,7 @@ def p_ntype(p):
     p[0]['type'] = p[2]['type']
   else:
     p[0]['type'] = p[1]['type']
+
 
 
 def p_nonexprtype(p):
@@ -387,7 +426,7 @@ def p_othertype(p):
       p[0]['type'] = {}
       p[0]['type']['val'] = 'array'
       p[0]['type']['arr_length'] = p[2]['value']
-      p[0]['type']['arr_type'] = p[4]['type']
+      p[0]['type']['arr_type'] = p[4]['type']['val']
     else:
       print("Array definition not good")
       exit(1)
@@ -492,6 +531,9 @@ def p_newname(p):
 
 def p_ptrtype(p):
   '''PtrType : TIMES NType'''
+  p[0]['type'] = {}
+  p[0]['type']['val'] = 'pointer'
+  p[0]['type']['pointer_type'] = p[2]['type']['val']
 
 def p_funcrettype(p):
   '''FuncRetType : FuncType
@@ -503,6 +545,7 @@ def p_funcrettype(p):
 def p_dotname(p):
   '''DotName : Name
              | Name DOT IDENTIFIER'''
+
 
 
 def p_ocomma(p):
