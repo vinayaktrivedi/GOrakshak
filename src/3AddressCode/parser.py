@@ -25,12 +25,15 @@ globalsymboltable = {}
 stack = []
 stack.append(globalsymboltable)
 
-def make_symbol_table(func_name):
+def make_symbol_table(func_name,label):
   prev_table = stack[-1]
   local_symbol_table = {}
-  prev_table[func_name]['symbol'] = local_symbol_table
+  prev_table[func_name][label] = local_symbol_table
   stack.append(local_symbol_table)
   return local_symbol_table
+
+def go_one_level_up():
+  stack = stack[:-1]
 
 def add_variable_attribute(variable,attribute,value):
     symbol_table = stack[-1]
@@ -42,10 +45,19 @@ def add_variable_attribute(variable,attribute,value):
     symbol_table[variable][attribute] = value
     return 1
 
+
 def register_variable(variable):
   symbol_table = stack[-1]
   symbol_table[variable]['exists'] = 1
   return
+
+def add_variable_attribute_api(variable,attribute,value):
+  if(value['val'] == 'struct'):
+    make_symbol_table(variable,'struct')
+    for objects in value['struct_fields']:
+      register_variable(objects['name'])
+      add_variable_attribute(objects['name'],'type',objects['type'])
+    go_one_level_up()
 
 def check_if_variable_declared(variable):
     i = len(stack)-1
@@ -142,17 +154,17 @@ def p_constdecl(p):
           | DeclNameList EQUAL ExprList'''
   if(len(p)==3):
     for var in p[1]['variable']:
-      add_variable_attribute(var,'type',p[2]['type'])
+      add_variable_attribute_api(var,'type',p[2]['type'])
   elif(len(p)==4):
     for var in p[1]['variable']:
-      add_variable_attribute(var,'type',p[3]['type'])
+      add_variable_attribute_api(var,'type',p[3]['type'])
   else:
     if(p[4]['type'] != p[2]['type']):
       print("Error!!")
       exit(1)
     else:
       for var in p[1]['variable']:
-        add_variable_attribute(var,'type',p[2]['type'])
+        add_variable_attribute_api(var,'type',p[2]['type'])
 
 
 def p_constdecl1(p):
@@ -369,6 +381,7 @@ def p_othertype(p):
                | ChannelType'''
   if(len(p) == 2):
     p[0]['type'] = p[1]['type']
+
   else:
     if(p[2]['type'] == 'int' || p[2]['type'] == 'void'):
       p[0]['type'] = {}
@@ -389,6 +402,11 @@ def p_channeltype(p):
 def p_structtype(p):
   '''StructType : STRUCT LBRACE StructDeclList OSemi RBRACE
                 | STRUCT LBRACE RBRACE'''
+  p[0]['type'] = {}
+  p[0]['type']['val'] = 'struct'
+  p[0]['type']['struct_fields'] = []
+  if(len(p) == 6):
+    p[0]['type']['struct_fields'] = p[3]['struct_fields']
 
 
 
@@ -407,8 +425,6 @@ def p_funcdec1_(p):
 
 def p_functype(p):
   '''FuncType : FUNCTION ArgList FuncRes'''
-  p[0]['type'] = {}
-  p[0]['type']['val'] = 'function'
 
 def p_arglist(p):
   '''ArgList : LPAREN OArgTypeListOComma RPAREN
@@ -429,6 +445,13 @@ def p_structdeclist(p):
   '''StructDeclList : StructDecl
                     | StructDeclList SEMICOL StructDecl'''
 
+  if(len(p)==2):
+    p[0]['struct_fields'] = []
+    p[0]['struct_fields'].append(p[1]['struct_fields'])
+  else:
+    p[0]['struct_fields'] = p[1]['struct_fields']
+    p[0]['struct_fields'].append(p[3]['struct_fields'])
+
 
 def p_interfacedec1list(p):
   '''InterfaceDeclList : InterfaceDecl
@@ -442,7 +465,13 @@ def p_structdec1(p):
                 | TIMES Embed OLiteral
                 | LPAREN TIMES Embed RPAREN OLiteral
                 | TIMES LPAREN Embed RPAREN OLiteral'''
-
+  if(len(p) == 4 and str(p[1])!='*'):
+    p[0]['struct_fields'] = []
+    for names in p[1]['names']:
+      x = {}
+      x['name'] = names 
+      x['type'] = p[2]['type']
+      p[0]['struct_fields'].append(x)
 
 
 def p_interfacedec1(p):
@@ -458,6 +487,7 @@ def p_labelname(p):
 
 def p_newname(p):
   '''NewName : IDENTIFIER'''
+  p[0]['names'] = str(p[1])
 
 
 def p_ptrtype(p):
@@ -579,6 +609,12 @@ def p_stmtlist(p):
 def p_newnamelist(p):
   '''NewNameList : NewName
                    | NewNameList COMMA NewName'''
+  p[0]['names'] = []
+  if(len(p)==2):
+    p[0]['names'] = p[1]['names']
+  else:
+    p[0]['names'] = p[1]['names']
+    p[0]['names'].append(p[3]['names'])
 
 
 def p_keyvallist(p):
