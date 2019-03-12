@@ -505,8 +505,9 @@ def p_oexpr(p):
 
 
 def p_oexprlist(p):
-  '''OExprList :
+    '''OExprList :
                | ExprList'''
+    p[0]['exprs'] = p[1]['exprs']
 
 def p_funcliteraldecl(p):
   '''FuncLiteralDecl : FuncType'''
@@ -515,8 +516,15 @@ def p_funcliteral(p):
   '''FuncLiteral : FuncLiteralDecl LBRACE cmtlist StmtList cmtlist RBRACE'''
 
 def p_exprlist(p):
-  '''ExprList : Expr
+    '''ExprList : Expr
               | ExprList COMMA Expr'''
+    if(len(p)==2):
+        p[0]['exprs'].append({'exp':p[1]['code'],'type':p[1]['type']})
+        p[0]['code'] = p[1]['code']
+    if(len(p)==4):
+        p[0]['exprs'].extend(p[1]['exprs'])
+        p[0]['exprs'].append({'exp':p[3]['code'],'type':p[3]['type']})
+
 
 def p_exprortypelist(p):
   '''ExprOrTypeList : ExprOrType
@@ -609,10 +617,11 @@ def p_oargtypelistocomma(p):
                           | ArgTypeList OComma'''
 
 def p_stmt(p):
-  '''Stmt :
+    '''Stmt :
             | CompoundStmt
             | CommonDecl
             | NonDeclStmt'''
+    p[0]['code'] = p[1]['code']
 
 def p_nondeclstmt(p):
     '''NonDeclStmt : SimpleStmt
