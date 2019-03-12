@@ -486,8 +486,9 @@ def p_osemi(p):
 
 
 def p_osimplestmt(p):
-  '''OSimpleStmt :
+    '''OSimpleStmt :
                  | SimpleStmt'''
+    p[0]['code'] = p[1]['code']
 
 def p_onewname(p):
   '''ONewName :
@@ -621,7 +622,8 @@ def p_stmt(p):
             | CompoundStmt
             | CommonDecl
             | NonDeclStmt'''
-    p[0]['code'] = p[1]['code']
+    if(len(p)==2):
+        p[0]['code'] = p[1]['code']
 
 def p_nondeclstmt(p):
     '''NonDeclStmt : SimpleStmt
