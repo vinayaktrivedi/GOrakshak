@@ -184,7 +184,7 @@ def p_commondecl(p):
            | NewType LPAREN RPAREN'''
     # need to do for this
     p[0] = {}
-    p[0]['code'] = "CommonDecl"
+    p[0]['code'] = ""
 
 
 
@@ -276,30 +276,30 @@ def p_simplestmt(p):
         if(str(p[2]) == "+="):
             op = "+"
             typ = p[1]['type']
-            if(p[2]['type'] == "float"):
+            if(p[3]['type'] == "float"):
                 typ = "float"
         if(str(p[2]) == "-="):
             op = "-"
             typ = p[1]['type']
-            if(p[2]['type'] == "float"):
+            if(p[3]['type'] == "float"):
                 typ = "float"
         if(str(p[2]) == "*="):
             op = "*"
             typ = p[1]['type']
-            if(p[2]['type'] == "float"):
+            if(p[3]['type'] == "float"):
                 typ = "float"
         if(str(p[2]) == "/="):
             # check for divide by zero
             op = "/"
             typ = p[1]['type']
-            if(p[2]['type'] == "float"):
+            if(p[3]['type'] == "float"):
                 typ = "float"
 
         if(str(p[2]) == "%="):
             flag = 1
             op = "%"
             typ = p[1]['type']
-            if(p[1]['type'] != "int" or p[3]['type'] != "int"):
+            if(p[3]['type'] != "int" or p[3]['type'] != "int"):
                 print("error!")
                 exit(1)
         if(str(p[2]) == "|="):
@@ -339,8 +339,9 @@ def p_simplestmt(p):
 
         if(str(p[2]) == "="):
             flag = 2
-            print("ok")
-            p[0]['code'] = ""
+            #print("ok")
+            p[0]['code'] = p[1]['place'] + " = " + " " + p[3]['place']
+            p[0]['place'] = p[1]['place']
             # Leave it for now
 
             # if(len(p[1]['exprs']) != len(p[3]['exprs'])):
@@ -384,6 +385,7 @@ def p_simplestmt(p):
             if(p[1]['type'] == p[3]['type']):
                 typ = p[1]['type']
                 p[0]['code'] = p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
+            
         if(flag == 1):
             p[0]['code'] = p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
             p[0]['place'] = p[1]['place']
@@ -599,9 +601,10 @@ def p_funcdec1(p):
   '''FuncDecl : FUNCTION FuncDecl_ marker2 FuncBody'''
   add_variable_attribute('metadata','args',p[2]['argList'])
   add_variable_attribute('metadata','response',p[2]['response'])
-  # do this vinayak ok
+  # add the variables space memory in function
+  global funcname
   p[0] = {}
-  p[0]['code'] = ""
+  p[0]['code'] = str(funcname) + ":\n\tBeginFunc 24;\n" +  p[4]['code'] + "\tEndFunc;"
 
 def p_marker2(p):
     '''marker2 :
@@ -784,6 +787,8 @@ def p_exprlist(p):
     p[0] = {}
     if(len(p)==2):
         p[0]['type'] = p[1]['type']
+        p[0]['code'] = p[1]['code']
+        p[0]['place'] = p[1]['place']
     # p[0]['type'] = "int"
     # use 'place' attribute here
 
@@ -1240,7 +1245,7 @@ def p_prec3expr_(p):
         p[0]['value'] = ""
         if(str(p[2]) == "=="):
             op = "=="
-            print("yo")
+            
             if(p[1]['value'] and p[3]['value']):
                 p[0]['value'] = (p[1]['value'] == p[3]['value'])
         if(str(p[2]) == "!="):
