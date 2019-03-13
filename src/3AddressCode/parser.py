@@ -524,6 +524,8 @@ def p_interfacetype(p):
 
 def p_funcdec1(p):
   '''FuncDecl : FUNCTION FuncDecl_ FuncBody'''
+  make_symbol_table(p[0]['func_name'],"func")
+  
 
 
 def p_funcdec1_(p):
@@ -555,6 +557,10 @@ def p_funcres(p):
   '''FuncRes :
              | FuncRetType
              | LEFT_OR OArgTypeListOComma OR_RIGHT'''
+  if(len(p)==1):
+    p[0]['response'] = 'void'
+  else:
+    p[0]['response'] = p[1]['response']
 
 ######################################################################################################
 def p_structdeclist(p):
@@ -618,6 +624,7 @@ def p_funcrettype(p):
                  | PtrType
                  | DotName
                  | NewType'''
+  p[0]['response'] = p[1]['type']
 
 def p_dotname(p):
   '''DotName : Name
