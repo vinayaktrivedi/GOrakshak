@@ -24,8 +24,14 @@ file = args["input"]
 globalsymboltable = {}
 stack = []
 stack.append(globalsymboltable)
+counter=0
 
-def make_symbol_table(func_name,label):
+def getlabel():
+  global counter
+  counter += 1
+  return "GOrakshak"+str(counter)
+
+def make_symbol_table(func_name,label): #use global keyword
   prev_table = stack[-1]
   local_symbol_table = {}
   prev_table[func_name] = {}
@@ -51,7 +57,7 @@ def add_variable_attribute(variable,attribute,value):
 
 def get_variable_attribute(variable,attribute):
   local_symbol_table = stack[-1]
-  
+
   while 1:
     if variable in local_symbol_table:
       if attribute in local_symbol_table[variable]:
@@ -340,12 +346,14 @@ def p_simplestmt(p):
 
         if(flag == 0):
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
-                tmp = newtmp()
+                tmp = getlabel()
+                register_variable(tmp)
                 p[0]['code'] = tmp + " = inttofloat " + p[1]['place'] + "\n"
                 p[0]['code'] += p[1]['place'] " = " tmp + " " + op + "float " + p[3]['place']
                 p[0]['place'] = p[1]['place']
             if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
-                tmp = newtmp()
+                tmp = getlabel()
+                register_variable(tmp)
                 p[0]['code'] = tmp + " = inttofloat " + p[3]['place'] + "\n"
                 p[0]['code'] += p[1]['place'] " = " p[1]['place'] + " " + op + "float " + tmp
                 p[0]['place'] = p[1]['place']
@@ -365,7 +373,8 @@ def p_case(p):
 
 
 def p_compoundstmt(p):
-  '''CompoundStmt : LBRACE cmtlist StmtList cmtlist RBRACE'''
+  '''CompoundStmt : LBRACE marker1 cmtlist StmtList cmtlist RBRACE'''
+  p[0]['code'] = p[4]['code']
 
 def p_caseblock(p):
   '''CaseBlock : Case StmtList'''
@@ -377,8 +386,14 @@ def p_caseblocklist(p):
 
 def p_loopbody(p):
 
-  '''LoopBody : LBRACE cmtlist StmtList  cmtlist RBRACE'''
+  '''LoopBody : LBRACE marker1 cmtlist StmtList  cmtlist RBRACE'''
+  p[0]['code'] = p[4]['code']
 
+def p_marker1(p):
+  '''marker1:
+            '''
+  func_name = getlabel()
+  make_symbol_table(func_name,"marker1")
 
 def p_rangestmt(p):
 
@@ -391,19 +406,47 @@ def p_forheader(p):
   '''ForHeader : OSimpleStmt SEMICOL OSimpleStmt SEMICOL OSimpleStmt
                | OSimpleStmt
                | RangeStmt'''
-
+  if(len(p)==6):
+    p[0]['extra'] ={}
+    p[0]['extra']['update']={}
+    p[0]['extra']['initialization'] ={}
+    p[0]['extra']['check']={}
+    p[0]['extra']['initialization']['code'] = p[1]['code']
+    p[0]['extra']['initialization']['place'] = p[1]['place']
+    p[0]['extra']['check']['code'] = p[3]['code']
+    p[0]['extra']['check']['place'] = p[3]['place']
+    p[0]['extra']['update']['code'] = p[5]['code']
+    p[0]['extra']['update']['place'] = p[5]['place']
 
 def p_forbody(p):
 
   '''ForBody : ForHeader LoopBody'''
+  p[0]['extra'] ={}
+  p[0]['extra']['ForHeader'] = p[1]['extra']
+  p[0]['extra']['loopbody'] = {}
+  p[0]['extra']['loopbody']['code']=p[2]['code']
+
+
 
 def p_forstmt(p):
-
   '''ForStmt : FOR ForBody'''
+  loop_label = getlabel()
+  exit_label = getlabel()
+  p[0]['code'] = p[2]['extra']['ForHeader']['initialization']['code'] + "\n" + loop_label+ ":"
+  p[0]['code'] += "\n"+ p[2]['extra']['ForHeader']['check']['code']
+  p[0]['code'] += "\n"+ "if "+p[2]['extra']['ForHeader']['check']['place'] + " =0 goto "+exit_label
+  p[0]['code'] += "\n"+ p[2]['extra']['loopbody']['code']
+  p[0]['code'] += "\n"+ p[2]['extra']['ForHeader']['update']['code']
+  p[0]['code'] += "\n goto "+loop_label
+  p[0]['code'] += "\n" + exit_label+":"
+
 
 def p_ifheader(p):
   '''IfHeader : OSimpleStmt
            | OSimpleStmt SEMICOL OSimpleStmt'''
+  if(len(p)==2):
+    p[0]['code'] = p[1]['code']
+    p[0]['place'] = p[1]['place']
 
 
 def p_ifstmt(p):
@@ -764,6 +807,11 @@ def p_decl_name_list(p):
 def p_stmtlist(p):
   '''StmtList : Stmt SEMICOL
                 | StmtList cmtlist Stmt SEMICOL'''
+  if(len(p)==3):
+    p[0]['code']=p[1]['code']
+  else:
+    p[0]['code']=p[1]['code']+"\n"+p[3]['code']
+
 
 def p_newnamelist(p):
   '''NewNameList : NewName
@@ -796,9 +844,9 @@ def p_declname(p):
 
 def p_name(p):
   '''Name : IDENTIFIER'''
-  p[0]['name'] = str(p[1])
+  # p[0]['name'] = str(p[1])
   p[0]['code'] = str(p[1])
-
+  p[0]['type'] = get_variable_attribute(str(p[1]),"type")
 
 def p_argtype(p):
   '''ArgType : NameOrType
@@ -967,7 +1015,8 @@ def p_prec5expr_(p):
     else:
         op = ""
         typ = ""
-        p[0]['place'] = newtmp()
+        p[0]['place'] = getlabel()
+        register_variable(p[0]['place'])
         flag = 0
         if(str(p[2]) == "/"):
             op = "/"
@@ -1005,12 +1054,14 @@ def p_prec5expr_(p):
 
         if(flag == 0):
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
-                tmp = newtmp()
+                tmp = getlabel()
+                register_variable(tmp)
                 p[0]['code'] = tmp + " = inttofloat " + p[1]['place'] + "\n"
                 p[0]['code'] += p[0]['place'] " = " tmp + " " + op + "float " + p[3]['place']
                 p[0]['type'] = 'float'
             if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
-                tmp = newtmp()
+                tmp = getlabel()
+                register_variable(tmp)
                 p[0]['code'] = tmp + " = inttofloat " + p[3]['place'] + "\n"
                 p[0]['code'] += p[0]['place'] " = " p[1]['place'] + " " + op + "float " + tmp
                 p[0]['type'] = 'float'
@@ -1039,7 +1090,8 @@ def p_prec4expr_(p):
     else:
         op = ""
         typ = ""
-        p[0]['place'] = newtmp()
+        p[0]['place'] = getlabel()
+        register_variable(p[0]['place'])
         flag = 0
         if(str(p[2]) == "+"):
             op = "+"
@@ -1064,12 +1116,14 @@ def p_prec4expr_(p):
                 p[0]['value'] = (p[1]['value'] | p[3]['value'])
         if(flag == 0):
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
-                tmp = newtmp()
+                tmp = getlabel()
+                register_variable(tmp)
                 p[0]['code'] = tmp + " = inttofloat " + p[1]['place'] + "\n"
                 p[0]['code'] += p[0]['place'] " = " tmp + " " + op + "float " + p[3]['place']
                 p[0]['type'] = 'float'
             if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
-                tmp = newtmp()
+                tmp = getlabel()
+                register_variable(tmp)
                 p[0]['code'] = tmp + " = inttofloat " + p[3]['place'] + "\n"
                 p[0]['code'] += p[0]['place'] " = " p[1]['place'] +" "+ op + "float " + tmp
                 p[0]['type'] = 'float'
@@ -1128,7 +1182,8 @@ def p_prec3expr_(p):
             op = "<"
             if(p[1]['value'] and p[3]['value']):
                 p[0]['value'] = (p[1]['value'] < p[3]['value'])
-        p[0]['place'] = newtmp()
+        p[0]['place'] = getlabel()
+        register_variable(p[0]['place'])
         p[0]['code'] = p[0]['place'] + " = " p[1]['place'] + " " + op + " " + p[3]['place']
         p[0]['type'] = 'int'
 
@@ -1141,7 +1196,8 @@ def p_prec2expr_(p):
         p[0]['value'] = p[1]['value']
         p[0]['type'] = p[1]['type']
     else:
-        p[0]['place'] = newtmp()
+        p[0]['place'] = getlabel()
+        register_variable(p[0]['place'])
         if(p[1]['type']!='int' or p[3]['type']!='int'):
             print("error!")
             exit(1)
@@ -1166,7 +1222,8 @@ def p_expr(p):
             p[0]['value'] = p[1]['value']
             p[0]['type'] = p[1]['type']
     else:
-        p[0]['place'] = newtmp()
+        p[0]['place'] = getlabel()
+        register_variable(p[0]['place'])
         if(p[1]['type']!='int' or p[3]['type']!='int'):
             print("error!")
             exit(1)
