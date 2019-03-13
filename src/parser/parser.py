@@ -623,7 +623,7 @@ def p_var_dec_list(p):
 
   else:
     bypass(p,1)
-    add_child(p,3)
+    add_child(p,0,[3])
 
 def p_const_dec_list(p):
   '''ConstDeclList : ConstDecl1
@@ -633,7 +633,7 @@ def p_const_dec_list(p):
 
   else:
     bypass(p,1)
-    add_child(p,3)
+    add_child(p,0,[3])
 
 
 def p_type_decl_list(p): 

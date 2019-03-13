@@ -28,6 +28,7 @@ stack.append(globalsymboltable)
 def make_symbol_table(func_name,label):
   prev_table = stack[-1]
   local_symbol_table = {}
+  prev_table[func_name] = {}
   prev_table[func_name][label] = local_symbol_table
   # Does making a symbol table always require to set the current symbol table to the new one
   stack.append(local_symbol_table)
@@ -59,6 +60,8 @@ def add_variable_attribute_api(variable,attribute,value):
       register_variable(objects['name'])
       add_variable_attribute(objects['name'],'type',objects['type'])
     go_one_level_up()
+  else:
+    add_variable_attribute(variable,attribute,value)
 
 def check_if_variable_declared(variable):
     i = len(stack)-1
@@ -150,6 +153,20 @@ def p_vardecl(p):
   '''VarDecl   : DeclNameList NType
           | DeclNameList NType EQUAL ExprList
           | DeclNameList EQUAL ExprList'''
+  if(len(p)==3):
+      for var in p[1]['variable']:
+        add_variable_attribute_api(var,'type',p[2]['type'])
+    elif(len(p)==4):
+      for var in p[1]['variable']:
+        add_variable_attribute_api(var,'type',p[3]['type'])
+    else:
+      if(p[4]['type'] != p[2]['type']):
+        print("Error!!")
+        exit(1)
+      else:
+        for var in p[1]['variable']:
+          add_variable_attribute_api(var,'type',p[2]['type'])
+
 
 def p_constdecl(p):
   '''ConstDecl : DeclNameList NType EQUAL ExprList
@@ -177,9 +194,14 @@ def p_constdecl1(p):
 
 def p_typedeclname(p):
   '''TypeDeclName : IDENTIFIER'''
+  p[0]['variable'] = str(p[1])
 
 def p_typedecl(p):
   '''TypeDecl : TypeDeclName NType'''
+  make_symbol_table(p[1]['variable'],'type')
+  add_variable_attribute_api(p[1]['variable'],'type',p[2]['type'])
+
+
 
 def p_simplestmt(p):
     '''SimpleStmt : Expr
@@ -779,6 +801,7 @@ def p_NewType(p):
   p[0]['type'] = {}
   p[0]['type']['val'] =  str(p[1])
 
+
 def p_convtype(p):
   '''ConvType : FuncType
                 | OtherType'''
@@ -840,6 +863,9 @@ def p_prec3expr_(p):
         p[0]['type'] = p[1]['type']
     else:
         op = ""
+        if(p[1]['type']!=p[3]['type']):
+            print("error!")
+            exit(1)
         if(str(p[2]) == "=="):
             op = "=="
             if(p[1]['value'] and p[3]['value']):
@@ -866,7 +892,7 @@ def p_prec3expr_(p):
                 p[0]['value'] = (p[1]['value'] < p[3]['value'])
         p[0]['place'] = newtmp()
         p[0]['code'] = p[0]['place'] + " = " p[1]['place'] + " " + op + " " + p[3]['place']
-        p[0]['type'] = p[1]['type']
+        p[0]['type'] = 'int'
 
 def p_prec2expr_(p):
     '''Prec2Expr_ : Prec3Expr_
@@ -893,10 +919,13 @@ def p_expr(p):
             | Chexpr
             | Arrayexp'''
     if(len(p)==2):
-        p[0]['code'] = p[1]['code']
-        p[0]['place'] = p[1]['place']
-        p[0]['value'] = p[1]['value']
-        p[0]['type'] = p[1]['type']
+        if(str(p[1]) == r'(((\*)|\ )*true|((\*)|\ )*false|((\*)|\ )*iota)'):
+            p[0]['code'] = str(p[1])
+        else:
+            p[0]['code'] = p[1]['code']
+            p[0]['place'] = p[1]['place']
+            p[0]['value'] = p[1]['value']
+            p[0]['type'] = p[1]['type']
     else:
         p[0]['place'] = newtmp()
         if(p[1]['type']!='int' or p[3]['type']!='int'):
