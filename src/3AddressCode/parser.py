@@ -222,14 +222,16 @@ def p_simplestmt(p):
            | Expr MINUSMIN'''
     if(len(p) == 2):
         p[0]['code'] = p[1]['code']
+        p[0]['place'] = p[1]['place']
     if(len(p) == 3):
         typ = p[1]['type']
-        p[0]['code'] = p[1]['code'] + "\n"
         if(str(p[2]) == "++"):
-            p[0]['code'] += (p[1]['code'] + " +" + type + " 1")
+            p[0]['code'] = (p[1]['place'] = p[1]['place'] + " +" + typ + " 1")
         else:
-            p[0]['code'] += (p[1]['code'] + " -" + type + " 1")
+            p[0]['code'] = (p[1]['place'] = p[1]['place'] + " -" + typ + " 1")
+        p[0]['place'] = p[1]['place']
     if(len(p) == 4):
+        flag = 0
         if(str(p[2]) == "+="):
             op = "+"
             typ = p[1]['type']
@@ -246,29 +248,35 @@ def p_simplestmt(p):
             if(p[2]['type'] == "float"):
                 typ = "float"
         if(str(p[2]) == "/="):
+            # check for divide by zero
             op = "/"
             typ = p[1]['type']
             if(p[2]['type'] == "float"):
                 typ = "float"
+
         if(str(p[2]) == "%="):
+            flag = 1
             op = "%"
             typ = p[1]['type']
             if(p[1]['type'] != "int" or p[3]['type'] != "int"):
                 print("error!")
                 exit(1)
         if(str(p[2]) == "|="):
+            flag = 1
             op = "|"
             typ = p[1]['type']
             if((p[1]['type'] != "int" or p[3]['type'] != "int") and (p[1]['type'] != "bool" or p[3]['type'] != "bool")):
                 print("error!")
                 exit(1)
         if(str(p[2]) == "&="):
+            flag = 1
             op = "&"
             typ = p[1]['type']
             if((p[1]['type'] != "int" or p[3]['type'] != "int") and (p[1]['type'] != "bool" or p[3]['type'] != "bool")):
                 print("error!")
                 exit(1)
         if(str(p[2]) == "<<="):
+            flag = 1
             op = "<<"
             typ = p[1]['type']
             if(p[1]['type'] != "int" or p[3]['type'] != "int"):
@@ -276,6 +284,7 @@ def p_simplestmt(p):
                 exit(1)
 
         if(str(p[2]) == ">>="):
+            flag = 1
             op = ">>"
             typ = p[1]['type']
             if(p[1]['type'] != "int" or p[3]['type'] != "int"):
@@ -284,35 +293,52 @@ def p_simplestmt(p):
 
         if(str(p[2]) == "&^="):
             # what to do
-            op = ""
-
-        flag = 0
-        if(str(p[2]) == "="):
             flag = 1
-            if(len(p[1]['exprs']) != len(p[3]['exprs'])):
-                print("error!")
-                exit(1)
-            p[0]['code'] = ""
-            for i in range(0,len(p[1]['exprs'])):
-                if(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
-                    p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
-                else:
-                    print("error!")
-                    exit(1)
+            op = "&^"
+
+        if(str(p[2]) == "="):
+            flag = 2
+            # Leave it for now
+
+            # if(len(p[1]['exprs']) != len(p[3]['exprs'])):
+            #     print("error!")
+            #     exit(1)
+            # p[0]['code'] = ""
+            # for i in range(0,len(p[1]['exprs'])):
+            #     if(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
+            #         p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
+            #     else:
+            #         print("error!")
+            #         exit(1)
 
         if(str(p[2]) == ":="):
             # not sure about it
-            flag = 1
-            if(len(p[1]['exprs']) != len(p[3]['exprs'])):
-                print("error!")
-                exit(1)
-            p[0]['code'] = ""
-            for i in range(0,len(p[1]['exprs'])):
-                p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
+
+            # flag = 2
+            # if(len(p[1]['exprs']) != len(p[3]['exprs'])):
+            #     print("error!")
+            #     exit(1)
+            # p[0]['code'] = ""
+            # for i in range(0,len(p[1]['exprs'])):
+            #     p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
 
         if(flag == 0):
-            # can't use 'code' attribute directly
-            p[0]['code'] = p[1]['code'] + " = " + p[1]['code'] + " " + op + typ + " " + p[3]['code']
+            if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
+                tmp = newtmp()
+                p[0]['code'] = tmp + " = inttofloat " + p[1]['place'] + "\n"
+                p[0]['code'] += p[1]['place'] " = " tmp + " " + op + "float " + p[3]['place']
+                p[0]['place'] = p[1]['place']
+            if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
+                tmp = newtmp()
+                p[0]['code'] = tmp + " = inttofloat " + p[3]['place'] + "\n"
+                p[0]['code'] += p[1]['place'] " = " p[1]['place'] + " " + op + "float " + tmp
+                p[0]['place'] = p[1]['place']
+            if(p[1]['type'] == p[3]['type']):
+                typ = p[1]['type']
+                p[0]['code'] = p[1]['place'] " = " p[1]['place'] + " " + op + typ + " " + p[3]['place']
+        if(flag == 1):
+            p[0]['code'] = p[1]['place'] " = " p[1]['place'] + " " + op + typ + " " + p[3]['place']
+            p[0]['place'] = p[1]['place']
 
 
 def p_case(p):
@@ -886,17 +912,17 @@ def p_prec5expr_(p):
         if(flag == 0):
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
                 tmp = newtmp()
-                p[0]['code'] = tmp + " = inttofloat " + p[1]['place']
-                p[0]['code'] += p[0]['place'] " = " p[1]['place'] + op + "float " + p[3]['place']
+                p[0]['code'] = tmp + " = inttofloat " + p[1]['place'] + "\n"
+                p[0]['code'] += p[0]['place'] " = " tmp + " " + op + "float " + p[3]['place']
                 p[0]['type'] = 'float'
             if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
                 tmp = newtmp()
-                p[0]['code'] = tmp + " = inttofloat " + p[2]['place']
-                p[0]['code'] += p[0]['place'] " = " p[1]['place'] + op + "float " + p[3]['place']
+                p[0]['code'] = tmp + " = inttofloat " + p[3]['place'] + "\n"
+                p[0]['code'] += p[0]['place'] " = " p[1]['place'] + " " + op + "float " + tmp
                 p[0]['type'] = 'float'
             if(p[1]['type'] == p[3]['type']):
                 typ = p[1]['type']
-                p[0]['code'] += p[0]['place'] " = " p[1]['place'] + op + typ + " " + p[3]['place']
+                p[0]['code'] = p[0]['place'] " = " p[1]['place'] + " " + op + typ + " " + p[3]['place']
                 p[0]['type'] = p[1]['type']
         if(flag == 1):
             if(p[1]['type'] != 'int' or p[3]['type'] != 'int'):
@@ -945,17 +971,17 @@ def p_prec4expr_(p):
         if(flag == 0):
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
                 tmp = newtmp()
-                p[0]['code'] = tmp + " = inttofloat " + p[1]['place']
-                p[0]['code'] += p[0]['place'] " = " p[1]['place'] + op + "float " + p[3]['place']
+                p[0]['code'] = tmp + " = inttofloat " + p[1]['place'] + "\n"
+                p[0]['code'] += p[0]['place'] " = " tmp + " " + op + "float " + p[3]['place']
                 p[0]['type'] = 'float'
             if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
                 tmp = newtmp()
-                p[0]['code'] = tmp + " = inttofloat " + p[2]['place']
-                p[0]['code'] += p[0]['place'] " = " p[1]['place'] + op + "float " + p[3]['place']
+                p[0]['code'] = tmp + " = inttofloat " + p[3]['place'] + "\n"
+                p[0]['code'] += p[0]['place'] " = " p[1]['place'] +" "+ op + "float " + tmp
                 p[0]['type'] = 'float'
             if(p[1]['type'] == p[3]['type']):
                 typ = p[1]['type']
-                p[0]['code'] += p[0]['place'] " = " p[1]['place'] + op + typ + " " + p[3]['place']
+                p[0]['code'] = p[0]['place'] " = " p[1]['place'] + " " + op + typ + " " + p[3]['place']
                 p[0]['type'] = p[1]['type']
         else:
             if(p[1]['type'] != 'int' or p[3]['type'] != 'int'):
