@@ -30,6 +30,7 @@ def make_symbol_table(func_name,label):
   local_symbol_table = {}
   prev_table[func_name] = {}
   prev_table[func_name][label] = local_symbol_table
+  local_symbol_table['parent'] = prev_table
   # Does making a symbol table always require to set the current symbol table to the new one
   stack.append(local_symbol_table)
   return local_symbol_table
@@ -47,6 +48,20 @@ def add_variable_attribute(variable,attribute,value):
             return 1
     except:
         return 0
+
+def get_variable_attribute(variable,attribute):
+  local_symbol_table = stack[-1]
+  
+  while 1:
+    if variable in local_symbol_table:
+      if attribute in local_symbol_table[variable]:
+        return local_symbol_table[variable][attribute]
+      else:
+        return -1
+    else:
+      if(local_symbol_table == globalsymboltable):
+        return -1
+      local_symbol_table = local_symbol_table['parent']
 
 def register_variable(variable):
   symbol_table = stack[-1]
@@ -147,6 +162,7 @@ def p_commondecl(p):
            | NewType TypeDecl
            | NewType LPAREN TypeDeclList OSemi RPAREN
            | NewType LPAREN RPAREN'''
+
 
 
 def p_vardecl(p):
@@ -511,17 +527,26 @@ def p_interfacetype(p):
 def p_funcdec1(p):
   '''FuncDecl : FUNCTION FuncDecl_ FuncBody'''
 
+
 def p_funcdec1_(p):
   '''FuncDecl_ : IDENTIFIER ArgList FuncRes
                | LEFT_OR OArgTypeListOComma OR_RIGHT IDENTIFIER ArgList FuncRes'''
+
+  if(len(p)==4):
+    p[0]['func_name'] = str(p[1])
+    p[0]['arglist'] = p[2]['argList']
+    p[0]['response'] = p[2]['response']
 
 
 def p_functype(p):
   '''FuncType : FUNCTION ArgList FuncRes'''
 
+
 def p_arglist(p):
   '''ArgList : LPAREN OArgTypeListOComma RPAREN
              | ArgList LPAREN OArgTypeListOComma RPAREN'''
+  if(len(p)==4):
+    p[0]['argList'] = p[2]['arglist']
 
 def p_funcbody(p):
   '''FuncBody :
@@ -765,23 +790,39 @@ def p_declname(p):
 
 
 def p_name(p):
-    '''Name : IDENTIFIER'''
-    p[0]['code'] = str(p[1])
-    # Bring type from symbol table
+  '''Name : IDENTIFIER'''
+  p[0]['name'] = str(p[1])
+  p[0]['code'] = str(p[1])
+
 
 def p_argtype(p):
   '''ArgType : NameOrType
                | IDENTIFIER NameOrType
                | IDENTIFIER DotDotDot
                | DotDotDot'''
+  p[0]['args'] = {}
+  if(len(p) == 3):
+    p[0]['args']['arg_type'] = p[2]['type']
+    p[0]['args']['arg_name'] = str(p[1])
 
 def p_argtypelist(p):
   '''ArgTypeList : ArgType
                    | ArgTypeList COMMA ArgType'''
 
+  p[0]['argList'] = []
+  if(len(p) == 2):
+    p[0]['argList'] = p[1]['args']
+  else:
+    p[0]['argList'] = p[1]['argList']
+    p[0]['argList'] = p[3]['args']
+
 def p_oargtypelistocomma(p):
   '''OArgTypeListOComma :
                           | ArgTypeList OComma'''
+
+  p[0]['argList'] = []
+  if(len(p) == 3):
+    p[0]['argList'] = p[1]['argList']
 
 def p_stmt(p):
     '''Stmt :
@@ -900,6 +941,7 @@ def p_exportype(p):
 
 def p_nameortype(p):
   '''NameOrType : NType'''
+  p[0]['type'] = p[1]['type']
 
 def p_switchstmt(p):
   '''SwitchStmt : SWITCH IfHeader LBRACE CaseBlockList RBRACE'''
