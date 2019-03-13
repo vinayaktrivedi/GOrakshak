@@ -832,6 +832,9 @@ def p_prec3expr_(p):
         p[0]['type'] = p[1]['type']
     else:
         op = ""
+        if(p[1]['type']!=p[3]['type']):
+            print("error!")
+            exit(1)
         if(str(p[2]) == "=="):
             op = "=="
             if(p[1]['value'] and p[3]['value']):
@@ -858,7 +861,7 @@ def p_prec3expr_(p):
                 p[0]['value'] = (p[1]['value'] < p[3]['value'])
         p[0]['place'] = newtmp()
         p[0]['code'] = p[0]['place'] + " = " p[1]['place'] + " " + op + " " + p[3]['place']
-        p[0]['type'] = p[1]['type']
+        p[0]['type'] = 'int'
 
 def p_prec2expr_(p):
     '''Prec2Expr_ : Prec3Expr_
@@ -885,10 +888,13 @@ def p_expr(p):
             | Chexpr
             | Arrayexp'''
     if(len(p)==2):
-        p[0]['code'] = p[1]['code']
-        p[0]['place'] = p[1]['place']
-        p[0]['value'] = p[1]['value']
-        p[0]['type'] = p[1]['type']
+        if(str(p[1]) == r'(((\*)|\ )*true|((\*)|\ )*false|((\*)|\ )*iota)'):
+            p[0]['code'] = str(p[1])
+        else:
+            p[0]['code'] = p[1]['code']
+            p[0]['place'] = p[1]['place']
+            p[0]['value'] = p[1]['value']
+            p[0]['type'] = p[1]['type']
     else:
         p[0]['place'] = newtmp()
         if(p[1]['type']!='int' or p[3]['type']!='int'):
