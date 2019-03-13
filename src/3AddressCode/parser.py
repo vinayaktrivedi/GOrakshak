@@ -887,7 +887,7 @@ def p_prec2expr_(p):
             p[0]['value'] = p[1]['value'] and p[3]['value']
 
 def p_expr(p):
-    '''Expr : Prec2Expr_
+    '''Expr : Prec2Expr_  
             | Expr OROR Prec2Expr_
             | CONSTANTS
             | Chexpr
