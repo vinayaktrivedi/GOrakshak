@@ -2,6 +2,8 @@ package main;
 
 import "fmt";
 
+var b int = 9 + 9 + 10;
+
 func main(){
 
 	// for i=0; i<10; i++ {
@@ -11,9 +13,9 @@ func main(){
 	// 	};
 	// };
 	var a int = 5;
-	if a == 5 {
-		var a int = 10;
-		a = 10 + 4 + 78 * 9;
+	if a == 89 {
+		var b int = 10;
+		b = 10 + 4 + 78 * 9;
 	};
 
 };

@@ -172,7 +172,7 @@ def p_declaration(p):
     p[0]['code'] = p[1]['code']
 
 def p_commondecl(p):
-  '''CommonDecl : CONSTANT ConstDecl
+    '''CommonDecl : CONSTANT ConstDecl
            | CONSTANT LPAREN ConstDecl OSemi RPAREN
            | CONSTANT LPAREN ConstDecl SEMICOL ConstDeclList OSemi RPAREN
            | CONSTANT LPAREN RPAREN
@@ -182,6 +182,9 @@ def p_commondecl(p):
            | NewType TypeDecl
            | NewType LPAREN TypeDeclList OSemi RPAREN
            | NewType LPAREN RPAREN'''
+    # need to do for this
+    p[0] = {}
+    p[0]['code'] = "CommonDecl"
 
 
 
@@ -336,6 +339,8 @@ def p_simplestmt(p):
 
         if(str(p[2]) == "="):
             flag = 2
+            print("ok")
+            p[0]['code'] = ""
             # Leave it for now
 
             # if(len(p[1]['exprs']) != len(p[3]['exprs'])):
@@ -350,6 +355,8 @@ def p_simplestmt(p):
             #         exit(1)
 
         if(str(p[2]) == ":="):
+            print("ok")
+            p[0]['code'] = ""
             # not sure about it
 
             # flag = 2
@@ -592,6 +599,9 @@ def p_funcdec1(p):
   '''FuncDecl : FUNCTION FuncDecl_ marker2 FuncBody'''
   add_variable_attribute('metadata','args',p[2]['argList'])
   add_variable_attribute('metadata','response',p[2]['response'])
+  # do this vinayak ok
+  p[0] = {}
+  p[0]['code'] = ""
 
 def p_marker2(p):
     '''marker2 :
@@ -801,14 +811,12 @@ def p_literal(p):
     b = re.match(r'(([0-9]([0-9]+)*(\.[0-9]([0-9]+)*)?)[eE]\-[0-9]([0-9]+)*)|([0-9]([0-9]+)*\.[0-9]([0-9]+)*)([eE][\+]?[0-9]([0-9]+)*)?',str(p[1]))
     c = re.match(r'(\"[^\"]*\")|(\'[^\']*\') ',str(p[1]))
     p[0] = {}
-    print(a,b,c)
-    print(str(p[1]))
     if(a):
-        p[0]['value'] = int(p[1])
+        p[0]['value'] = int(str(p[1]))
         p[0]['type'] = 'int'
         p[0]['code'] = str(p[1])
     if(b):
-        p[0]['value'] = float(p[1])
+        p[0]['value'] = float(str(p[1]))
         p[0]['type'] = 'float'
         p[0]['code'] = str(p[1])
     if(c):
@@ -901,7 +909,9 @@ def p_name(p):
     # p[0]['name'] = str(p[1])
     p[0] = {}
     p[0]['code'] = str(p[1])
-    p[0]['type'] = get_variable_attribute(str(p[1]),"type")
+    x = get_variable_attribute(str(p[1]),"type")
+    p[0]['type'] = x['val']
+    p[0]['value'] = ""
 
 def p_argtype(p):
     '''ArgType : NameOrType
@@ -1224,10 +1234,13 @@ def p_prec3expr_(p):
     else:
         op = ""
         if(p[1]['type']!=p[3]['type']):
-            print("error!")
+            print("error1!")
             exit(1)
+        # do this thing for others as well
+        p[0]['value'] = ""
         if(str(p[2]) == "=="):
             op = "=="
+            print("yo")
             if(p[1]['value'] and p[3]['value']):
                 p[0]['value'] = (p[1]['value'] == p[3]['value'])
         if(str(p[2]) == "!="):
