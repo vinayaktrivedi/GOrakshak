@@ -80,6 +80,7 @@ def check_if_variable_declared(variable):
 def p_start(p):
   '''start : SourceFile'''
   p[0]['code'] = p[1]['code']
+  print(p[0]['code'])
 
 def p_sourcefile(p):
   '''SourceFile : cmtlist PackageClause cmtlist Imports cmtlist DeclList cmtlist
@@ -133,7 +134,7 @@ def p_declaration(p):
   '''Declaration : CommonDecl
             | FuncDecl
             | NonDeclStmt'''
-
+  p[0]['code'] = p[1]['code']
 
 def p_commondecl(p):
   '''CommonDecl : CONSTANT ConstDecl
@@ -392,10 +393,11 @@ def p_ifstmt(p):
 
 def p_elseif(p):
   '''ElseIf : ELSE IF IfHeader LoopBody'''
-  p[0]['extra']['body'] = p[4]['code']
-  p[0]['extra']['type'] = "elseif"
-  p[0]['extra']['ifheader_code'] = p[3]['code']
-  p[0]['extra']['ifheader_place'] = p[3]['place']
+  p[0]['extra_dict'] = {}
+  p[0]['extra_dict']['body'] = p[4]['code']
+  p[0]['extra_dict']['type'] = "elseif"
+  p[0]['extra_dict']['ifheader_code'] = p[3]['code']
+  p[0]['extra_dict']['ifheader_place'] = p[3]['place']
 
 
 def p_elseiflist(p):
@@ -404,19 +406,20 @@ def p_elseiflist(p):
                 | Else'''
   if(len(p)==3):
     p[0]['extra'] = []
-    p[0]['extra'].append(p[1]['extra'])
+    p[0]['extra'].append(p[1]['extra_dict'])
     p[0]['extra'].extend(p[2]['extra'])
   elif(len(p)==2):
     p[0]['extra'] = []
-    p[0]['extra'].append(p[1]['extra'])
+    p[0]['extra'].append(p[1]['extra_dict'])
   else:
     p[0]['extra'] = []
 
 
 def p_else(p):
   '''Else : ELSE CompoundStmt'''
-  p[0]['extra']['body'] = p[2]['code']
-  p[0]['extra']['type'] = "else"
+  p[0]['extra_dict'] = {}
+  p[0]['extra_dict']['body'] = p[2]['code']
+  p[0]['extra_dict']['type'] = "else"
 
 
 def p_ntype(p):
@@ -601,7 +604,6 @@ def p_oexpr(p):
     p[0]['value'] = p[1]['value']
   else:
     p[0]['type'] = 'void'
-    # shouldn't the value be NULL
     p[0]['value'] = 0
 
 
@@ -648,6 +650,11 @@ def p_embed(p):
 def p_dec1list(p):
   '''DeclList : Declaration SEMICOL
               | DeclList cmtlist Declaration SEMICOL'''
+    if(len(p)==3):
+      p[0]['code'] = p[1]['code']
+    else:
+      p[0]['code'] = p[1]['code'] + "\n" + p[3]['code']
+
 
 def p_var_dec_list(p):
   '''VarDeclList : VarDecl
@@ -841,7 +848,7 @@ def p_prec4expr_(p):
                   | Prec4Expr_ OR Prec5Expr_'''
 
 def p_prec3expr_(p):
-  '''Prec3Expr_ : Prec4Expr_
+    '''Prec3Expr_ : Prec4Expr_
                   | Prec3Expr_ EQEQ Prec4Expr_
                   | Prec3Expr_ NOTEQ Prec4Expr_
                   | Prec3Expr_ LEQ Prec4Expr_
@@ -849,17 +856,85 @@ def p_prec3expr_(p):
                   | Prec3Expr_ GREAT Prec4Expr_
                   | Prec3Expr_ LESS Prec4Expr_
                 '''
+    if(len(p)==2):
+        p[0]['code'] = p[1]['code']
+        p[0]['place'] = p[1]['place']
+        p[0]['value'] = p[1]['value']
+        p[0]['type'] = p[1]['type']
+    else:
+        op = ""
+        if(p[1]['type']!=p[3]['type']):
+            print("error!")
+            exit(1)
+        if(str(p[2]) == "=="):
+            op = "=="
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] == p[3]['value'])
+        if(str(p[2]) == "!="):
+            op = "!="
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] != p[3]['value'])
+        if(str(p[2]) == "<="):
+            op = "<="
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] <= p[3]['value'])
+        if(str(p[2]) == ">="):
+            op = ">="
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] >= p[3]['value'])
+        if(str(p[2]) == ">"):
+            op = ">"
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] > p[3]['value'])
+        if(str(p[2]) == "<"):
+            op = "<"
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] < p[3]['value'])
+        p[0]['place'] = newtmp()
+        p[0]['code'] = p[0]['place'] + " = " p[1]['place'] + " " + op + " " + p[3]['place']
+        p[0]['type'] = 'int'
 
 def p_prec2expr_(p):
-  '''Prec2Expr_ : Prec3Expr_
+    '''Prec2Expr_ : Prec3Expr_
                   | Prec2Expr_ AMPAMP Prec3Expr_'''
+    if(len(p)==2):
+        p[0]['code'] = p[1]['code']
+        p[0]['place'] = p[1]['place']
+        p[0]['value'] = p[1]['value']
+        p[0]['type'] = p[1]['type']
+    else:
+        p[0]['place'] = newtmp()
+        if(p[1]['type']!='int' or p[3]['type']!='int'):
+            print("error!")
+            exit(1)
+        p[0]['code'] = p[0]['place'] + " = " p[1]['place'] + " && " + p[3]['place']
+        p[0]['type'] = p[1]['type']
+        if(p[1]['value'] and p[3]['value']):
+            p[0]['value'] = p[1]['value'] and p[3]['value']
 
 def p_expr(p):
-  '''Expr : Prec2Expr_
+    '''Expr : Prec2Expr_
             | Expr OROR Prec2Expr_
             | CONSTANTS
             | Chexpr
             | Arrayexp'''
+    if(len(p)==2):
+        if(str(p[1]) == r'(((\*)|\ )*true|((\*)|\ )*false|((\*)|\ )*iota)'):
+            p[0]['code'] = str(p[1])
+        else:
+            p[0]['code'] = p[1]['code']
+            p[0]['place'] = p[1]['place']
+            p[0]['value'] = p[1]['value']
+            p[0]['type'] = p[1]['type']
+    else:
+        p[0]['place'] = newtmp()
+        if(p[1]['type']!='int' or p[3]['type']!='int'):
+            print("error!")
+            exit(1)
+        p[0]['code'] = p[0]['place'] + " = " p[1]['place'] + " || " + p[3]['place']
+        p[0]['type'] = p[1]['type']
+        if(p[1]['value'] and p[3]['value']):
+            p[0]['value'] = p[1]['value'] or p[3]['value']
 
 def p_chexpr(p):
   '''Chexpr : LMINUS IDENTIFIER'''
