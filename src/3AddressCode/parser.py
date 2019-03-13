@@ -370,9 +370,6 @@ def p_rangestmt(p):
                | ExprList COLONEQ RANGE Expr
                | RANGE Expr'''
 
-
-
-
 def p_forheader(p):
 
   '''ForHeader : OSimpleStmt SEMICOL OSimpleStmt SEMICOL OSimpleStmt
@@ -666,13 +663,34 @@ def p_exprortypelist(p):
                     | ExprOrTypeList COMMA ExprOrType'''
 
 def p_oliteral(p):
-  '''OLiteral :
+    '''OLiteral :
               | Literal'''
+    if(len(p)==1):
+        p[0]['code'] = ""
+    else:
+        p[0]['value'] = p[1]['value']
+        p[0]['code'] = p[1]['code']
+        p[0]['type'] = p[1]['type']
 
 def p_literal(p):
-  '''Literal : INTEGER
+    '''Literal : INTEGER
              | FLOAT
              | STRING'''
+    a = re.match("(0x([0-9A-Fa-f]+)) | [0-9]([0-9]+)*([Ee](\+)?[0-9]([0-9]+)*)?",str(p[1]))
+    b = re.match("(([0-9]([0-9]+)*(\.[0-9]([0-9]+)*)?)[eE]\-[0-9]([0-9]+)*)|([0-9]([0-9]+)*\.[0-9]([0-9]+)*)([eE][\+]?[0-9]([0-9]+)*)?",str(p[1]))
+    c = re.match("(\"[^\"]*\")|(\'[^\']*\') ",str(p[1]))
+    if(a):
+        p[0]['value'] = int(p[1])
+        p[0]['type'] = 'int'
+        p[0]['code'] = str(p[1])
+    if(b):
+        p[0]['value'] = float(p[1])
+        p[0]['type'] = 'float'
+        p[0]['code'] = str(p[1])
+    if(c):
+        p[0]['value'] = str(p[1])
+        p[0]['type'] = 'string'
+        p[0]['code'] = str(p[1])
 
 def p_embed(p):
   '''Embed : IDENTIFIER'''
@@ -745,8 +763,9 @@ def p_declname(p):
 
 
 def p_name(p):
-  '''Name : IDENTIFIER'''
-
+    '''Name : IDENTIFIER'''
+    p[0]['code'] = str(p[1])
+    # Bring type from symbol table
 
 def p_argtype(p):
   '''ArgType : NameOrType
@@ -807,11 +826,18 @@ def p_dotdotdot(p):
                  | DDD NType'''
 
 def p_pexpr(p):
-  '''PExpr : PExprNoParen
+    '''PExpr : PExprNoParen
              | LPAREN ExprOrType RPAREN'''
+    if(len(p)==2):
+        p[0]['code'] = p[1]['code']
+        p[0]['value'] = p[1]['value']
+        p[0]['type'] = p[1]['type']
+    else:
+        # what to do
+        dummy = 0
 
 def p_pexprnoparen(p):
-  '''PExprNoParen : Literal
+    '''PExprNoParen : Literal
                     | Name
                     | PExpr DOT IDENTIFIER
                     | PExpr DOT LPAREN ExprOrType RPAREN
@@ -825,6 +851,22 @@ def p_pexprnoparen(p):
                     | PExpr LEFT_LEFT BracedKeyvalList RIGHT_RIGHT
                     | FuncLiteral
                     | ForCompExpr'''
+    if(len(p)==2):
+        p[0]['code'] = p[1]['code']
+        p[0]['value'] = p[1]['value']
+        p[0]['type'] = p[1]['type']
+    if(len(p)==4):
+        # what to do
+        dummy = 0
+    if(len(p)==5):
+        # what to do
+        dummy = 0
+    if(len(p)==6):
+        # what to do
+        dummy = 0
+    if(len(p)==7):
+        # what to do
+        dummy = 0
 
 def p_NewType(p):
   '''NewType : TYPE'''
@@ -871,7 +913,6 @@ def p_prec5expr_(p):
                   | Prec5Expr_ TIMES UExpr'''
     if(len(p)==2):
         p[0]['code'] = p[1]['code']
-        p[0]['place'] = p[1]['place']
         p[0]['value'] = p[1]['value']
         p[0]['type'] = p[1]['type']
     else:
@@ -1092,13 +1133,20 @@ def p_arrayexp(p):
   '''Arrayexp : OtherType LBRACE ExprList RBRACE'''
 
 def p_uexpr(p):
-  '''UExpr : PExpr
+    '''UExpr : PExpr
              | AMPERS UExpr
              | NOT UExpr
              | TIMES UExpr
              | PLUS UExpr
              | MINUS UExpr
              | XOR UExpr'''
+    if(len(p)==2):
+        p[0]['code'] = p[1]['code']
+        p[0]['value'] = p[1]['value']
+        p[0]['type'] = p[1]['type']
+    else:
+        # will do later
+        op = str(p[1])
 
 def p_forcompexpr(p):
   '''ForCompExpr : LBRACK Expr PIPE RangeStmt RBRACK'''
