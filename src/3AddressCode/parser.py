@@ -579,7 +579,6 @@ def p_oexpr(p):
     p[0]['value'] = p[1]['value']
   else:
     p[0]['type'] = 'void'
-    # shouldn't the value be NULL
     p[0]['value'] = 0
 
 
@@ -818,7 +817,7 @@ def p_prec4expr_(p):
                   | Prec4Expr_ OR Prec5Expr_'''
 
 def p_prec3expr_(p):
-  '''Prec3Expr_ : Prec4Expr_
+    '''Prec3Expr_ : Prec4Expr_
                   | Prec3Expr_ EQEQ Prec4Expr_
                   | Prec3Expr_ NOTEQ Prec4Expr_
                   | Prec3Expr_ LEQ Prec4Expr_
@@ -826,17 +825,79 @@ def p_prec3expr_(p):
                   | Prec3Expr_ GREAT Prec4Expr_
                   | Prec3Expr_ LESS Prec4Expr_
                 '''
+    if(len(p)==2):
+        p[0]['code'] = p[1]['code']
+        p[0]['place'] = p[1]['place']
+        p[0]['value'] = p[1]['value']
+        p[0]['type'] = p[1]['type']
+    else:
+        op = ""
+        if(str(p[2]) == "=="):
+            op = "=="
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] == p[3]['value'])
+        if(str(p[2]) == "!="):
+            op = "!="
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] != p[3]['value'])
+        if(str(p[2]) == "<="):
+            op = "<="
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] <= p[3]['value'])
+        if(str(p[2]) == ">="):
+            op = ">="
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] >= p[3]['value'])
+        if(str(p[2]) == ">"):
+            op = ">"
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] > p[3]['value'])
+        if(str(p[2]) == "<"):
+            op = "<"
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] < p[3]['value'])
+        p[0]['place'] = newtmp()
+        p[0]['code'] = p[0]['place'] + " = " p[1]['place'] + " " + op + " " + p[3]['place']
+        p[0]['type'] = p[1]['type']
 
 def p_prec2expr_(p):
-  '''Prec2Expr_ : Prec3Expr_
+    '''Prec2Expr_ : Prec3Expr_
                   | Prec2Expr_ AMPAMP Prec3Expr_'''
+    if(len(p)==2):
+        p[0]['code'] = p[1]['code']
+        p[0]['place'] = p[1]['place']
+        p[0]['value'] = p[1]['value']
+        p[0]['type'] = p[1]['type']
+    else:
+        p[0]['place'] = newtmp()
+        if(p[1]['type']!='int' or p[3]['type']!='int'):
+            print("error!")
+            exit(1)
+        p[0]['code'] = p[0]['place'] + " = " p[1]['place'] + " && " + p[3]['place']
+        p[0]['type'] = p[1]['type']
+        if(p[1]['value'] and p[3]['value']):
+            p[0]['value'] = p[1]['value'] and p[3]['value']
 
 def p_expr(p):
-  '''Expr : Prec2Expr_
+    '''Expr : Prec2Expr_
             | Expr OROR Prec2Expr_
             | CONSTANTS
             | Chexpr
             | Arrayexp'''
+    if(len(p)==2):
+        p[0]['code'] = p[1]['code']
+        p[0]['place'] = p[1]['place']
+        p[0]['value'] = p[1]['value']
+        p[0]['type'] = p[1]['type']
+    else:
+        p[0]['place'] = newtmp()
+        if(p[1]['type']!='int' or p[3]['type']!='int'):
+            print("error!")
+            exit(1)
+        p[0]['code'] = p[0]['place'] + " = " p[1]['place'] + " || " + p[3]['place']
+        p[0]['type'] = p[1]['type']
+        if(p[1]['value'] and p[3]['value']):
+            p[0]['value'] = p[1]['value'] or p[3]['value']
 
 def p_chexpr(p):
   '''Chexpr : LMINUS IDENTIFIER'''
