@@ -77,6 +77,7 @@ def check_if_variable_declared(variable):
 def p_start(p):
   '''start : SourceFile'''
   p[0]['code'] = p[1]['code']
+  print(p[0]['code'])
 
 def p_sourcefile(p):
   '''SourceFile : cmtlist PackageClause cmtlist Imports cmtlist DeclList cmtlist
@@ -130,7 +131,7 @@ def p_declaration(p):
   '''Declaration : CommonDecl
             | FuncDecl
             | NonDeclStmt'''
-
+  p[0]['code'] = p[1]['code']
 
 def p_commondecl(p):
   '''CommonDecl : CONSTANT ConstDecl
@@ -370,10 +371,11 @@ def p_ifstmt(p):
 
 def p_elseif(p):
   '''ElseIf : ELSE IF IfHeader LoopBody'''
-  p[0]['extra']['body'] = p[4]['code']
-  p[0]['extra']['type'] = "elseif"
-  p[0]['extra']['ifheader_code'] = p[3]['code']
-  p[0]['extra']['ifheader_place'] = p[3]['place']
+  p[0]['extra_dict'] = {}
+  p[0]['extra_dict']['body'] = p[4]['code']
+  p[0]['extra_dict']['type'] = "elseif"
+  p[0]['extra_dict']['ifheader_code'] = p[3]['code']
+  p[0]['extra_dict']['ifheader_place'] = p[3]['place']
 
 
 def p_elseiflist(p):
@@ -382,19 +384,20 @@ def p_elseiflist(p):
                 | Else'''
   if(len(p)==3):
     p[0]['extra'] = []
-    p[0]['extra'].append(p[1]['extra'])
+    p[0]['extra'].append(p[1]['extra_dict'])
     p[0]['extra'].extend(p[2]['extra'])
   elif(len(p)==2):
     p[0]['extra'] = []
-    p[0]['extra'].append(p[1]['extra'])
+    p[0]['extra'].append(p[1]['extra_dict'])
   else:
     p[0]['extra'] = []
 
 
 def p_else(p):
   '''Else : ELSE CompoundStmt'''
-  p[0]['extra']['body'] = p[2]['code']
-  p[0]['extra']['type'] = "else"
+  p[0]['extra_dict'] = {}
+  p[0]['extra_dict']['body'] = p[2]['code']
+  p[0]['extra_dict']['type'] = "else"
 
 
 def p_ntype(p):
@@ -625,6 +628,11 @@ def p_embed(p):
 def p_dec1list(p):
   '''DeclList : Declaration SEMICOL
               | DeclList cmtlist Declaration SEMICOL'''
+    if(len(p)==3):
+      p[0]['code'] = p[1]['code']
+    else:
+      p[0]['code'] = p[1]['code'] + "\n" + p[3]['code']
+
 
 def p_var_dec_list(p):
   '''VarDeclList : VarDecl
