@@ -831,7 +831,7 @@ def p_switchstmt(p):
   '''SwitchStmt : SWITCH IfHeader LBRACE CaseBlockList RBRACE'''
 
 def p_prec5expr_(p):
-  '''Prec5Expr_ : UExpr
+    '''Prec5Expr_ : UExpr
                   | Prec5Expr_ DIVIDE UExpr
                   | Prec5Expr_ MOD UExpr
                   | Prec5Expr_ SHL UExpr
@@ -839,13 +839,131 @@ def p_prec5expr_(p):
                   | Prec5Expr_ AMPERS UExpr
                   | Prec5Expr_ AMPCAR UExpr
                   | Prec5Expr_ TIMES UExpr'''
+    if(len(p)==2):
+        p[0]['code'] = p[1]['code']
+        p[0]['place'] = p[1]['place']
+        p[0]['value'] = p[1]['value']
+        p[0]['type'] = p[1]['type']
+    else:
+        op = ""
+        typ = ""
+        p[0]['place'] = newtmp()
+        flag = 0
+        if(str(p[2]) == "/"):
+            op = "/"
+            # can handle divide by zero here
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] / p[3]['value'])
+
+        if(str(p[2]) == "*"):
+            op = "*"
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] * p[3]['value'])
+
+        if(str(p[2]) == "%"):
+            flag = 1
+            op = "%"
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] % p[3]['value'])
+
+        if(str(p[2]) == "<<"):
+            flag = 1
+            op = "<<"
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] << p[3]['value'])
+
+        if(str(p[2]) == "&"):
+            flag = 1
+            op = "%"
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] & p[3]['value'])
+
+        if(str(p[2]) == "&^"):
+            # what is this
+            flag = 2
+            op = "&^"
+
+        if(flag == 0):
+            if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
+                tmp = newtmp()
+                p[0]['code'] = tmp + " = inttofloat " + p[1]['place']
+                p[0]['code'] += p[0]['place'] " = " p[1]['place'] + op + "float " + p[3]['place']
+                p[0]['type'] = 'float'
+            if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
+                tmp = newtmp()
+                p[0]['code'] = tmp + " = inttofloat " + p[2]['place']
+                p[0]['code'] += p[0]['place'] " = " p[1]['place'] + op + "float " + p[3]['place']
+                p[0]['type'] = 'float'
+            if(p[1]['type'] == p[3]['type']):
+                typ = p[1]['type']
+                p[0]['code'] += p[0]['place'] " = " p[1]['place'] + op + typ + " " + p[3]['place']
+                p[0]['type'] = p[1]['type']
+        if(flag == 1):
+            if(p[1]['type'] != 'int' or p[3]['type'] != 'int'):
+                print("error!")
+                exit(1)
+            p[0]['code'] = p[0]['place'] + " = " p[1]['place'] + " " + op + " " + p[3]['place']
+            p[0]['type'] = 'int'
 
 def p_prec4expr_(p):
-  '''Prec4Expr_ : Prec5Expr_
+    '''Prec4Expr_ : Prec5Expr_
                   | Prec4Expr_ PLUS Prec5Expr_
                   | Prec4Expr_ MINUS Prec5Expr_
                   | Prec4Expr_ XOR Prec5Expr_
                   | Prec4Expr_ OR Prec5Expr_'''
+    if(len(p)==2):
+        p[0]['code'] = p[1]['code']
+        p[0]['place'] = p[1]['place']
+        p[0]['value'] = p[1]['value']
+        p[0]['type'] = p[1]['type']
+    else:
+        op = ""
+        typ = ""
+        p[0]['place'] = newtmp()
+        flag = 0
+        if(str(p[2]) == "+"):
+            op = "+"
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] + p[3]['value'])
+
+        if(str(p[2]) == "-"):
+            op = "-"
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] - p[3]['value'])
+
+        if(str(p[2]) == "^"):
+            flag = 1
+            op = "^"
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] ^ p[3]['value'])
+
+        if(str(p[2]) == "|"):
+            flag = 1
+            op = "|"
+            if(p[1]['value'] and p[3]['value']):
+                p[0]['value'] = (p[1]['value'] | p[3]['value'])
+        if(flag == 0):
+            if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
+                tmp = newtmp()
+                p[0]['code'] = tmp + " = inttofloat " + p[1]['place']
+                p[0]['code'] += p[0]['place'] " = " p[1]['place'] + op + "float " + p[3]['place']
+                p[0]['type'] = 'float'
+            if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
+                tmp = newtmp()
+                p[0]['code'] = tmp + " = inttofloat " + p[2]['place']
+                p[0]['code'] += p[0]['place'] " = " p[1]['place'] + op + "float " + p[3]['place']
+                p[0]['type'] = 'float'
+            if(p[1]['type'] == p[3]['type']):
+                typ = p[1]['type']
+                p[0]['code'] += p[0]['place'] " = " p[1]['place'] + op + typ + " " + p[3]['place']
+                p[0]['type'] = p[1]['type']
+        else:
+            if(p[1]['type'] != 'int' or p[3]['type'] != 'int'):
+                print("error!")
+                exit(1)
+            p[0]['code'] = p[0]['place'] + " = " p[1]['place'] + " " + op + " " + p[3]['place']
+            p[0]['type'] = 'int'
+
 
 def p_prec3expr_(p):
     '''Prec3Expr_ : Prec4Expr_
@@ -913,13 +1031,14 @@ def p_prec2expr_(p):
             p[0]['value'] = p[1]['value'] and p[3]['value']
 
 def p_expr(p):
-    '''Expr : Prec2Expr_  
+    '''Expr : Prec2Expr_
             | Expr OROR Prec2Expr_
             | CONSTANTS
             | Chexpr
             | Arrayexp'''
     if(len(p)==2):
-        if(str(p[1]) == r'(((\*)|\ )*true|((\*)|\ )*false|((\*)|\ )*iota)'):
+        z = re.match('(((\*)|\ )*true|((\*)|\ )*false|((\*)|\ )*iota)',str(p[1]))
+        if(z):
             p[0]['code'] = str(p[1])
         else:
             p[0]['code'] = p[1]['code']
