@@ -28,6 +28,7 @@ stack.append(globalsymboltable)
 def make_symbol_table(func_name,label):
   prev_table = stack[-1]
   local_symbol_table = {}
+  prev_table[func_name] = {}
   prev_table[func_name][label] = local_symbol_table
   # Does making a symbol table always require to set the current symbol table to the new one
   stack.append(local_symbol_table)
@@ -59,6 +60,8 @@ def add_variable_attribute_api(variable,attribute,value):
       register_variable(objects['name'])
       add_variable_attribute(objects['name'],'type',objects['type'])
     go_one_level_up()
+  else:
+    add_variable_attribute(variable,attribute,value)
 
 def check_if_variable_declared(variable):
     i = len(stack)-1
@@ -149,6 +152,20 @@ def p_vardecl(p):
   '''VarDecl   : DeclNameList NType
           | DeclNameList NType EQUAL ExprList
           | DeclNameList EQUAL ExprList'''
+  if(len(p)==3):
+      for var in p[1]['variable']:
+        add_variable_attribute_api(var,'type',p[2]['type'])
+    elif(len(p)==4):
+      for var in p[1]['variable']:
+        add_variable_attribute_api(var,'type',p[3]['type'])
+    else:
+      if(p[4]['type'] != p[2]['type']):
+        print("Error!!")
+        exit(1)
+      else:
+        for var in p[1]['variable']:
+          add_variable_attribute_api(var,'type',p[2]['type'])
+
 
 def p_constdecl(p):
   '''ConstDecl : DeclNameList NType EQUAL ExprList
@@ -176,9 +193,14 @@ def p_constdecl1(p):
 
 def p_typedeclname(p):
   '''TypeDeclName : IDENTIFIER'''
+  p[0]['variable'] = str(p[1])
 
 def p_typedecl(p):
   '''TypeDecl : TypeDeclName NType'''
+  make_symbol_table(p[1]['variable'],'type')
+  add_variable_attribute_api(p[1]['variable'],'type',p[2]['type'])
+
+
 
 def p_simplestmt(p):
     '''SimpleStmt : Expr
@@ -771,6 +793,7 @@ def p_NewType(p):
   '''NewType : TYPE'''
   p[0]['type'] = {}
   p[0]['type']['val'] =  str(p[1])
+
 
 def p_convtype(p):
   '''ConvType : FuncType

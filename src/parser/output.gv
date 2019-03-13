@@ -1,0 +1,11 @@
+digraph finite_state_machine {ordering=out;rankdir=UD;size="8,5";node [shape = circle];
+1 [label="main"];
+2 [label="package_clause"];
+2->1;
+3 [label="fmt"];
+4 [label="math/cmplx"];
+3->4;
+5 [label="import"];
+5->3;
+6 [label="main"];
+}
