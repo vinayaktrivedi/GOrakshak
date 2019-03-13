@@ -616,7 +616,11 @@ def p_osemi(p):
 def p_osimplestmt(p):
     '''OSimpleStmt :
                  | SimpleStmt'''
-    p[0]['code'] = p[1]['code']
+    if(len(p)==2):
+        p[0]['place'] = p[1]['place']
+        p[0]['code'] = p[1]['code']
+    else:
+        p[0]['code'] = ""
 
 def p_onewname(p):
   '''ONewName :
