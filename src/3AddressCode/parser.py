@@ -566,10 +566,15 @@ def p_interfacetype(p):
 
 
 def p_funcdec1(p):
-  '''FuncDecl : FUNCTION FuncDecl_ FuncBody'''
-  make_symbol_table(p[0]['func_name'],"func")
+  '''FuncDecl : FUNCTION FuncDecl_ marker2 FuncBody'''
+  add_variable_attribute('metadata','args',p[2]['argList'])
+  add_variable_attribute('metadata','response',p[2]['response'])
   
-
+def p_marker2(p):
+  '''marker2 : 
+              '''
+  make_symbol_table(funcname,"func")
+  add_variable_attribute('metadata','name',funcname)
 
 def p_funcdec1_(p):
   '''FuncDecl_ : IDENTIFIER ArgList FuncRes
@@ -579,6 +584,7 @@ def p_funcdec1_(p):
     p[0]['func_name'] = str(p[1])
     p[0]['arglist'] = p[2]['argList']
     p[0]['response'] = p[2]['response']
+    funcname = str(p[1])
 
 
 def p_functype(p):
@@ -594,6 +600,7 @@ def p_arglist(p):
 def p_funcbody(p):
   '''FuncBody :
               | LBRACE  cmtlist StmtList  cmtlist RBRACE'''
+  
 
 
 def p_funcres(p):
