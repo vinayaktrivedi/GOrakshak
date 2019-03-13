@@ -324,12 +324,14 @@ def p_simplestmt(p):
 
         if(flag == 0):
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
-                tmp = newtmp()
+                tmp = getlabel()
+                register_variable(tmp)
                 p[0]['code'] = tmp + " = inttofloat " + p[1]['place'] + "\n"
                 p[0]['code'] += p[1]['place'] " = " tmp + " " + op + "float " + p[3]['place']
                 p[0]['place'] = p[1]['place']
             if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
-                tmp = newtmp()
+                tmp = getlabel()
+                register_variable(tmp)
                 p[0]['code'] = tmp + " = inttofloat " + p[3]['place'] + "\n"
                 p[0]['code'] += p[1]['place'] " = " p[1]['place'] + " " + op + "float " + tmp
                 p[0]['place'] = p[1]['place']
@@ -918,7 +920,8 @@ def p_prec5expr_(p):
     else:
         op = ""
         typ = ""
-        p[0]['place'] = newtmp()
+        p[0]['place'] = getlabel()
+        register_variable(p[0]['place'])
         flag = 0
         if(str(p[2]) == "/"):
             op = "/"
@@ -956,12 +959,14 @@ def p_prec5expr_(p):
 
         if(flag == 0):
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
-                tmp = newtmp()
+                tmp = getlabel()
+                register_variable(tmp)
                 p[0]['code'] = tmp + " = inttofloat " + p[1]['place'] + "\n"
                 p[0]['code'] += p[0]['place'] " = " tmp + " " + op + "float " + p[3]['place']
                 p[0]['type'] = 'float'
             if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
-                tmp = newtmp()
+                tmp = getlabel()
+                register_variable(tmp)
                 p[0]['code'] = tmp + " = inttofloat " + p[3]['place'] + "\n"
                 p[0]['code'] += p[0]['place'] " = " p[1]['place'] + " " + op + "float " + tmp
                 p[0]['type'] = 'float'
@@ -990,7 +995,8 @@ def p_prec4expr_(p):
     else:
         op = ""
         typ = ""
-        p[0]['place'] = newtmp()
+        p[0]['place'] = getlabel()
+        register_variable(p[0]['place'])
         flag = 0
         if(str(p[2]) == "+"):
             op = "+"
@@ -1015,12 +1021,14 @@ def p_prec4expr_(p):
                 p[0]['value'] = (p[1]['value'] | p[3]['value'])
         if(flag == 0):
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
-                tmp = newtmp()
+                tmp = getlabel()
+                register_variable(tmp)
                 p[0]['code'] = tmp + " = inttofloat " + p[1]['place'] + "\n"
                 p[0]['code'] += p[0]['place'] " = " tmp + " " + op + "float " + p[3]['place']
                 p[0]['type'] = 'float'
             if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
-                tmp = newtmp()
+                tmp = getlabel()
+                register_variable(tmp)
                 p[0]['code'] = tmp + " = inttofloat " + p[3]['place'] + "\n"
                 p[0]['code'] += p[0]['place'] " = " p[1]['place'] +" "+ op + "float " + tmp
                 p[0]['type'] = 'float'
@@ -1079,7 +1087,8 @@ def p_prec3expr_(p):
             op = "<"
             if(p[1]['value'] and p[3]['value']):
                 p[0]['value'] = (p[1]['value'] < p[3]['value'])
-        p[0]['place'] = newtmp()
+        p[0]['place'] = getlabel()
+        register_variable(p[0]['place'])
         p[0]['code'] = p[0]['place'] + " = " p[1]['place'] + " " + op + " " + p[3]['place']
         p[0]['type'] = 'int'
 
@@ -1092,7 +1101,8 @@ def p_prec2expr_(p):
         p[0]['value'] = p[1]['value']
         p[0]['type'] = p[1]['type']
     else:
-        p[0]['place'] = newtmp()
+        p[0]['place'] = getlabel()
+        register_variable(p[0]['place'])
         if(p[1]['type']!='int' or p[3]['type']!='int'):
             print("error!")
             exit(1)
@@ -1117,7 +1127,8 @@ def p_expr(p):
             p[0]['value'] = p[1]['value']
             p[0]['type'] = p[1]['type']
     else:
-        p[0]['place'] = newtmp()
+        p[0]['place'] = getlabel()
+        register_variable(p[0]['place'])
         if(p[1]['type']!='int' or p[3]['type']!='int'):
             print("error!")
             exit(1)
