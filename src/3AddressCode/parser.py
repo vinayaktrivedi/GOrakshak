@@ -57,7 +57,7 @@ def add_variable_attribute(variable,attribute,value):
 
 def get_variable_attribute(variable,attribute):
   local_symbol_table = stack[-1]
-  
+
   while 1:
     if variable in local_symbol_table:
       if attribute in local_symbol_table[variable]:
@@ -425,8 +425,8 @@ def p_forbody(p):
   p[0]['extra']['ForHeader'] = p[1]['extra']
   p[0]['extra']['loopbody'] = {}
   p[0]['extra']['loopbody']['code']=p[2]['code']
-  
-  
+
+
 
 def p_forstmt(p):
   '''ForStmt : FOR ForBody'''
@@ -434,12 +434,12 @@ def p_forstmt(p):
   exit_label = getlabel()
   p[0]['code'] = p[2]['extra']['ForHeader']['initialization']['code'] + "\n" + loop_label+ ":"
   p[0]['code'] += "\n"+ p[2]['extra']['ForHeader']['check']['code']
-  p[0]['code'] += "\n"+ "if "+p[2]['extra']['ForHeader']['check']['place'] + " =0 goto "+exit_label  
+  p[0]['code'] += "\n"+ "if "+p[2]['extra']['ForHeader']['check']['place'] + " =0 goto "+exit_label
   p[0]['code'] += "\n"+ p[2]['extra']['loopbody']['code']
   p[0]['code'] += "\n"+ p[2]['extra']['ForHeader']['update']['code']
-  p[0]['code'] += "\n goto "+loop_label 
-  p[0]['code'] += "\n" + exit_label+":" 
-  
+  p[0]['code'] += "\n goto "+loop_label
+  p[0]['code'] += "\n" + exit_label+":"
+
 
 def p_ifheader(p):
   '''IfHeader : OSimpleStmt
@@ -447,7 +447,7 @@ def p_ifheader(p):
   if(len(p)==2):
     p[0]['code'] = p[1]['code']
     p[0]['place'] = p[1]['place']
-    
+
 
 def p_ifstmt(p):
   '''IfStmt : IF IfHeader LoopBody ElseIfList'''
@@ -837,9 +837,9 @@ def p_declname(p):
 
 def p_name(p):
   '''Name : IDENTIFIER'''
-  p[0]['name'] = str(p[1])
+  # p[0]['name'] = str(p[1])
   p[0]['code'] = str(p[1])
-
+  p[0]['type'] = get_variable_attribute(str(p[1]),"type")
 
 def p_argtype(p):
   '''ArgType : NameOrType
