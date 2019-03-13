@@ -24,8 +24,14 @@ file = args["input"]
 globalsymboltable = {}
 stack = []
 stack.append(globalsymboltable)
+counter=0
 
-def make_symbol_table(func_name,label):
+def getlabel():
+  global counter
+  counter += 1
+  return "GOrakshak"+str(counter)
+
+def make_symbol_table(func_name,label): #use global keyword
   prev_table = stack[-1]
   local_symbol_table = {}
   prev_table[func_name] = {}
@@ -323,7 +329,8 @@ def p_case(p):
 
 
 def p_compoundstmt(p):
-  '''CompoundStmt : LBRACE cmtlist StmtList cmtlist RBRACE'''
+  '''CompoundStmt : LBRACE marker1 cmtlist StmtList cmtlist RBRACE'''
+  p[0]['code'] = p[4]['code']
 
 def p_caseblock(p):
   '''CaseBlock : Case StmtList'''
@@ -335,8 +342,14 @@ def p_caseblocklist(p):
 
 def p_loopbody(p):
 
-  '''LoopBody : LBRACE cmtlist StmtList  cmtlist RBRACE'''
+  '''LoopBody : LBRACE marker1 cmtlist StmtList  cmtlist RBRACE'''
+  p[0]['code'] = p[4]['code']
 
+def p_marker1(p):
+  '''marker1:
+            '''
+  func_name = getlabel()
+  make_symbol_table(func_name,"marker1")
 
 def p_rangestmt(p):
 
@@ -352,20 +365,48 @@ def p_forheader(p):
   '''ForHeader : OSimpleStmt SEMICOL OSimpleStmt SEMICOL OSimpleStmt
                | OSimpleStmt
                | RangeStmt'''
-
+  if(len(p)==6):
+    p[0]['extra'] ={}
+    p[0]['extra']['update']={}
+    p[0]['extra']['initialization'] ={}
+    p[0]['extra']['check']={}
+    p[0]['extra']['initialization']['code'] = p[1]['code']
+    p[0]['extra']['initialization']['place'] = p[1]['place']
+    p[0]['extra']['check']['code'] = p[3]['code']
+    p[0]['extra']['check']['place'] = p[3]['place']
+    p[0]['extra']['update']['code'] = p[5]['code']
+    p[0]['extra']['update']['place'] = p[5]['place']
 
 def p_forbody(p):
 
   '''ForBody : ForHeader LoopBody'''
+  p[0]['extra'] ={}
+  p[0]['extra']['ForHeader'] = p[1]['extra']
+  p[0]['extra']['loopbody'] = {}
+  p[0]['extra']['loopbody']['code']=p[2]['code']
+  
+  
 
 def p_forstmt(p):
-
   '''ForStmt : FOR ForBody'''
+  loop_label = getlabel()
+  exit_label = getlabel()
+  p[0]['code'] = p[2]['extra']['ForHeader']['initialization']['code'] + "\n" + loop_label+ ":"
+  p[0]['code'] += "\n"+ p[2]['extra']['ForHeader']['check']['code']
+  p[0]['code'] += "\n"+ "if "+p[2]['extra']['ForHeader']['check']['place'] + " =0 goto "+exit_label  
+  p[0]['code'] += "\n"+ p[2]['extra']['loopbody']['code']
+  p[0]['code'] += "\n"+ p[2]['extra']['ForHeader']['update']['code']
+  p[0]['code'] += "\n goto "+loop_label 
+  p[0]['code'] += "\n" + exit_label+":" 
+  
 
 def p_ifheader(p):
   '''IfHeader : OSimpleStmt
            | OSimpleStmt SEMICOL OSimpleStmt'''
-
+  if(len(p)==2):
+    p[0]['code'] = p[1]['code']
+    p[0]['place'] = p[1]['place']
+    
 
 def p_ifstmt(p):
   '''IfStmt : IF IfHeader LoopBody ElseIfList'''
@@ -684,6 +725,11 @@ def p_decl_name_list(p):
 def p_stmtlist(p):
   '''StmtList : Stmt SEMICOL
                 | StmtList cmtlist Stmt SEMICOL'''
+  if(len(p)==3):
+    p[0]['code']=p[1]['code']
+  else:
+    p[0]['code']=p[1]['code']+"\n"+p[3]['code']
+
 
 def p_newnamelist(p):
   '''NewNameList : NewName
