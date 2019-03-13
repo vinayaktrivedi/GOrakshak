@@ -600,7 +600,7 @@ def p_arglist(p):
 def p_funcbody(p):
   '''FuncBody :
               | LBRACE  cmtlist StmtList  cmtlist RBRACE'''
-  
+  p[0]['code']=p[3]['code']
 
 
 def p_funcres(p):
