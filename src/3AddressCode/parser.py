@@ -419,7 +419,7 @@ def p_simplestmt(p):
         if(flag == 2):
             p[0]['code'] = ""
             if(len(p[1]['exprs']) != len(p[3]['exprs'])):
-                print("error!")
+                print("Error in line "+str(p.lineno(2))+" : error")
                 exit(1)
             for i in range(0,len(p[1]['exprs'])):
                 p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']
@@ -433,7 +433,7 @@ def p_simplestmt(p):
                 else:
                     print(p[1]['exprs'][i]['type'])
                     print(p[3]['exprs'][i]['type'])
-                    print("can't assign float to int")
+                    print("Error in line "+str(p.lineno(2))+" : can't assign float to int")
                     exit(1)
             p[0]['place'] = p[1]['exprs'][0]['place']
 
