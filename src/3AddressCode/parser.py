@@ -218,7 +218,7 @@ def p_vardecl(p):
     elif(len(p)==4):
       i = 0 
       if(len(p[1]['variable']) != len(p[3]['exprs'])):
-        print("error !")
+        print("Error in line "+str(p.lineno(2))+" :type mismatch")
         exit(1)
 
       for var in p[1]['variable']:
@@ -228,11 +228,11 @@ def p_vardecl(p):
     else:
       i=0
       if(p[4]['exprs'][0]['type'] != p[2]['type']['val']):
-        print("Type of variable and value assigned type don't match!")
+        print("Error in line "+str(p.lineno(3))+" :Type of variable and value assigned type don't match")
         exit(1)
       else:
         if(len(p[1]['variable']) != len(p[4]['exprs'])):
-          print("error !")
+          print("Error in line "+str(p.lineno(3))+" : error")
           exit(1)
 
         for var in p[1]['variable']:
@@ -263,11 +263,11 @@ def p_constdecl(p):
     else:
       i=0
       if(p[4]['exprs'][0]['type'] != p[2]['type']['val']):
-        print("Type of variable and value assigned type don't match!")
+        print("Error in line "+str(p.lineno(3))+" :Type of variable and value assigned type don't match")  
         exit(1)
       else:
         if(len(p[1]['variable']) != len(p[3]['exprs'])):
-          print("error !")
+          print("Error in line "+str(p.lineno(3))+" :error")
           exit(1)
 
         for var in p[1]['variable']:
@@ -396,7 +396,7 @@ def p_simplestmt(p):
             # Leave it for now
             p[0]['code'] = ""
             if(len(p[1]['exprs']) != len(p[3]['exprs'])):
-                print("error!")
+                print("Error in line "+str(p.lineno(2))+" :error")
                 exit(1)
             # p[0]['code'] = ""
             for i in range(0,len(p[1]['exprs'])):
@@ -416,13 +416,12 @@ def p_simplestmt(p):
                 else:
                     print(p[1]['exprs'][i]['type'])
                     print(p[3]['exprs'][i]['type'])
-                    print("can't assign float to int")
+                    print("Error in line "+str(p.lineno(2))+" :can't assign float to int")
                     exit(1)
             p[0]['place'] = p[1]['exprs'][0]['place']
 
 
         if(str(p[2]) == ":="):
-            print("ok")
             p[0]['code'] = ""
             # not sure about it
 
@@ -666,7 +665,7 @@ def p_othertype(p):
           p[0]['type']['arr_length'] = p[2]['value']
           p[0]['type']['arr_type'] = p[4]['type']['val']
         else:
-          print("Array definition not good")
+          print("Error in line "+str(p.lineno(1))+" : Array definition not good")
           exit(1)
 
 
@@ -1005,9 +1004,8 @@ def p_name(p):
     '''Name : IDENTIFIER'''
     p[0] = {}
     p[0]['code'] = ""
-    print(str(p[1]))
     if(check_if_variable_declared(str(p[1])) == 0):
-        print("variable not in scope")
+        print("Error in line "+str(p.lineno(1))+" : variable not in scope")
         exit(1)
     x = get_variable_attribute(str(p[1]),"type")
 
@@ -1276,7 +1274,7 @@ def p_prec5expr_(p):
                 p[0]['type'] = p[1]['type']
         if(flag == 1):
             if(p[1]['type'] != 'int' or p[3]['type'] != 'int'):
-                print("error!")
+                print("Error in line "+str(p.lineno(2))+" : error")
                 exit(1)
             p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] + " " + op + " " + p[3]['place']
             p[0]['type'] = 'int'
@@ -1341,7 +1339,7 @@ def p_prec4expr_(p):
                 p[0]['type'] = p[1]['type']
         else:
             if(p[1]['type'] != 'int' or p[3]['type'] != 'int'):
-                print("error!")
+                print("Error in line "+str(p.lineno(2))+" : error")
                 exit(1)
             p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] + " " + op + " " + p[3]['place']
             p[0]['type'] = 'int'
@@ -1366,7 +1364,7 @@ def p_prec3expr_(p):
         p[0]['code'] = p[1]['code'] + "\n" + p[3]['code'] + "\n"
         op = ""
         if(p[1]['type']!=p[3]['type']):
-            print("error1!")
+            print("Error in line "+str(p.lineno(2))+" : error")
             exit(1)
         # do this thing for others as well
         p[0]['value'] = ""
@@ -1414,7 +1412,7 @@ def p_prec2expr_(p):
         p[0]['place'] = getlabel()
         register_variable(p[0]['place'])
         if(p[1]['type']!='int' or p[3]['type']!='int'):
-            print("error!")
+            print("Error in line "+str(p.lineno(2))+" : error")
             exit(1)
         p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] + " && " + p[3]['place']
         p[0]['type'] = p[1]['type']
@@ -1441,7 +1439,7 @@ def p_expr(p):
         p[0]['place'] = getlabel()
         register_variable(p[0]['place'])
         if(p[1]['type']!='int' or p[3]['type']!='int'):
-            print("error!")
+            print("Error in line "+str(p.lineno(2))+" : error")
             exit(1)
         p[0]['code'] = p[0]['place'] + " = " + p[1]['place'] + " || " + p[3]['place']
         p[0]['type'] = p[1]['type']
@@ -1463,7 +1461,7 @@ def p_arrayexp(p):
   p[0]['code'] = str(label2)+" = C("+str(array_label)+")"
   for objects in p[2]['exprs']:
     if(objects['type']!=c_type):
-      print("Error in array declaration!")
+      print("Error in line "+str(p.lineno(2))+" : Error in array declaration")  
       exit(1)
     else:
       temp_label = getlabel()
@@ -1473,7 +1471,7 @@ def p_arrayexp(p):
     i = i+1
 
   if(p[1]['type']['arr_length'] != i):
-    print("not enough arguments to initialise array!")
+    print("Error in line "+str(p.lineno(2))+" : not enough arguments to initialise array")  
     exit(1)
 
 def p_uexpr(p):
