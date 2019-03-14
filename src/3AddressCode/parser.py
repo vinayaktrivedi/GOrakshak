@@ -924,6 +924,10 @@ def p_name(p):
     '''Name : IDENTIFIER'''
     p[0] = {}
     p[0]['code'] = ""
+    print(str(p[1]))
+    if(check_if_variable_declared(str(p[1])) == 0):
+        print("variable not in scope")
+        exit(1)
     x = get_variable_attribute(str(p[1]),"type")
     p[0]['type'] = x['val']
     p[0]['value'] = ""
