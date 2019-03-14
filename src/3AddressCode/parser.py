@@ -202,46 +202,79 @@ def p_commondecl(p):
     # need to do for this
     p[0] = {}
     p[0]['code'] = ""
-
+    if(len(p)==3):
+      p[0]['code'] = p[2]['code']
 
 
 def p_vardecl(p):
     '''VarDecl   : DeclNameList NType
           | DeclNameList NType EQUAL ExprList
           | DeclNameList EQUAL ExprList'''
+    p[0] = {}
+    p[0]['code'] = ""
     if(len(p)==3):
         for var in p[1]['variable']:
             add_variable_attribute_api(var,'type',p[2]['type'])
     elif(len(p)==4):
+      i = 0 
+      if(len(p[1]['variable']) != len(p[3]['exprs'])):
+        print("error !")
+        exit(1)
+
       for var in p[1]['variable']:
         add_variable_attribute_api(var,'type',p[3]['type'])
+        p[0]['code'] += var+" = "+p[3]['exprs'][i]['place']+"\n"
+        i = i+1
     else:
+      i=0
       if(p[4]['exprs'][0]['type'] != p[2]['type']['val']):
-        print("Error!!")
-        print("hey")
+        print("Type of variable and value assigned type don't match!")
         exit(1)
       else:
+        if(len(p[1]['variable']) != len(p[4]['exprs'])):
+          print("error !")
+          exit(1)
+
         for var in p[1]['variable']:
           add_variable_attribute_api(var,'type',p[2]['type'])
+          p[0]['code'] += var+" = "+p[4]['exprs'][i]['place']+"\n"
+          i = i+1
+    #print(p[0]['code'])
 
 
 def p_constdecl(p):
-  '''ConstDecl : DeclNameList NType EQUAL ExprList
+    '''ConstDecl : DeclNameList NType EQUAL ExprList
           | DeclNameList NType
-          | DeclNameList EQUAL ExprList'''
-  if(len(p)==3):
-    for var in p[1]['variable']:
-      add_variable_attribute_api(var,'type',p[2]['type'])
-  elif(len(p)==4):
-    for var in p[1]['variable']:
-      add_variable_attribute_api(var,'type',p[3]['type'])
-  else:
-    if(p[4]['type'] != p[2]['type']):
-      print("Error!!")
-      exit(1)
-    else:
+          | DeclNameList EQUAL ExprList '''
+    p[0] = {}
+    p[0]['code'] = ""
+    if(len(p)==3):
+        for var in p[1]['variable']:
+            add_variable_attribute_api(var,'type',p[2]['type'])
+    elif(len(p)==4):
+      i = 0 
+      if(len(p[1]['variable']) != len(p[3]['exprs'])):
+        print("error !")
+        exit(1)
+
       for var in p[1]['variable']:
-        add_variable_attribute_api(var,'type',p[2]['type'])
+        add_variable_attribute_api(var,'type',p[3]['type'])
+        p[0]['code'] += var+" = "+p[3]['exprs'][i]['place']+"\n"
+        i = i+1
+    else:
+      i=0
+      if(p[4]['exprs'][0]['type'] != p[2]['type']['val']):
+        print("Type of variable and value assigned type don't match!")
+        exit(1)
+      else:
+        if(len(p[1]['variable']) != len(p[3]['exprs'])):
+          print("error !")
+          exit(1)
+
+        for var in p[1]['variable']:
+          add_variable_attribute_api(var,'type',p[2]['type'])
+          p[0]['code'] += var+" = "+p[4]['exprs'][i]['place']+"\n"
+          i = i+1
 
 
 def p_constdecl1(p):
