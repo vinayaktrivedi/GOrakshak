@@ -406,14 +406,14 @@ def p_simplestmt(p):
                 # else:
                 #     print("error!")
                 #     exit(1)
-                p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code'] + "\n"
+                p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']
                 if(p[1]['exprs'][i]['type']=='int' and p[3]['exprs'][i]['type']=='float'):
                     tmp = getlabel()
                     register_variable(tmp)
-                    p[0]['code'] += tmp + " = inttofloat " + p[3]['exprs'][i]['place'] + "\n"
-                    p[0]['code'] += p[1]['exprs'][i]['place'] + " = " + tmp
+                    p[0]['code'] += "\n" + tmp + " = inttofloat " + p[3]['exprs'][i]['place']
+                    p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + tmp
                 elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
-                    p[0]['code'] += p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
+                    p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
                 else:
                     print(p[1]['exprs'][i]['type'])
                     print(p[3]['exprs'][i]['type'])
@@ -478,7 +478,7 @@ def p_compoundstmt(p):
     p[0]['code'] = p[4]['code']
 
 def p_compundmarker(p):
-    '''compundmarker : 
+    '''compundmarker :
                 '''
     make_symbol_table("compound_statement")
 
@@ -552,7 +552,7 @@ def p_forstmt(p):
     p[0]['code'] += "\n" + exit_label+":"
 
 def p_formarker(p):
-    '''formarker :  
+    '''formarker :
                   '''
     make_symbol_table("loopbody")
     p[0]={}
@@ -564,7 +564,7 @@ def p_formarker(p):
     current["CS335_loop_label"] = p[0]['loop_label']
     current["CS335_exit_label"] = p[0]['exit_label']
     current["CS335_update_label"] = p[0]['update_label']
-    
+
 
 def p_ifheader(p):
     '''IfHeader : OSimpleStmt
@@ -1013,7 +1013,7 @@ def p_name(p):
     x = get_variable_attribute(str(p[1]),"type")
 
     if(x['val'] == 'array' or x['val'] == 'struct'):
-      p[0]['type'] = x 
+      p[0]['type'] = x
     else:
       p[0]['type'] = x['val']
 
@@ -1089,7 +1089,7 @@ def p_nondeclstmt(p):
             for i in range(0,len(p[2]['exprs'])):
                 p[0]['code'] += p[2]['exprs'][i]['code'] + "\n"
                 p[0]['code'] += "return " + p[2]['exprs'][i]['place']
-                
+
         if(flag == 0):
             global stack
             current= stack[-1]
@@ -1152,7 +1152,7 @@ def p_pexprnoparen(p):
       p[0]['code'] = p[1]['code']
       p[0]['code'] += "\n"+p[3]['code']
       p[0]['place'] = label
-      p[0]['code'] = "\n" + str(label1) + " = C(" + p[1]['place'] + ")\n" 
+      p[0]['code'] = "\n" + str(label1) + " = C(" + p[1]['place'] + ")\n"
       p[0]['code'] = str(label)+" = "+str(label1)+"["+p[3]['place']+"]"
       p[0]['value'] = 1
       p[0]['type'] = p[1]['type']['arr_type']
@@ -1221,6 +1221,7 @@ def p_prec5expr_(p):
         op = ""
         typ = ""
         p[0]['place'] = getlabel()
+        p[0]['value'] = ""
         register_variable(p[0]['place'])
         flag = 0
         if(str(p[2]) == "/"):
@@ -1456,7 +1457,7 @@ def p_arrayexp(p):
   p[0] = {}
   c_type = p[1]['type']['arr_type']
   i = 0
-  global size 
+  global size
   array_label = getlabel()
   p[0]['place'] = array_label
   label2 = getlabel()
@@ -1475,7 +1476,7 @@ def p_arrayexp(p):
   if(p[1]['type']['arr_length'] != i):
     print("not enough arguments to initialise array!")
     exit(1)
-    
+
 def p_uexpr(p):
     '''UExpr : PExpr
              | AMPERS UExpr
@@ -1515,4 +1516,4 @@ parser = yacc.yacc()            # Build the parser
 with open(file,'r') as f:
     input_str = f.read()
 
-parser.parse(input_str,debug=0)
+parser.parse(input_str,debug=1)
