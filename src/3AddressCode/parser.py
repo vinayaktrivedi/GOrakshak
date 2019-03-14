@@ -27,7 +27,7 @@ file = args["input"]
 # outfile = open(args["output"],"w")
 
 globalsymboltable = {}
-globalsymboltable["GOrakshak_name"] = "global_symbol_table"
+globalsymboltable["CS335_name"] = "global_symbol_table"
 stack = []
 stack.append(globalsymboltable)
 counter=0
@@ -41,13 +41,13 @@ def make_symbol_table(label): #use global keyword
     global stack
     prev_table = stack[-1]
     local_symbol_table = {}
-    local_symbol_table["GOrakshak_name"]=label
-    if "GOrakshak_childtables" in prev_table.keys():
+    local_symbol_table["CS335_name"]=label
+    if "CS335_childtables" in prev_table.keys():
         pass
     else:
-        prev_table["GOrakshak_childtables"] = []
-    prev_table["GOrakshak_childtables"].append(local_symbol_table)
-    local_symbol_table['GOrakshak_parent'] = prev_table
+        prev_table["CS335_childtables"] = []
+    prev_table["CS335_childtables"].append(local_symbol_table)
+    local_symbol_table['CS335_parent'] = prev_table
     # Does making a symbol table always require to set the current symbol table to the new one
     stack.append(local_symbol_table)
     return local_symbol_table
@@ -81,7 +81,7 @@ def get_variable_attribute(variable,attribute):
         else:
           if(local_symbol_table == globalsymboltable):
             return -1
-          local_symbol_table = local_symbol_table['GOrakshak_parent']
+          local_symbol_table = local_symbol_table['CS335_parent']
 
 def register_variable(variable):
     global stack
@@ -638,10 +638,10 @@ def p_funcdec1_(p):
     p[0] = {}
     if(len(p)==4):
         p[0]['func_name'] = str(p[1])
-        current['GOrakshak_args'] = p[2]['argList']
-        current['GOrakshak_response'] = p[3]['response']
-        current['GOrakshak_name']= str(p[1])          #replaces func_unknown by actual func name
-        current['GOrakshak_type']= "function"
+        current['CS335_args'] = p[2]['argList']
+        current['CS335_response'] = p[3]['response']
+        current['CS335_name']= str(p[1])          #replaces func_unknown by actual func name
+        current['CS335_type']= "function"
 
 
 def p_functype(p):
