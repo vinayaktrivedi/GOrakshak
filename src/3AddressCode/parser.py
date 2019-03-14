@@ -291,8 +291,6 @@ def p_typedecl(p):
 #   make_symbol_table(p[1]['variable'],'type')
 #   add_variable_attribute_api(p[1]['variable'],'type',p[2]['type'])
 
-
-
 def p_simplestmt(p):
     '''SimpleStmt : Expr
            | Expr PLUSEQ Expr
@@ -433,7 +431,7 @@ def p_simplestmt(p):
                 else:
                     print(p[1]['exprs'][i]['type'])
                     print(p[3]['exprs'][i]['type'])
-                    print("Error in line "+str(p.lineno(2))+" : can't assign float to int")
+                    print("Error in line "+str(p.lineno(2))+" : type mismatch")
                     exit(1)
             p[0]['place'] = p[1]['exprs'][0]['place']
 
@@ -1090,9 +1088,10 @@ def p_pexpr(p):
         p[0]['type'] = p[1]['type']
         p[0]['place'] = p[1]['place']
     else:
-      p[0]['code'] = p[1]['code']
-      p[0]['place'] = p[1]['code']
-      p[0]['type'] = p[1]['type']
+        p[0]['code'] = p[2]['code']
+        p[0]['place'] = p[2]['place']
+        p[0]['type'] = p[2]['type']
+        p[0]['value'] = p[2]['value']
 
 def p_pexprnoparen(p):
     '''PExprNoParen : Literal
@@ -1162,8 +1161,13 @@ def p_complitexpr(p):
                  | LEFT_LEFT BracedKeyvalList RIGHT_RIGHT'''
 
 def p_exportype(p):
-  '''ExprOrType : Expr
+    '''ExprOrType : Expr
                   | NonExprType'''
+    p[0] = {}
+    p[0]['code'] = p[1]['code']
+    p[0]['type'] = p[1]['type']
+    p[0]['value'] = p[1]['value']
+    p[0]['place'] = p[1]['place']
 
 def p_nameortype(p):
     '''NameOrType : NType'''
@@ -1465,7 +1469,38 @@ def p_uexpr(p):
         p[0]['place'] = p[1]['place']
     else:
         # will do later
+        p[0]['code'] = p[2]['code'] + "\n"
         op = str(p[1])
+        p[0]['value'] = ""
+        if(op == "&"):
+            p[0]['type'] = '*'+p[2]['type']
+            p[0]['place'] = getlabel()
+            register_variable(p[0]['place'])
+            p[0]['code'] += p[0]['place'] + " = " + op + p[2]['place']
+            p[0]['value'] = ""
+        if(op == "!"):
+            dummy = 0
+        if(op == "*"):
+            if(p[2]['type'][0] != '*'):
+                print("Error in line "+str(p.lineno(1))+" : can't dereference a non pointer")
+            p[0]['type'] = p[2]['type'][1:]
+            p[0]['place'] = getlabel()
+            register_variable(p[0]['place'])
+            p[0]['code'] += p[0]['place'] + " = " + op + p[2]['place']
+        if(op == "+"):
+            p[0]['type'] = p[2]['type']
+            p[0]['place'] = p[2]['place']
+            if(p[2]['value'] != ""):
+                p[0]['value'] = p[2]['value']
+        if(op == "-"):
+            p[0]['type'] = p[2]['type']
+            p[0]['place'] = getlabel()
+            register_variable(p[0]['place'])
+            p[0]['code'] += p[0]['place'] + " = " + op + p[2]['place']
+            if(p[2]['value'] != ""):
+                p[0]['value'] = -p[2]['value']
+        if(op == "^"):
+            dummy = 0
 
 def p_forcompexpr(p):
   '''ForCompExpr : LBRACK Expr PIPE RangeStmt RBRACK'''
