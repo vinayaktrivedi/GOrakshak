@@ -2,25 +2,18 @@ package main;
 
 import "fmt";
 
-
+func hello (){
+	var a int = 8;
+	a = 900;
+	var c,d,e int;
+	c,d,e = 2*a,c,10;
+	return 90,a;
+};
 func main(){
-	var a int =10;
-	var i int=10;
-	var b int =100;
-	if i<10 {
-		a++;
-	}
-	else if i<20{
-		a--;
-	}
-	else{
-		a+=2;
-	};
-	{
-		var c int;
-		b+=2;
-	};
-	{
-		c--;
-	};
+
+	var g [20]int;
+	g[10] = 0;
+	g[9],g[1] := 90,845;
+
+	// g[8] = hello();
 };

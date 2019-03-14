@@ -391,57 +391,11 @@ def p_simplestmt(p):
 
         if(str(p[2]) == "="):
             flag = 2
-            #print("ok")
-
-            # Leave it for now
-            p[0]['code'] = ""
-            if(len(p[1]['exprs']) != len(p[3]['exprs'])):
-                print("Error in line "+str(p.lineno(2))+" :error")
-                exit(1)
-            # p[0]['code'] = ""
-            for i in range(0,len(p[1]['exprs'])):
-                # if(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
-                #     p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
-                # else:
-                #     print("error!")
-                #     exit(1)
-                p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']
-                if(p[1]['exprs'][i]['type']=='int' and p[3]['exprs'][i]['type']=='float'):
-                    tmp = getlabel()
-                    register_variable(tmp)
-                    p[0]['code'] += "\n" + tmp + " = inttofloat " + p[3]['exprs'][i]['place']
-                    p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + tmp
-                elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
-                    p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
-                else:
-                    print(p[1]['exprs'][i]['type'])
-                    print(p[3]['exprs'][i]['type'])
-                    print("Error in line "+str(p.lineno(2))+" :can't assign float to int")
-                    exit(1)
-            p[0]['place'] = p[1]['exprs'][0]['place']
-
-
         if(str(p[2]) == ":="):
-            p[0]['code'] = ""
-            # not sure about it
-
-            # flag = 2
-            # if(len(p[1]['exprs']) != len(p[3]['exprs'])):
-            #     print("error!")
-            #     exit(1)
-            # p[0]['code'] = ""
-            # for i in range(0,len(p[1]['exprs'])):
-            #     p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
-            dummy = 0
-
+            flag = 2
         if(flag == 0):
             p[0]['code'] = p[1]['code'] + "\n" + p[3]['code'] + "\n"
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
-                # tmp = getlabel()
-                # register_variable(tmp)
-                # p[0]['code'] += tmp + " = inttofloat " + p[1]['place'] + "\n"
-                # p[0]['code'] += p[1]['place']  + " = " + tmp + " " + op + "float " + p[3]['place']
-                # p[0]['place'] = p[1]['place']
                 print("Error in line "+str(p.lineno(2))+" : can't assign float to int")
                 exit(1)
             if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
@@ -461,6 +415,27 @@ def p_simplestmt(p):
             p[0]['code'] = p[1]['code'] + "\n" + p[3]['code'] + "\n"
             p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
             p[0]['place'] = p[1]['place']
+
+        if(flag == 2):
+            p[0]['code'] = ""
+            if(len(p[1]['exprs']) != len(p[3]['exprs'])):
+                print("error!")
+                exit(1)
+            for i in range(0,len(p[1]['exprs'])):
+                p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']
+                if(p[1]['exprs'][i]['type']=='int' and p[3]['exprs'][i]['type']=='float'):
+                    tmp = getlabel()
+                    register_variable(tmp)
+                    p[0]['code'] += "\n" + tmp + " = inttofloat " + p[3]['exprs'][i]['place']
+                    p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + tmp
+                elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
+                    p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
+                else:
+                    print(p[1]['exprs'][i]['type'])
+                    print(p[3]['exprs'][i]['type'])
+                    print("can't assign float to int")
+                    exit(1)
+            p[0]['place'] = p[1]['exprs'][0]['place']
 
 
 def p_case(p):
