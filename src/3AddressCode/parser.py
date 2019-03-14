@@ -35,7 +35,7 @@ counter=0
 def getlabel():
   global counter
   counter += 1
-  return "temp"+str(counter)
+  return "CS335"+str(counter)
 
 def make_symbol_table(label): #use global keyword
     global stack
