@@ -114,7 +114,7 @@ Rule 108   FuncType -> FUNCTION ArgList FuncRes
 Rule 109   ArgList -> LPAREN OArgTypeListOComma RPAREN
 Rule 110   ArgList -> ArgList LPAREN OArgTypeListOComma RPAREN
 Rule 111   FuncBody -> <empty>
-Rule 112   FuncBody -> LBRACE cmtlist StmtList cmtlist RBRACE
+Rule 112   FuncBody -> LBRACE cmtlist StmtList cmtlist revmarker1 RBRACE
 Rule 113   FuncRes -> <empty>
 Rule 114   FuncRes -> FuncRetType
 Rule 115   FuncRes -> LEFT_OR OArgTypeListOComma OR_RIGHT
@@ -476,7 +476,7 @@ VarDeclList          : 26 167
 cmtlist              : 2 2 2 2 3 3 3 4 4 4 5 5 8 61 61 65 65 112 112 153 153 165 175 280
 marker1              : 61 65
 marker2              : 104
-revmarker1           : 65
+revmarker1           : 65 112
 start                : 0
 
 Parsing method: LALR
@@ -12573,7 +12573,7 @@ state 247
 
     (104) FuncDecl -> FUNCTION FuncDecl_ marker2 . FuncBody
     (111) FuncBody -> .
-    (112) FuncBody -> . LBRACE cmtlist StmtList cmtlist RBRACE
+    (112) FuncBody -> . LBRACE cmtlist StmtList cmtlist revmarker1 RBRACE
 
     SEMICOL         reduce using rule 111 (FuncBody -> .)
     LBRACE          shift and go to state 351
@@ -15488,7 +15488,7 @@ state 350
 
 state 351
 
-    (112) FuncBody -> LBRACE . cmtlist StmtList cmtlist RBRACE
+    (112) FuncBody -> LBRACE . cmtlist StmtList cmtlist revmarker1 RBRACE
     (279) cmtlist -> .
     (280) cmtlist -> . cmtlist COMMENT
 
@@ -18036,7 +18036,7 @@ state 425
 
 state 426
 
-    (112) FuncBody -> LBRACE cmtlist . StmtList cmtlist RBRACE
+    (112) FuncBody -> LBRACE cmtlist . StmtList cmtlist revmarker1 RBRACE
     (280) cmtlist -> cmtlist . COMMENT
     (174) StmtList -> . Stmt SEMICOL
     (175) StmtList -> . StmtList cmtlist Stmt SEMICOL
@@ -18201,7 +18201,6 @@ state 426
     FUNCTION        shift and go to state 112
 
     FuncType                       shift and go to state 62
-    PExprNoParen                   shift and go to state 48
     Prec4Expr_                     shift and go to state 28
     SimpleStmt                     shift and go to state 63
     Prec3Expr_                     shift and go to state 10
@@ -18215,7 +18214,7 @@ state 426
     Arrayexp                       shift and go to state 67
     Stmt                           shift and go to state 334
     NewType                        shift and go to state 65
-    NonDeclStmt                    shift and go to state 203
+    NewName                        shift and go to state 34
     InterfaceType                  shift and go to state 15
     LabelName                      shift and go to state 16
     Prec5Expr_                     shift and go to state 17
@@ -18224,7 +18223,7 @@ state 426
     StructType                     shift and go to state 56
     Name                           shift and go to state 68
     Prec2Expr_                     shift and go to state 20
-    NewName                        shift and go to state 34
+    NonDeclStmt                    shift and go to state 203
     Expr                           shift and go to state 70
     PseudoCall                     shift and go to state 38
     PExpr                          shift and go to state 60
@@ -18232,6 +18231,7 @@ state 426
     ExprList                       shift and go to state 24
     UExpr                          shift and go to state 41
     ForCompExpr                    shift and go to state 42
+    PExprNoParen                   shift and go to state 48
     SwitchStmt                     shift and go to state 43
     Literal                        shift and go to state 40
     FuncLiteral                    shift and go to state 9
@@ -19937,12 +19937,11 @@ state 476
 
 state 477
 
-    (112) FuncBody -> LBRACE cmtlist StmtList . cmtlist RBRACE
+    (112) FuncBody -> LBRACE cmtlist StmtList . cmtlist revmarker1 RBRACE
     (175) StmtList -> StmtList . cmtlist Stmt SEMICOL
     (279) cmtlist -> .
     (280) cmtlist -> . cmtlist COMMENT
 
-    RBRACE          reduce using rule 279 (cmtlist -> .)
     COMMENT         reduce using rule 279 (cmtlist -> .)
     LBRACE          reduce using rule 279 (cmtlist -> .)
     CONSTANT        reduce using rule 279 (cmtlist -> .)
@@ -19974,6 +19973,7 @@ state 477
     FLOAT           reduce using rule 279 (cmtlist -> .)
     STRING          reduce using rule 279 (cmtlist -> .)
     FUNCTION        reduce using rule 279 (cmtlist -> .)
+    RBRACE          reduce using rule 279 (cmtlist -> .)
     SEMICOL         reduce using rule 279 (cmtlist -> .)
 
     cmtlist                        shift and go to state 497
@@ -20791,9 +20791,10 @@ state 496
 
 state 497
 
-    (112) FuncBody -> LBRACE cmtlist StmtList cmtlist . RBRACE
+    (112) FuncBody -> LBRACE cmtlist StmtList cmtlist . revmarker1 RBRACE
     (175) StmtList -> StmtList cmtlist . Stmt SEMICOL
     (280) cmtlist -> cmtlist . COMMENT
+    (67) revmarker1 -> .
     (194) Stmt -> .
     (195) Stmt -> . CompoundStmt
     (196) Stmt -> . CommonDecl
@@ -20921,8 +20922,8 @@ state 497
     (108) FuncType -> . FUNCTION ArgList FuncRes
     (152) FuncLiteralDecl -> . FuncType
 
-    RBRACE          shift and go to state 512
     COMMENT         shift and go to state 4
+    RBRACE          reduce using rule 67 (revmarker1 -> .)
     SEMICOL         reduce using rule 194 (Stmt -> .)
     LBRACE          shift and go to state 202
     CONSTANT        shift and go to state 26
@@ -20956,7 +20957,7 @@ state 497
     FUNCTION        shift and go to state 112
 
     FuncType                       shift and go to state 62
-    PExprNoParen                   shift and go to state 48
+    revmarker1                     shift and go to state 512
     Prec4Expr_                     shift and go to state 28
     SimpleStmt                     shift and go to state 63
     Prec3Expr_                     shift and go to state 10
@@ -20969,7 +20970,7 @@ state 497
     Arrayexp                       shift and go to state 67
     Stmt                           shift and go to state 473
     NewType                        shift and go to state 65
-    NonDeclStmt                    shift and go to state 203
+    NewName                        shift and go to state 34
     InterfaceType                  shift and go to state 15
     LabelName                      shift and go to state 16
     Prec5Expr_                     shift and go to state 17
@@ -20978,7 +20979,7 @@ state 497
     StructType                     shift and go to state 56
     Name                           shift and go to state 68
     Prec2Expr_                     shift and go to state 20
-    NewName                        shift and go to state 34
+    NonDeclStmt                    shift and go to state 203
     Expr                           shift and go to state 70
     PseudoCall                     shift and go to state 38
     PExpr                          shift and go to state 60
@@ -20986,6 +20987,7 @@ state 497
     ExprList                       shift and go to state 24
     UExpr                          shift and go to state 41
     ForCompExpr                    shift and go to state 42
+    PExprNoParen                   shift and go to state 48
     SwitchStmt                     shift and go to state 43
     Literal                        shift and go to state 40
     FuncLiteral                    shift and go to state 9
@@ -21875,16 +21877,16 @@ state 511
 
 state 512
 
-    (112) FuncBody -> LBRACE cmtlist StmtList cmtlist RBRACE .
+    (112) FuncBody -> LBRACE cmtlist StmtList cmtlist revmarker1 . RBRACE
 
-    SEMICOL         reduce using rule 112 (FuncBody -> LBRACE cmtlist StmtList cmtlist RBRACE .)
+    RBRACE          shift and go to state 517
 
 
 state 513
 
     (65) LoopBody -> LBRACE marker1 cmtlist StmtList cmtlist revmarker1 . RBRACE
 
-    RBRACE          shift and go to state 517
+    RBRACE          shift and go to state 518
 
 
 state 514
@@ -21892,7 +21894,7 @@ state 514
     (58) Case -> CASE ExprOrTypeList EQUAL Expr . COLON
     (262) Expr -> Expr . OROR Prec2Expr_
 
-    COLON           shift and go to state 518
+    COLON           shift and go to state 519
     OROR            shift and go to state 168
 
 
@@ -21901,7 +21903,7 @@ state 515
     (59) Case -> CASE ExprOrTypeList COLONEQ Expr . COLON
     (262) Expr -> Expr . OROR Prec2Expr_
 
-    COLON           shift and go to state 519
+    COLON           shift and go to state 520
     OROR            shift and go to state 168
 
 
@@ -21962,13 +21964,20 @@ state 516
 
 state 517
 
+    (112) FuncBody -> LBRACE cmtlist StmtList cmtlist revmarker1 RBRACE .
+
+    SEMICOL         reduce using rule 112 (FuncBody -> LBRACE cmtlist StmtList cmtlist revmarker1 RBRACE .)
+
+
+state 518
+
     (65) LoopBody -> LBRACE marker1 cmtlist StmtList cmtlist revmarker1 RBRACE .
 
     ELSE            reduce using rule 65 (LoopBody -> LBRACE marker1 cmtlist StmtList cmtlist revmarker1 RBRACE .)
     SEMICOL         reduce using rule 65 (LoopBody -> LBRACE marker1 cmtlist StmtList cmtlist revmarker1 RBRACE .)
 
 
-state 518
+state 519
 
     (58) Case -> CASE ExprOrTypeList EQUAL Expr COLON .
 
@@ -22005,7 +22014,7 @@ state 518
     SEMICOL         reduce using rule 58 (Case -> CASE ExprOrTypeList EQUAL Expr COLON .)
 
 
-state 519
+state 520
 
     (59) Case -> CASE ExprOrTypeList COLONEQ Expr COLON .
 
