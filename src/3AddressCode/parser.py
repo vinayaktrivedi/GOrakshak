@@ -31,6 +31,11 @@ globalsymboltable["CS335_name"] = "global_symbol_table"
 stack = []
 stack.append(globalsymboltable)
 counter=0
+size = {}
+size['int'] = 4
+size['float'] = 4
+size['bool'] = 1
+size['char'] = 1
 
 def getlabel():
   global counter
@@ -386,11 +391,13 @@ def p_simplestmt(p):
 
         if(flag == 0):
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
-                tmp = getlabel()
-                register_variable(tmp)
-                p[0]['code'] += tmp + " = inttofloat " + p[1]['place'] + "\n"
-                p[0]['code'] += p[1]['place']  + " = " + tmp + " " + op + "float " + p[3]['place']
-                p[0]['place'] = p[1]['place']
+                # tmp = getlabel()
+                # register_variable(tmp)
+                # p[0]['code'] += tmp + " = inttofloat " + p[1]['place'] + "\n"
+                # p[0]['code'] += p[1]['place']  + " = " + tmp + " " + op + "float " + p[3]['place']
+                # p[0]['place'] = p[1]['place']
+                print("can't assign float to int")
+                exit(1)
             if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
                 tmp = getlabel()
                 register_variable(tmp)
@@ -1384,7 +1391,24 @@ def p_chexpr(p):
 
 def p_arrayexp(p):
   '''Arrayexp : OtherType LBRACE ExprList RBRACE'''
-
+  p[0] = {}
+  c_type = p[1]['type']['arr_type']
+  i = 0
+  global size 
+  array_label = getlabel()
+  p[0]['place'] = array_label
+  label2 = getlabel()
+  p[0]['code'] = str(label2)+" = C("+str(array_label)+")"
+  for objects in p[2]['exprs']:
+    if(objects['type']!=c_type):
+      print("Error in array declaration!")
+      exit(1)
+    else:
+      temp_label = getlabel()
+      p[0]['code'] += str(temp_label)+" = "+str(i*size[c_type])
+      p[0]['code'] += str(label2)+"["+str(temp_label)+"] = "+str(objects['place'])
+    i = i+1
+    
 def p_uexpr(p):
     '''UExpr : PExpr
              | AMPERS UExpr
