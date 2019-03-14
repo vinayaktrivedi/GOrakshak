@@ -11,9 +11,12 @@ func main(){
 	a = 9 + 9 - 1;
 	if a == 18{
 		b = 29 + 90;
-		// c = 10;
+		// c = 10; <- there is a error in get_variable_attribute
 	}
 	else{
 		b = 13;
 	};
+	var c int;
+	a = 2.8;
+	c = b + 2*a - 80 / 2.22;
 };

@@ -1,5 +1,6 @@
 # should append code in beginning of expr (also append previous code[p[1]['code']] in p[0]['code'] )
 # don't pass code in reducing to identifier
+# an extra variable is printed when using 2 variables
 
 import sys
 import os
@@ -1182,6 +1183,7 @@ def p_prec4expr_(p):
     else:
         op = ""
         typ = ""
+        p[0]['value'] = ""
         p[0]['code'] = p[1]['code'] + "\n" + p[3]['code'] + "\n"
         p[0]['place'] = getlabel()
         register_variable(p[0]['place'])
