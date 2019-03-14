@@ -417,9 +417,19 @@ def p_case(p):
 
 
 def p_compoundstmt(p):
-    '''CompoundStmt : LBRACE marker1 cmtlist StmtList cmtlist RBRACE'''
+    '''CompoundStmt : LBRACE compundmarker cmtlist StmtList cmtlist revmarker RBRACE'''
     p[0] = {}
     p[0]['code'] = p[4]['code']
+
+def p_compundmarker(p):
+    '''compundmarker : 
+                '''
+    make_symbol_table("compound_statement")
+
+def p_revmarker(p):
+    '''revmarker :
+                '''
+    go_one_level_up()
 
 def p_caseblock(p):
   '''CaseBlock : Case StmtList'''
@@ -430,19 +440,9 @@ def p_caseblocklist(p):
                    | CaseBlockList CaseBlock'''
 
 def p_loopbody(p):
-    '''LoopBody : LBRACE marker1 cmtlist StmtList  cmtlist revmarker1 RBRACE'''
+    '''LoopBody : LBRACE  cmtlist StmtList  cmtlist RBRACE'''
     p[0] = {}
-    p[0]['code'] = p[4]['code']
-
-def p_marker1(p):
-  '''marker1 :
-            '''
-  make_symbol_table("loopbody")
-
-def p_revmarker1(p):
-  '''revmarker1 :
-            '''
-  go_one_level_up()
+    p[0]['code'] = p[3]['code']
 
 
 def p_rangestmt(p):
@@ -469,28 +469,46 @@ def p_forheader(p):
         p[0]['extra']['update']['place'] = p[5]['place']
 
 def p_forbody(p):
-    '''ForBody : ForHeader LoopBody'''
+    '''ForBody : ForHeader formarker LoopBody revmarker'''
     p[0] = {}
     p[0]['extra'] ={}
     p[0]['extra']['ForHeader'] = p[1]['extra']
     p[0]['extra']['loopbody'] = {}
-    p[0]['extra']['loopbody']['code']=p[2]['code']
-
+    p[0]['extra']['loopbody']['code']=p[3]['code']
+    p[0]['extra']['loop_label'] = p[2]['loop_label']
+    p[0]['extra']['exit_label']=p[2]['exit_label']
+    p[0]['extra']['update_label']=p[2]['update_label']
 
 
 def p_forstmt(p):
     '''ForStmt : FOR ForBody'''
-    loop_label = getlabel()
-    exit_label = getlabel()
+    loop_label = p[2]['extra']['loop_label']
+    exit_label = p[2]['extra']['exit_label']
+    update_label =p[2]['extra']['update_label']
     p[0] = {}
     p[0]['code'] = p[2]['extra']['ForHeader']['initialization']['code'] + "\n" + loop_label+ ":"
     p[0]['code'] += "\n"+ p[2]['extra']['ForHeader']['check']['code']
     p[0]['code'] += "\n"+ "if "+p[2]['extra']['ForHeader']['check']['place'] + " =0 goto "+exit_label
     p[0]['code'] += "\n"+ p[2]['extra']['loopbody']['code']
+    p[0]['code'] += "\n"+ update_label +":"
     p[0]['code'] += "\n"+ p[2]['extra']['ForHeader']['update']['code']
     p[0]['code'] += "\n goto "+loop_label
     p[0]['code'] += "\n" + exit_label+":"
 
+def p_formarker(p):
+    '''formarker :  
+                  '''
+    make_symbol_table("loopbody")
+    p[0]={}
+    p[0]['loop_label']=getlabel()
+    p[0]['exit_label']=getlabel()
+    p[0]['update_label']=getlabel()
+    global stack
+    current = stack[-1]
+    current["CS335_loop_label"] = p[0]['loop_label']
+    current["CS335_exit_label"] = p[0]['exit_label']
+    current["CS335_update_label"] = p[0]['update_label']
+    
 
 def p_ifheader(p):
     '''IfHeader : OSimpleStmt
@@ -621,12 +639,12 @@ def p_interfacetype(p):
 
 
 def p_funcdec1(p):
-  '''FuncDecl : FUNCTION  marker2 FuncDecl_  FuncBody'''
+  '''FuncDecl : FUNCTION  funcmarker FuncDecl_  FuncBody'''
   p[0] = {}
   p[0]['code'] = p[3]['func_name'] + ":\tBeginFunc 24;\n" +  p[4]['code'] + "\nEndFunc;"
 
-def p_marker2(p):
-    '''marker2 :
+def p_funcmarker(p):
+    '''funcmarker :
               '''
     make_symbol_table("func_unknown")
 
@@ -657,7 +675,7 @@ def p_argList(p):
 
 def p_funcbody(p):
     '''FuncBody :
-              | LBRACE  cmtlist StmtList  cmtlist revmarker1 RBRACE'''
+              | LBRACE  cmtlist StmtList  cmtlist revmarker RBRACE'''
     p[0] = {}
     p[0]['code']=p[3]['code']
 
@@ -1013,7 +1031,14 @@ def p_nondeclstmt(p):
             flag = 1
             string = "return"
         if(flag == 0):
-            p[0]['code'] = string + " " + p[2]['code']
+            global stack
+            current= stack[-1]
+            if (string == "break"):
+                p[0]['code'] = "goto "+current["CS335_exit_label"] + "\n" + p[2]['code']
+            elif(string == "continue"):
+                p[0]['code'] = "goto "+current["CS335_update_label"] + "\n" + p[2]['code']
+            else:
+                p[0]['code'] = string + " " + p[2]['code']
         # not done for return in multiple exp
     if(len(p)==4):
         # what to do

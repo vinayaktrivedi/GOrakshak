@@ -4,13 +4,16 @@ import "fmt";
 
 
 func main(){
-	var a float =10.0;
-	var i int;
-	for i=0; i <= 9; i++{
-		var c int =10;
-		a += 10.9;
-		break;
+	var a int =10;
+	var i int=10;
+	
+	if i<10 {
+		a++;
+	}
+	else if i<20{
+		a--;
+	}
+	else{
+		a+=2;
 	};
-	a= 90.0*8.1;
-	var x float32;
 };
