@@ -1,6 +1,12 @@
 package main;
 
-import "fmt";
+import "df";
+import (
+    "fmt";
+    "strings";
+    "adfdf";
+);
+
 
 func main(){
 
