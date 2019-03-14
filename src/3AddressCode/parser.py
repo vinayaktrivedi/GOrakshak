@@ -35,7 +35,7 @@ counter=0
 def getlabel():
   global counter
   counter += 1
-  return "GOrakshak"+str(counter)
+  return "temp"+str(counter)
 
 def make_symbol_table(label): #use global keyword
     global stack
@@ -213,6 +213,7 @@ def p_vardecl(p):
     else:
       if(p[4]['type'] != p[2]['type']['val']):
         print("Error!!")
+        print("hey")
         exit(1)
       else:
         for var in p[1]['variable']:
@@ -839,15 +840,15 @@ def p_literal(p):
     b = re.match(r'(([0-9]([0-9]+)*(\.[0-9]([0-9]+)*)?)[eE]\-[0-9]([0-9]+)*)|([0-9]([0-9]+)*\.[0-9]([0-9]+)*)([eE][\+]?[0-9]([0-9]+)*)?',str(p[1]))
     c = re.match(r'(\"[^\"]*\")|(\'[^\']*\') ',str(p[1]))
     p[0] = {}
-    if(a):
-        p[0]['value'] = int(str(p[1]))
-        p[0]['type'] = 'int'
-        p[0]['code'] = ""
     if(b):
         p[0]['value'] = float(str(p[1]))
         p[0]['type'] = 'float'
         p[0]['code'] = ""
-    if(c):
+    elif(a):
+        p[0]['value'] = int(str(p[1]))
+        p[0]['type'] = 'int'
+        p[0]['code'] = ""
+    elif(c):
         p[0]['value'] = str(p[1])
         p[0]['type'] = 'string'
         p[0]['code'] = ""
