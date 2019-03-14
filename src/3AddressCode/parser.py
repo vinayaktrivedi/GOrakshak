@@ -439,10 +439,19 @@ def p_simplestmt(p):
 
 
 def p_case(p):
-  '''Case : CASE ExprOrTypeList COLON
+    '''Case : CASE ExprOrTypeList COLON
      | CASE ExprOrTypeList EQUAL Expr COLON
      | CASE ExprOrTypeList COLONEQ Expr COLON
      | DEFAULT COLON'''
+    p[0]={}
+    if(len(p)==3):
+        p[0]['type'] = "default"
+        p[0]['value'] =""
+    elif(len(p)==4):
+        p[0]['type'] = "notdefault"
+        p[0]['value']=p[2]['place']
+        
+        
 
 
 def p_compoundstmt(p):
@@ -461,12 +470,21 @@ def p_revmarker(p):
     go_one_level_up()
 
 def p_caseblock(p):
-  '''CaseBlock : Case StmtList'''
+    '''CaseBlock : Case StmtList'''
+    p[0]={}
+    p[0]['code']=p[2]['code']
+    p[0]['type']=p[1]['type']
+    p[0]['value']=p[1]['value']
+    
 
 def p_caseblocklist(p):
 
-  '''CaseBlockList :
+    '''CaseBlockList :
                    | CaseBlockList CaseBlock'''
+    p[0] = []
+    if(len(p)==3):
+        p[0].extend(p[1])
+        p[0].append(p[2])
 
 def p_loopbody(p):
     '''LoopBody : LBRACE  cmtlist StmtList  cmtlist RBRACE'''
@@ -859,8 +877,11 @@ def p_exprlist(p):
 
 
 def p_exprortypelist(p):
-  '''ExprOrTypeList : ExprOrType
+    '''ExprOrTypeList : ExprOrType
                     | ExprOrTypeList COMMA ExprOrType'''
+    p[0]= {}
+    if(len(p)==2):
+        p[0]['place']=p[1]['place']
 
 def p_oliteral(p):
     '''OLiteral :
@@ -1162,8 +1183,12 @@ def p_complitexpr(p):
                  | LEFT_LEFT BracedKeyvalList RIGHT_RIGHT'''
 
 def p_exportype(p):
-  '''ExprOrType : Expr
+    '''ExprOrType : Expr
                   | NonExprType'''
+    p[0] = {}
+    if(len(p)==2):
+        print(p[1])
+        p[0]['place']=p[1]['place']
 
 def p_nameortype(p):
     '''NameOrType : NType'''
@@ -1171,7 +1196,28 @@ def p_nameortype(p):
     p[0]['type'] = p[1]['type']
 
 def p_switchstmt(p):
-  '''SwitchStmt : SWITCH IfHeader LBRACE CaseBlockList RBRACE'''
+    '''SwitchStmt : SWITCH IfHeader LBRACE CaseBlockList RBRACE'''
+    nextlabel = getlabel()
+    exitlabel = getlabel()
+    p[0] = {}
+    p[0]["code"]= p[2]['code']+"\n" 
+    dummy = getlabel()
+    for i in range(0,len(p[4])):
+        if(p[4][i]["type"] == "notdefault"):
+            p[0]['code']+= dummy +"= "+p[2]['place']+"=="+p[4][i]["value"] +"\n"
+            if((i+1)==len(p[4])):
+                p[0]['code']+= "if "+dummy +"=0 goto "+exitlabel + "\n" + p[4][i]['code']
+                break 
+            else:
+                p[0]['code']+= "if "+dummy +"=0 goto "+nextlabel + "\n" + p[4][i]['code'] + "\n" + "goto "+exitlabel+"\n"
+        
+        else:
+            p[0]['code']+= p[4][i]['code']
+            break
+        p[0]['code']+= nextlabel+":\n"
+        nextlabel=getlabel()
+        
+    p[0]['code'] += "\n" + exitlabel+":"
 
 def p_prec5expr_(p):
     '''Prec5Expr_ : UExpr
