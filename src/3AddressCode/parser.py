@@ -382,6 +382,8 @@ def p_simplestmt(p):
                 elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
                     p[0]['code'] += p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
                 else:
+                    print(p[1]['exprs'][i]['type'])
+                    print(p[3]['exprs'][i]['type'])
                     print("can't assign float to int")
                     exit(1)
             p[0]['place'] = p[1]['exprs'][0]['place']
@@ -976,7 +978,12 @@ def p_name(p):
         print("variable not in scope")
         exit(1)
     x = get_variable_attribute(str(p[1]),"type")
-    p[0]['type'] = x['val']
+
+    if(x['val'] == 'array' or x['val'] == 'struct'):
+      p[0]['type'] = x 
+    else:
+      p[0]['type'] = x['val']
+
     p[0]['value'] = ""
     p[0]['place'] = str(p[1])
 
@@ -1110,7 +1117,7 @@ def p_pexprnoparen(p):
       p[0]['code'] = "\n" + str(label1) + " = C(" + p[1]['place'] + ")\n" 
       p[0]['code'] = str(label)+" = "+str(label1)+"["+p[3]['place']+"]"
       p[0]['value'] = 1
-      p[0]['type'] = p[1]['type']
+      p[0]['type'] = p[1]['type']['arr_type']
 
     if(len(p)==6):
         # what to do
@@ -1426,6 +1433,10 @@ def p_arrayexp(p):
       p[0]['code'] += "\n"+objects['code'] + "\n"
       p[0]['code'] += str(label2)+"["+str(temp_label)+"] = "+str(objects['place'])
     i = i+1
+
+  if(p[1]['type']['arr_length'] != i):
+    print("not enough arguments to initialise array!")
+    exit(1)
     
 def p_uexpr(p):
     '''UExpr : PExpr
@@ -1466,4 +1477,4 @@ parser = yacc.yacc()            # Build the parser
 with open(file,'r') as f:
     input_str = f.read()
 
-parser.parse(input_str,debug=1)
+parser.parse(input_str,debug=0)
