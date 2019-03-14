@@ -217,8 +217,7 @@ def p_vardecl(p):
         add_variable_attribute_api(var,'type',p[3]['type'])
     else:
       if(p[4]['type'] != p[2]['type']['val']):
-        print("Error!!")
-        print("hey")
+        print("Error in line "+str(p.lineno(3))+" :type mismatch")
         exit(1)
       else:
         for var in p[1]['variable']:
@@ -237,7 +236,7 @@ def p_constdecl(p):
       add_variable_attribute_api(var,'type',p[3]['type'])
   else:
     if(p[4]['type'] != p[2]['type']):
-      print("Error!!")
+      print("Error in line "+str(p.lineno(3))+" :type mismatch")
       exit(1)
     else:
       for var in p[1]['variable']:
@@ -320,28 +319,28 @@ def p_simplestmt(p):
             op = "%"
             typ = p[1]['type']
             if(p[3]['type'] != "int" or p[3]['type'] != "int"):
-                print("error!")
+                print("Error in line "+str(p.lineno(2))+" :mod should be used with int types")
                 exit(1)
         if(str(p[2]) == "|="):
             flag = 1
             op = "|"
             typ = p[1]['type']
             if((p[1]['type'] != "int" or p[3]['type'] != "int") and (p[1]['type'] != "bool" or p[3]['type'] != "bool")):
-                print("error!")
+                print("Error in line "+str(p.lineno(2))+" : bitwise or should be used with int types")
                 exit(1)
         if(str(p[2]) == "&="):
             flag = 1
             op = "&"
             typ = p[1]['type']
             if((p[1]['type'] != "int" or p[3]['type'] != "int") and (p[1]['type'] != "bool" or p[3]['type'] != "bool")):
-                print("error!")
+                print("Error in line "+str(p.lineno(2))+" : bitwise and should be used with int types")
                 exit(1)
         if(str(p[2]) == "<<="):
             flag = 1
             op = "<<"
             typ = p[1]['type']
             if(p[1]['type'] != "int" or p[3]['type'] != "int"):
-                print("error!")
+                print("Error in line "+str(p.lineno(2))+" : shift operation should be used with int types")
                 exit(1)
 
         if(str(p[2]) == ">>="):
@@ -349,7 +348,7 @@ def p_simplestmt(p):
             op = ">>"
             typ = p[1]['type']
             if(p[1]['type'] != "int" or p[3]['type'] != "int"):
-                print("error!")
+                print("Error in line "+str(p.lineno(2))+" : shift operation should be used with int types")
                 exit(1)
 
         if(str(p[2]) == "&^="):
@@ -396,7 +395,7 @@ def p_simplestmt(p):
                 # p[0]['code'] += tmp + " = inttofloat " + p[1]['place'] + "\n"
                 # p[0]['code'] += p[1]['place']  + " = " + tmp + " " + op + "float " + p[3]['place']
                 # p[0]['place'] = p[1]['place']
-                print("can't assign float to int")
+                print("Error in line "+str(p.lineno(2))+" : can't assign float to int")
                 exit(1)
             if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
                 tmp = getlabel()
