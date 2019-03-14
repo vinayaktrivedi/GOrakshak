@@ -22,6 +22,7 @@ func main(){
 	var i int;
 	for i=0; i <= 9; i++{
 		a += 10.0;
-
+		var c int;
 	};
+	c = 10;
 };
