@@ -1052,6 +1052,11 @@ def p_nondeclstmt(p):
         if(str(p[1]) == "return"):
             flag = 1
             string = "return"
+            p[0]['code'] = ""
+            for i in range(0,len(p[2]['exprs'])):
+                p[0]['code'] += p[2]['exprs'][i]['code'] + "\n"
+                p[0]['code'] += "return " + p[2]['exprs'][i]['place']
+                
         if(flag == 0):
             global stack
             current= stack[-1]
