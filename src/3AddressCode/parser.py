@@ -386,11 +386,13 @@ def p_simplestmt(p):
 
         if(flag == 0):
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
-                tmp = getlabel()
-                register_variable(tmp)
-                p[0]['code'] += tmp + " = inttofloat " + p[1]['place'] + "\n"
-                p[0]['code'] += p[1]['place']  + " = " + tmp + " " + op + "float " + p[3]['place']
-                p[0]['place'] = p[1]['place']
+                # tmp = getlabel()
+                # register_variable(tmp)
+                # p[0]['code'] += tmp + " = inttofloat " + p[1]['place'] + "\n"
+                # p[0]['code'] += p[1]['place']  + " = " + tmp + " " + op + "float " + p[3]['place']
+                # p[0]['place'] = p[1]['place']
+                print("can't assign float to int")
+                exit(1)
             if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
                 tmp = getlabel()
                 register_variable(tmp)

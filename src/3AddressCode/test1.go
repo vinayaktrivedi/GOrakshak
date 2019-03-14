@@ -4,7 +4,7 @@ import "fmt";
 
 
 func main(){
-	var a float =10.0;
+	var a int =10;
 	var i int;
 	for i=0; i <= 9; i++{
 		var c int =10;
