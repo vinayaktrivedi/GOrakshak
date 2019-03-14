@@ -1040,8 +1040,9 @@ def p_pexpr(p):
         p[0]['type'] = p[1]['type']
         p[0]['place'] = p[1]['place']
     else:
-        # what to do
-        dummy = 0
+      p[0]['code'] = p[1]['code']
+      p[0]['place'] = p[1]['code']
+      p[0]['type'] = p[1]['type']
 
 def p_pexprnoparen(p):
     '''PExprNoParen : Literal
@@ -1068,8 +1069,16 @@ def p_pexprnoparen(p):
         # what to do
         dummy = 0
     if(len(p)==5):
-        # what to do
-        dummy = 0
+      label = getlabel()
+      label1 = getlabel()
+      p[0]['code'] = p[1]['code']
+      p[0]['code'] += "\n"+p[3]['code']
+      p[0]['place'] = label
+      p[0]['code'] = "\n" + str(label1) + " = C(" + p[1]['place'] + ")\n" 
+      p[0]['code'] = str(label)+" = "+str(label1)+"["+p[3]['place']+"]"
+      p[0]['value'] = 1
+      p[0]['type'] = p[1]['type']
+
     if(len(p)==6):
         # what to do
         dummy = 0
@@ -1381,6 +1390,7 @@ def p_arrayexp(p):
     else:
       temp_label = getlabel()
       p[0]['code'] += str(temp_label)+" = "+str(i*size[c_type])
+      p[0]['code'] += "\n"+objects['code'] + "\n"
       p[0]['code'] += str(label2)+"["+str(temp_label)+"] = "+str(objects['place'])
     i = i+1
     
@@ -1423,4 +1433,4 @@ parser = yacc.yacc()            # Build the parser
 with open(file,'r') as f:
     input_str = f.read()
 
-parser.parse(input_str,debug=0)
+parser.parse(input_str,debug=1)
