@@ -27,6 +27,7 @@ file = args["input"]
 # outfile = open(args["output"],"w")
 
 globalsymboltable = {}
+globalsymboltable["GOrakshak_name"] = "global_symbol_table"
 stack = []
 stack.append(globalsymboltable)
 counter=0
@@ -36,13 +37,17 @@ def getlabel():
   counter += 1
   return "GOrakshak"+str(counter)
 
-def make_symbol_table(func_name,label): #use global keyword
+def make_symbol_table(label): #use global keyword
     global stack
     prev_table = stack[-1]
     local_symbol_table = {}
-    prev_table[func_name] = {}
-    prev_table[func_name][label] = local_symbol_table
-    local_symbol_table['parent'] = prev_table
+    local_symbol_table["GOrakshak_name"]=label
+    if "GOrakshak_childtables" in prev_table.keys():
+        pass
+    else:
+        prev_table["GOrakshak_childtables"] = []
+    prev_table["GOrakshak_childtables"].append(local_symbol_table)
+    local_symbol_table['GOrakshak_parent'] = prev_table
     # Does making a symbol table always require to set the current symbol table to the new one
     stack.append(local_symbol_table)
     return local_symbol_table
@@ -76,7 +81,7 @@ def get_variable_attribute(variable,attribute):
         else:
           if(local_symbol_table == globalsymboltable):
             return -1
-          local_symbol_table = local_symbol_table['parent']
+          local_symbol_table = local_symbol_table['GOrakshak_parent']
 
 def register_variable(variable):
     global stack
@@ -86,13 +91,13 @@ def register_variable(variable):
     return
 
 def add_variable_attribute_api(variable,attribute,value):
-  if(value['val'] == 'struct'):
-    make_symbol_table(variable,'struct')
-    for objects in value['struct_fields']:
-      register_variable(objects['name'])
-      add_variable_attribute(objects['name'],'type',objects['type'])
-    go_one_level_up()
-  else:
+#   if(value['val'] == 'struct'):
+#     make_symbol_table(variable,'struct')
+#     for objects in value['struct_fields']:
+#       register_variable(objects['name'])
+#       add_variable_attribute(objects['name'],'type',objects['type'])
+#     go_one_level_up()
+#   else:
     add_variable_attribute(variable,attribute,value)
 
 def check_if_variable_declared(variable):
@@ -115,6 +120,8 @@ def p_start(p):
   p[0] = {}
   p[0]['code'] = p[1]['code']
   print(p[0]['code'])
+  global globalsymboltable
+  print(globalsymboltable)
 
 def p_sourcefile(p):
     '''SourceFile : cmtlist PackageClause cmtlist Imports cmtlist DeclList cmtlist
@@ -243,8 +250,8 @@ def p_typedeclname(p):
 
 def p_typedecl(p):
   '''TypeDecl : TypeDeclName NType'''
-  make_symbol_table(p[1]['variable'],'type')
-  add_variable_attribute_api(p[1]['variable'],'type',p[2]['type'])
+#   make_symbol_table(p[1]['variable'],'type')
+#   add_variable_attribute_api(p[1]['variable'],'type',p[2]['type'])
 
 
 
@@ -429,8 +436,7 @@ def p_loopbody(p):
 def p_marker1(p):
   '''marker1 :
             '''
-  func_name = getlabel()
-  make_symbol_table(func_name,"marker1")
+  make_symbol_table("loopbody")
 
 def p_revmarker1(p):
   '''revmarker1 :
@@ -614,31 +620,27 @@ def p_interfacetype(p):
 
 
 def p_funcdec1(p):
-  '''FuncDecl : FUNCTION FuncDecl_ marker2 FuncBody'''
-  add_variable_attribute('metadata','args',p[2]['argList'])
-  add_variable_attribute('metadata','response',p[2]['response'])
-  # add the variables space memory in function
-  global funcname
+  '''FuncDecl : FUNCTION  marker2 FuncDecl_  FuncBody'''
   p[0] = {}
-  p[0]['code'] = str(funcname) + ":\n\tBeginFunc 24;\n" +  p[4]['code'] + "\tEndFunc;"
+  p[0]['code'] = p[3]['func_name'] + ":\tBeginFunc 24;\n" +  p[4]['code'] + "\nEndFunc;"
 
 def p_marker2(p):
     '''marker2 :
               '''
-    global funcname
-    make_symbol_table(funcname,"func")
-    add_variable_attribute('metadata','name',funcname)
+    make_symbol_table("func_unknown")
 
 def p_funcdec1_(p):
     '''FuncDecl_ : IDENTIFIER ArgList FuncRes
                | LEFT_OR OArgTypeListOComma OR_RIGHT IDENTIFIER ArgList FuncRes'''
+    global stack
+    current = stack[-1]
     p[0] = {}
-    global funcname
     if(len(p)==4):
         p[0]['func_name'] = str(p[1])
-        p[0]['argList'] = p[2]['argList']
-        p[0]['response'] = p[3]['response']
-        funcname = str(p[1])
+        current['GOrakshak_args'] = p[2]['argList']
+        current['GOrakshak_response'] = p[3]['response']
+        current['GOrakshak_name']= str(p[1])          #replaces func_unknown by actual func name
+        current['GOrakshak_type']= "function"
 
 
 def p_functype(p):
