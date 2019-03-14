@@ -422,7 +422,7 @@ def p_caseblocklist(p):
                    | CaseBlockList CaseBlock'''
 
 def p_loopbody(p):
-    '''LoopBody : LBRACE marker1 cmtlist StmtList  cmtlist RBRACE'''
+    '''LoopBody : LBRACE marker1 cmtlist StmtList  cmtlist revmarker1 RBRACE'''
     p[0] = {}
     p[0]['code'] = p[4]['code']
 
@@ -431,6 +431,12 @@ def p_marker1(p):
             '''
   func_name = getlabel()
   make_symbol_table(func_name,"marker1")
+
+def p_revmarker1(p):
+  '''revmarker1 :
+            '''
+  go_one_level_up()
+
 
 def p_rangestmt(p):
 
@@ -757,8 +763,13 @@ def p_osimplestmt(p):
         p[0]['code'] = ""
 
 def p_onewname(p):
-  '''ONewName :
-              | NewName'''
+    '''ONewName :
+                | NewName'''
+    p[0]={}
+    if(len(p)==2):
+        pass
+    else:
+        p[0]['code']=""
 
 def p_oexpr(p):
     '''OExpr :
