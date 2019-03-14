@@ -216,7 +216,7 @@ def p_vardecl(p):
       for var in p[1]['variable']:
         add_variable_attribute_api(var,'type',p[3]['type'])
     else:
-      if(p[4]['type'] != p[2]['type']['val']):
+      if(p[4]['exprs'][0]['type'] != p[2]['type']['val']):
         print("Error!!")
         print("hey")
         exit(1)
@@ -291,7 +291,7 @@ def p_simplestmt(p):
             p[0]['code'] += (p[1]['place'] + " = " + p[1]['place'] + " -" + typ + " 1")
         p[0]['place'] = p[1]['place']
     if(len(p) == 4):
-        p[0]['code'] = p[1]['code'] + "\n" + p[3]['code'] + "\n"
+
         flag = 0
         if(str(p[2]) == "+="):
             op = "+"
@@ -360,20 +360,32 @@ def p_simplestmt(p):
         if(str(p[2]) == "="):
             flag = 2
             #print("ok")
-            p[0]['code'] += p[1]['place'] + " = " + " " + p[3]['place']
-            p[0]['place'] = p[1]['place']
-            # Leave it for now
 
-            # if(len(p[1]['exprs']) != len(p[3]['exprs'])):
-            #     print("error!")
-            #     exit(1)
+            # Leave it for now
+            p[0]['code'] = ""
+            if(len(p[1]['exprs']) != len(p[3]['exprs'])):
+                print("error!")
+                exit(1)
             # p[0]['code'] = ""
-            # for i in range(0,len(p[1]['exprs'])):
-            #     if(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
-            #         p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
-            #     else:
-            #         print("error!")
-            #         exit(1)
+            for i in range(0,len(p[1]['exprs'])):
+                # if(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
+                #     p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
+                # else:
+                #     print("error!")
+                #     exit(1)
+                p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code'] + "\n"
+                if(p[1]['exprs'][i]['type']=='int' and p[3]['exprs'][i]['type']=='float'):
+                    tmp = getlabel()
+                    register_variable(tmp)
+                    p[0]['code'] += tmp + " = inttofloat " + p[3]['exprs'][i]['place'] + "\n"
+                    p[0]['code'] += p[1]['exprs'][i]['place'] + " = " + tmp
+                elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
+                    p[0]['code'] += p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
+                else:
+                    print("can't assign float to int")
+                    exit(1)
+            p[0]['place'] = p[1]['exprs'][0]['place']
+
 
         if(str(p[2]) == ":="):
             print("ok")
@@ -390,6 +402,7 @@ def p_simplestmt(p):
             dummy = 0
 
         if(flag == 0):
+            p[0]['code'] = p[1]['code'] + "\n" + p[3]['code'] + "\n"
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
                 # tmp = getlabel()
                 # register_variable(tmp)
@@ -412,6 +425,7 @@ def p_simplestmt(p):
                     p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
 
         if(flag == 1):
+            p[0]['code'] = p[1]['code'] + "\n" + p[3]['code'] + "\n"
             p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
             p[0]['place'] = p[1]['place']
 
@@ -827,19 +841,13 @@ def p_funcliteral(p):
 def p_exprlist(p):
     '''ExprList : Expr
               | ExprList COMMA Expr'''
-    # if(len(p)==2):
-    #     p[0]['exprs'].append({'exp':p[1]['code'],'type':p[1]['type']})
-    #     p[0]['code'] = p[1]['code']
-    # if(len(p)==4):
-    #     p[0]['exprs'].extend(p[1]['exprs'])
-    #     p[0]['exprs'].append({'exp':p[3]['code'],'type':p[3]['type']})
     p[0] = {}
+    p[0]['exprs'] = []
     if(len(p)==2):
-        p[0]['type'] = p[1]['type']
-        p[0]['code'] = p[1]['code']
-        p[0]['place'] = p[1]['place']
-    # p[0]['type'] = "int"
-    # use 'place' attribute here
+        p[0]['exprs'].append({'code':p[1]['code'],'type':p[1]['type'],'place':p[1]['place'],'value':p[1]['value']})
+    else:
+        p[0]['exprs'].extend(p[1]['exprs'])
+        p[0]['exprs'].append({'code':p[3]['code'],'type':p[3]['type'],'place':p[3]['place'],'value':p[3]['value']})
 
 
 def p_exprortypelist(p):
