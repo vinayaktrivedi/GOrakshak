@@ -30,6 +30,11 @@ globalsymboltable = {}
 stack = []
 stack.append(globalsymboltable)
 counter=0
+size = {}
+size['int'] = 4
+size['float'] = 4
+size['bool'] = 1
+size['char'] = 1
 
 def getlabel():
   global counter
@@ -1356,7 +1361,24 @@ def p_chexpr(p):
 
 def p_arrayexp(p):
   '''Arrayexp : OtherType LBRACE ExprList RBRACE'''
-
+  p[0] = {}
+  c_type = p[1]['type']['arr_type']
+  i = 0
+  global size 
+  array_label = getlabel()
+  p[0]['place'] = array_label
+  label2 = getlabel()
+  p[0]['code'] = str(label2)+" = C("+str(array_label)+")"
+  for objects in p[2]['exprs']:
+    if(objects['type']!=c_type):
+      print("Error in array declaration!")
+      exit(1)
+    else:
+      temp_label = getlabel()
+      p[0]['code'] += str(temp_label)+" = "+str(i*size[c_type])
+      p[0]['code'] += str(label2)+"["+str(temp_label)+"] = "+str(objects['place'])
+    i = i+1
+    
 def p_uexpr(p):
     '''UExpr : PExpr
              | AMPERS UExpr
