@@ -22,5 +22,6 @@ func main(){
 	var u **int;
 	u = &(&k);
 	n = **u;
+	n = !90;
 	// g[8] = hello();
 };

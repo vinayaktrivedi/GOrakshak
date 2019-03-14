@@ -1479,7 +1479,15 @@ def p_uexpr(p):
             p[0]['code'] += p[0]['place'] + " = " + op + p[2]['place']
             p[0]['value'] = ""
         if(op == "!"):
-            dummy = 0
+            p[0]['type'] = 'int'
+            p[0]['place'] = getlabel()
+            register_variable(p[0]['place'])
+            p[0]['code'] += p[0]['place'] + " = " + '!' + p[2]['place']
+            if(p[2]['value'] != ""):
+                if(p[2]['value']):
+                    p[0]['value'] = 0
+                else:
+                    p[0]['value'] = 1
         if(op == "*"):
             if(p[2]['type'][0] != '*'):
                 print("Error in line "+str(p.lineno(1))+" : can't dereference a non pointer")
