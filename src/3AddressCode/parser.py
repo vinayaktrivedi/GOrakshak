@@ -1,3 +1,6 @@
+# should append code in beginning of expr (also append previous code[p[1]['code']] in p[0]['code'] )
+# don't pass code in reducing to identifier
+
 import sys
 import os
 import csv
@@ -266,12 +269,14 @@ def p_simplestmt(p):
         p[0]['place'] = p[1]['place']
     if(len(p) == 3):
         typ = p[1]['type']
+        p[0]['code'] = p[1]['code'] + "\n"
         if(str(p[2]) == "++"):
-            p[0]['code'] = (p[1]['place'] + " = " + p[1]['place'] + " +" + typ + " 1")
+            p[0]['code'] += (p[1]['place'] + " = " + p[1]['place'] + " +" + typ + " 1")
         else:
-            p[0]['code'] = (p[1]['place'] + " = " + p[1]['place'] + " -" + typ + " 1")
+            p[0]['code'] += (p[1]['place'] + " = " + p[1]['place'] + " -" + typ + " 1")
         p[0]['place'] = p[1]['place']
     if(len(p) == 4):
+        p[0]['code'] = p[1]['code'] + "\n" + p[3]['code'] + "\n"
         flag = 0
         if(str(p[2]) == "+="):
             op = "+"
@@ -340,7 +345,7 @@ def p_simplestmt(p):
         if(str(p[2]) == "="):
             flag = 2
             #print("ok")
-            p[0]['code'] = p[1]['place'] + " = " + " " + p[3]['place']
+            p[0]['code'] += p[1]['place'] + " = " + " " + p[3]['place']
             p[0]['place'] = p[1]['place']
             # Leave it for now
 
@@ -373,21 +378,24 @@ def p_simplestmt(p):
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
                 tmp = getlabel()
                 register_variable(tmp)
-                p[0]['code'] = tmp + " = inttofloat " + p[1]['place'] + "\n"
+                p[0]['code'] += tmp + " = inttofloat " + p[1]['place'] + "\n"
                 p[0]['code'] += p[1]['place']  + " = " + tmp + " " + op + "float " + p[3]['place']
                 p[0]['place'] = p[1]['place']
             if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
                 tmp = getlabel()
                 register_variable(tmp)
-                p[0]['code'] = tmp + " = inttofloat " + p[3]['place'] + "\n"
+                p[0]['code'] += tmp + " = inttofloat " + p[3]['place'] + "\n"
                 p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + "float " + tmp
                 p[0]['place'] = p[1]['place']
             if(p[1]['type'] == p[3]['type']):
                 typ = p[1]['type']
-                p[0]['code'] = p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
-            
+                if(p[3]['value']):
+                    p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
+                else:
+                    p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
+
         if(flag == 1):
-            p[0]['code'] = p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
+            p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
             p[0]['place'] = p[1]['place']
 
 
@@ -819,15 +827,16 @@ def p_literal(p):
     if(a):
         p[0]['value'] = int(str(p[1]))
         p[0]['type'] = 'int'
-        p[0]['code'] = str(p[1])
+        p[0]['code'] = ""
     if(b):
         p[0]['value'] = float(str(p[1]))
         p[0]['type'] = 'float'
-        p[0]['code'] = str(p[1])
+        p[0]['code'] = ""
     if(c):
         p[0]['value'] = str(p[1])
         p[0]['type'] = 'string'
-        p[0]['code'] = str(p[1])
+        p[0]['code'] = ""
+    p[0]['place'] = str(p[1])
 
 def p_embed(p):
   '''Embed : IDENTIFIER'''
@@ -911,12 +920,12 @@ def p_declname(p):
 
 def p_name(p):
     '''Name : IDENTIFIER'''
-    # p[0]['name'] = str(p[1])
     p[0] = {}
-    p[0]['code'] = str(p[1])
+    p[0]['code'] = ""
     x = get_variable_attribute(str(p[1]),"type")
     p[0]['type'] = x['val']
     p[0]['value'] = ""
+    p[0]['place'] = str(p[1])
 
 def p_argtype(p):
     '''ArgType : NameOrType
@@ -1027,7 +1036,7 @@ def p_pexprnoparen(p):
         p[0]['code'] = p[1]['code']
         p[0]['value'] = p[1]['value']
         p[0]['type'] = p[1]['type']
-        p[0]['place'] = ""
+        p[0]['place'] = p[1]['place']
     if(len(p)==4):
         # what to do
         dummy = 0
@@ -1094,6 +1103,7 @@ def p_prec5expr_(p):
         p[0]['type'] = p[1]['type']
         p[0]['place'] = p[1]['place']
     else:
+        p[0]['code'] = p[1]['code'] + "\n" + p[3]['code'] + "\n"
         op = ""
         typ = ""
         p[0]['place'] = getlabel()
@@ -1137,24 +1147,24 @@ def p_prec5expr_(p):
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
                 tmp = getlabel()
                 register_variable(tmp)
-                p[0]['code'] = tmp + " = inttofloat " + p[1]['place'] + "\n"
+                p[0]['code'] += tmp + " = inttofloat " + p[1]['place'] + "\n"
                 p[0]['code'] += p[0]['place'] + " = " + tmp + " " + op + "float " + p[3]['place']
                 p[0]['type'] = 'float'
             if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
                 tmp = getlabel()
                 register_variable(tmp)
-                p[0]['code'] = tmp + " = inttofloat " + p[3]['place'] + "\n"
+                p[0]['code'] += tmp + " = inttofloat " + p[3]['place'] + "\n"
                 p[0]['code'] += p[0]['place'] +  " = " +  p[1]['place'] + " " + op + "float " + tmp
                 p[0]['type'] = 'float'
             if(p[1]['type'] == p[3]['type']):
                 typ = p[1]['type']
-                p[0]['code'] = p[0]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
+                p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
                 p[0]['type'] = p[1]['type']
         if(flag == 1):
             if(p[1]['type'] != 'int' or p[3]['type'] != 'int'):
                 print("error!")
                 exit(1)
-            p[0]['code'] = p[0]['place'] + " = " + p[1]['place'] + " " + op + " " + p[3]['place']
+            p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] + " " + op + " " + p[3]['place']
             p[0]['type'] = 'int'
 
 def p_prec4expr_(p):
@@ -1172,6 +1182,7 @@ def p_prec4expr_(p):
     else:
         op = ""
         typ = ""
+        p[0]['code'] = p[1]['code'] + "\n" + p[3]['code'] + "\n"
         p[0]['place'] = getlabel()
         register_variable(p[0]['place'])
         flag = 0
@@ -1200,24 +1211,24 @@ def p_prec4expr_(p):
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
                 tmp = getlabel()
                 register_variable(tmp)
-                p[0]['code'] = tmp + " = inttofloat " + p[1]['place'] + "\n"
+                p[0]['code'] += tmp + " = inttofloat " + p[1]['place'] + "\n"
                 p[0]['code'] += p[0]['place'] + " = " + tmp + " " + op + "float " + p[3]['place']
                 p[0]['type'] = 'float'
             if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
                 tmp = getlabel()
                 register_variable(tmp)
-                p[0]['code'] = tmp + " = inttofloat " + p[3]['place'] + "\n"
+                p[0]['code'] += tmp + " = inttofloat " + p[3]['place'] + "\n"
                 p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] +" "+ op + "float " + tmp
                 p[0]['type'] = 'float'
             if(p[1]['type'] == p[3]['type']):
                 typ = p[1]['type']
-                p[0]['code'] = p[0]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
+                p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
                 p[0]['type'] = p[1]['type']
         else:
             if(p[1]['type'] != 'int' or p[3]['type'] != 'int'):
                 print("error!")
                 exit(1)
-            p[0]['code'] = p[0]['place'] + " = " + p[1]['place'] + " " + op + " " + p[3]['place']
+            p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] + " " + op + " " + p[3]['place']
             p[0]['type'] = 'int'
 
 
@@ -1237,6 +1248,7 @@ def p_prec3expr_(p):
         p[0]['value'] = p[1]['value']
         p[0]['type'] = p[1]['type']
     else:
+        p[0]['code'] = p[1]['code'] + "\n" + p[3]['code'] + "\n"
         op = ""
         if(p[1]['type']!=p[3]['type']):
             print("error1!")
@@ -1245,7 +1257,7 @@ def p_prec3expr_(p):
         p[0]['value'] = ""
         if(str(p[2]) == "=="):
             op = "=="
-            
+
             if(p[1]['value'] and p[3]['value']):
                 p[0]['value'] = (p[1]['value'] == p[3]['value'])
         if(str(p[2]) == "!="):
@@ -1270,7 +1282,7 @@ def p_prec3expr_(p):
                 p[0]['value'] = (p[1]['value'] < p[3]['value'])
         p[0]['place'] = getlabel()
         register_variable(p[0]['place'])
-        p[0]['code'] = p[0]['place'] + " = " + p[1]['place'] + " " + op + " " + p[3]['place']
+        p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] + " " + op + " " + p[3]['place']
         p[0]['type'] = 'int'
 
 def p_prec2expr_(p):
@@ -1283,12 +1295,13 @@ def p_prec2expr_(p):
         p[0]['value'] = p[1]['value']
         p[0]['type'] = p[1]['type']
     else:
+        p[0]['code'] = p[1]['code'] + "\n" + p[3]['code'] + "\n"
         p[0]['place'] = getlabel()
         register_variable(p[0]['place'])
         if(p[1]['type']!='int' or p[3]['type']!='int'):
             print("error!")
             exit(1)
-        p[0]['code'] = p[0]['place'] + " = " + p[1]['place'] + " && " + p[3]['place']
+        p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] + " && " + p[3]['place']
         p[0]['type'] = p[1]['type']
         if(p[1]['value'] and p[3]['value']):
             p[0]['value'] = p[1]['value'] and p[3]['value']
