@@ -654,7 +654,7 @@ def p_argList(p):
 
 def p_funcbody(p):
     '''FuncBody :
-              | LBRACE  cmtlist StmtList  cmtlist RBRACE'''
+              | LBRACE  cmtlist StmtList  cmtlist revmarker1 RBRACE'''
     p[0] = {}
     p[0]['code']=p[3]['code']
 
