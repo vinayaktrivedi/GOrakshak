@@ -202,45 +202,78 @@ def p_commondecl(p):
     # need to do for this
     p[0] = {}
     p[0]['code'] = ""
-
+    if(len(p)==3):
+      p[0]['code'] = p[2]['code']
 
 
 def p_vardecl(p):
     '''VarDecl   : DeclNameList NType
           | DeclNameList NType EQUAL ExprList
           | DeclNameList EQUAL ExprList'''
+    p[0] = {}
+    p[0]['code'] = ""
     if(len(p)==3):
         for var in p[1]['variable']:
             add_variable_attribute_api(var,'type',p[2]['type'])
     elif(len(p)==4):
+      i = 0 
+      if(len(p[1]['variable']) != len(p[3]['exprs'])):
+        print("error !")
+        exit(1)
+
       for var in p[1]['variable']:
         add_variable_attribute_api(var,'type',p[3]['type'])
+        p[0]['code'] += var+" = "+p[3]['exprs'][i]['place']+"\n"
+        i = i+1
     else:
-      if(p[4]['type'] != p[2]['type']['val']):
-        print("Error in line "+str(p.lineno(3))+" :type mismatch")
+      i=0
+      if(p[4]['exprs'][0]['type'] != p[2]['type']['val']):
+        print("Type of variable and value assigned type don't match!")
         exit(1)
       else:
+        if(len(p[1]['variable']) != len(p[4]['exprs'])):
+          print("error !")
+          exit(1)
+
         for var in p[1]['variable']:
           add_variable_attribute_api(var,'type',p[2]['type'])
+          p[0]['code'] += var+" = "+p[4]['exprs'][i]['place']+"\n"
+          i = i+1
+    #print(p[0]['code'])
 
 
 def p_constdecl(p):
-  '''ConstDecl : DeclNameList NType EQUAL ExprList
+    '''ConstDecl : DeclNameList NType EQUAL ExprList
           | DeclNameList NType
-          | DeclNameList EQUAL ExprList'''
-  if(len(p)==3):
-    for var in p[1]['variable']:
-      add_variable_attribute_api(var,'type',p[2]['type'])
-  elif(len(p)==4):
-    for var in p[1]['variable']:
-      add_variable_attribute_api(var,'type',p[3]['type'])
-  else:
-    if(p[4]['type'] != p[2]['type']):
-      print("Error in line "+str(p.lineno(3))+" :type mismatch")
-      exit(1)
-    else:
+          | DeclNameList EQUAL ExprList '''
+    p[0] = {}
+    p[0]['code'] = ""
+    if(len(p)==3):
+        for var in p[1]['variable']:
+            add_variable_attribute_api(var,'type',p[2]['type'])
+    elif(len(p)==4):
+      i = 0 
+      if(len(p[1]['variable']) != len(p[3]['exprs'])):
+        print("Error in line "+str(p.lineno(2))+" :type mismatch")
+        exit(1)
       for var in p[1]['variable']:
-        add_variable_attribute_api(var,'type',p[2]['type'])
+        add_variable_attribute_api(var,'type',p[3]['type'])
+        p[0]['code'] += var+" = "+p[3]['exprs'][i]['place']+"\n"
+        i = i+1
+    else:
+      i=0
+      if(p[4]['exprs'][0]['type'] != p[2]['type']['val']):
+        print("Type of variable and value assigned type don't match!")
+        exit(1)
+      else:
+        if(len(p[1]['variable']) != len(p[3]['exprs'])):
+          print("error !")
+          exit(1)
+
+        for var in p[1]['variable']:
+          add_variable_attribute_api(var,'type',p[2]['type'])
+          p[0]['code'] += var+" = "+p[4]['exprs'][i]['place']+"\n"
+          i = i+1
 
 
 def p_constdecl1(p):
@@ -290,7 +323,7 @@ def p_simplestmt(p):
             p[0]['code'] += (p[1]['place'] + " = " + p[1]['place'] + " -" + typ + " 1")
         p[0]['place'] = p[1]['place']
     if(len(p) == 4):
-        p[0]['code'] = p[1]['code'] + "\n" + p[3]['code'] + "\n"
+
         flag = 0
         if(str(p[2]) == "+="):
             op = "+"
@@ -359,20 +392,34 @@ def p_simplestmt(p):
         if(str(p[2]) == "="):
             flag = 2
             #print("ok")
-            p[0]['code'] += p[1]['place'] + " = " + " " + p[3]['place']
-            p[0]['place'] = p[1]['place']
-            # Leave it for now
 
-            # if(len(p[1]['exprs']) != len(p[3]['exprs'])):
-            #     print("error!")
-            #     exit(1)
+            # Leave it for now
+            p[0]['code'] = ""
+            if(len(p[1]['exprs']) != len(p[3]['exprs'])):
+                print("error!")
+                exit(1)
             # p[0]['code'] = ""
-            # for i in range(0,len(p[1]['exprs'])):
-            #     if(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
-            #         p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
-            #     else:
-            #         print("error!")
-            #         exit(1)
+            for i in range(0,len(p[1]['exprs'])):
+                # if(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
+                #     p[0]['code'] += p[1]['exprs'][i]['exp'] + " = " + p[3]['exprs'][i]['exp'] + "\n"
+                # else:
+                #     print("error!")
+                #     exit(1)
+                p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']
+                if(p[1]['exprs'][i]['type']=='int' and p[3]['exprs'][i]['type']=='float'):
+                    tmp = getlabel()
+                    register_variable(tmp)
+                    p[0]['code'] += "\n" + tmp + " = inttofloat " + p[3]['exprs'][i]['place']
+                    p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + tmp
+                elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
+                    p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
+                else:
+                    print(p[1]['exprs'][i]['type'])
+                    print(p[3]['exprs'][i]['type'])
+                    print("can't assign float to int")
+                    exit(1)
+            p[0]['place'] = p[1]['exprs'][0]['place']
+
 
         if(str(p[2]) == ":="):
             print("ok")
@@ -389,6 +436,7 @@ def p_simplestmt(p):
             dummy = 0
 
         if(flag == 0):
+            p[0]['code'] = p[1]['code'] + "\n" + p[3]['code'] + "\n"
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
                 # tmp = getlabel()
                 # register_variable(tmp)
@@ -411,6 +459,7 @@ def p_simplestmt(p):
                     p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
 
         if(flag == 1):
+            p[0]['code'] = p[1]['code'] + "\n" + p[3]['code'] + "\n"
             p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
             p[0]['place'] = p[1]['place']
 
@@ -428,7 +477,7 @@ def p_compoundstmt(p):
     p[0]['code'] = p[4]['code']
 
 def p_compundmarker(p):
-    '''compundmarker : 
+    '''compundmarker :
                 '''
     make_symbol_table("compound_statement")
 
@@ -502,7 +551,7 @@ def p_forstmt(p):
     p[0]['code'] += "\n" + exit_label+":"
 
 def p_formarker(p):
-    '''formarker :  
+    '''formarker :
                   '''
     make_symbol_table("loopbody")
     p[0]={}
@@ -514,7 +563,7 @@ def p_formarker(p):
     current["CS335_loop_label"] = p[0]['loop_label']
     current["CS335_exit_label"] = p[0]['exit_label']
     current["CS335_update_label"] = p[0]['update_label']
-    
+
 
 def p_ifheader(p):
     '''IfHeader : OSimpleStmt
@@ -826,19 +875,13 @@ def p_funcliteral(p):
 def p_exprlist(p):
     '''ExprList : Expr
               | ExprList COMMA Expr'''
-    # if(len(p)==2):
-    #     p[0]['exprs'].append({'exp':p[1]['code'],'type':p[1]['type']})
-    #     p[0]['code'] = p[1]['code']
-    # if(len(p)==4):
-    #     p[0]['exprs'].extend(p[1]['exprs'])
-    #     p[0]['exprs'].append({'exp':p[3]['code'],'type':p[3]['type']})
     p[0] = {}
+    p[0]['exprs'] = []
     if(len(p)==2):
-        p[0]['type'] = p[1]['type']
-        p[0]['code'] = p[1]['code']
-        p[0]['place'] = p[1]['place']
-    # p[0]['type'] = "int"
-    # use 'place' attribute here
+        p[0]['exprs'].append({'code':p[1]['code'],'type':p[1]['type'],'place':p[1]['place'],'value':p[1]['value']})
+    else:
+        p[0]['exprs'].extend(p[1]['exprs'])
+        p[0]['exprs'].append({'code':p[3]['code'],'type':p[3]['type'],'place':p[3]['place'],'value':p[3]['value']})
 
 
 def p_exprortypelist(p):
@@ -967,7 +1010,12 @@ def p_name(p):
         print("variable not in scope")
         exit(1)
     x = get_variable_attribute(str(p[1]),"type")
-    p[0]['type'] = x['val']
+
+    if(x['val'] == 'array' or x['val'] == 'struct'):
+      p[0]['type'] = x
+    else:
+      p[0]['type'] = x['val']
+
     p[0]['value'] = ""
     p[0]['place'] = str(p[1])
 
@@ -1036,6 +1084,11 @@ def p_nondeclstmt(p):
         if(str(p[1]) == "return"):
             flag = 1
             string = "return"
+            p[0]['code'] = ""
+            for i in range(0,len(p[2]['exprs'])):
+                p[0]['code'] += p[2]['exprs'][i]['code'] + "\n"
+                p[0]['code'] += "return " + p[2]['exprs'][i]['place']
+
         if(flag == 0):
             global stack
             current= stack[-1]
@@ -1064,8 +1117,9 @@ def p_pexpr(p):
         p[0]['type'] = p[1]['type']
         p[0]['place'] = p[1]['place']
     else:
-        # what to do
-        dummy = 0
+      p[0]['code'] = p[1]['code']
+      p[0]['place'] = p[1]['code']
+      p[0]['type'] = p[1]['type']
 
 def p_pexprnoparen(p):
     '''PExprNoParen : Literal
@@ -1092,8 +1146,16 @@ def p_pexprnoparen(p):
         # what to do
         dummy = 0
     if(len(p)==5):
-        # what to do
-        dummy = 0
+      label = getlabel()
+      label1 = getlabel()
+      p[0]['code'] = p[1]['code']
+      p[0]['code'] += "\n"+p[3]['code']
+      p[0]['place'] = label
+      p[0]['code'] = "\n" + str(label1) + " = C(" + p[1]['place'] + ")\n"
+      p[0]['code'] = str(label)+" = "+str(label1)+"["+p[3]['place']+"]"
+      p[0]['value'] = 1
+      p[0]['type'] = p[1]['type']['arr_type']
+
     if(len(p)==6):
         # what to do
         dummy = 0
@@ -1158,6 +1220,7 @@ def p_prec5expr_(p):
         op = ""
         typ = ""
         p[0]['place'] = getlabel()
+        p[0]['value'] = ""
         register_variable(p[0]['place'])
         flag = 0
         if(str(p[2]) == "/"):
@@ -1393,7 +1456,7 @@ def p_arrayexp(p):
   p[0] = {}
   c_type = p[1]['type']['arr_type']
   i = 0
-  global size 
+  global size
   array_label = getlabel()
   p[0]['place'] = array_label
   label2 = getlabel()
@@ -1405,9 +1468,14 @@ def p_arrayexp(p):
     else:
       temp_label = getlabel()
       p[0]['code'] += str(temp_label)+" = "+str(i*size[c_type])
+      p[0]['code'] += "\n"+objects['code'] + "\n"
       p[0]['code'] += str(label2)+"["+str(temp_label)+"] = "+str(objects['place'])
     i = i+1
-    
+
+  if(p[1]['type']['arr_length'] != i):
+    print("not enough arguments to initialise array!")
+    exit(1)
+
 def p_uexpr(p):
     '''UExpr : PExpr
              | AMPERS UExpr
@@ -1447,4 +1515,4 @@ parser = yacc.yacc()            # Build the parser
 with open(file,'r') as f:
     input_str = f.read()
 
-parser.parse(input_str,debug=0)
+parser.parse(input_str,debug=1)
