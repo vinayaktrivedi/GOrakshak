@@ -262,7 +262,11 @@ def p_vardecl(p):
     if(len(p)==3):
         for var in p[1]['variable']:
             add_variable_attribute_api(var,'type',p[2]['type'])
-            increase_local_size(size[p[2]['type']['val']])
+            if(p[2]['type']['val'] == 'array'):
+              increase_local_size(size[p[2]['type']['arr_type']]*p[2]['type']['arr_length'])
+            else:
+              increase_local_size(size[p[2]['type']['val']])
+
     elif(len(p)==4):
       i = 0
       if(len(p[1]['variable']) != len(p[3]['exprs'])):
@@ -1273,10 +1277,10 @@ def p_pexprnoparen(p):
       p[0]['code'] += "\n"+p[3]['code']
       p[0]['place'] = label
       p[0]['code'] = "\n" + str(label1) + " = C(" + p[1]['place'] + ")\n"
-      p[0]['code'] = str(label)+" = "+str(label1)+"["+p[3]['place']+"]"
+      p[0]['code'] += str(label)+" = "+str(label1)+"["+p[3]['place']+"]"
       p[0]['value'] = 1
       p[0]['type'] = p[1]['type']['arr_type']
-
+      #print(p[0]['code'])
     if(len(p)==6):
         # what to do
         dummy = 0

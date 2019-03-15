@@ -12,6 +12,8 @@ func main(){
 	var c int;
 	var d int;
 	c,d = f(a,b);
+	var e [3]int;
+	e[2] = 0;
 };
 // package main;
 
