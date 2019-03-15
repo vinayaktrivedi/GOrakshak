@@ -164,6 +164,13 @@ def p_import(p):
     p[0] = {}
     if(len(p)==3):
         p[0]['code'] = p[2]['code']
+    elif(len(p)==6):
+        p[0]['code']=""
+        for i in range(0,len(p[3])):
+            if((i+1)==len(p[3])):
+                p[0]['code'] += p[3][i]
+            else:
+                p[0]['code'] += p[3][i]+"\n"
 
 def p_importstmt(p):
     '''ImportStmt : ImportHere STRING'''
@@ -173,8 +180,14 @@ def p_importstmt(p):
     add_variable_attribute(str(p[2]),"import",1)
 
 def p_importstmtlist(p):
-  '''ImportStmtList : ImportStmt
+    '''ImportStmtList : ImportStmt
                | ImportStmtList SEMICOL ImportStmt'''
+    p[0]=[]
+    if(len(p)==2):
+        p[0].append(p[1]['code'])
+    else:
+        p[0].extend(p[1])
+        p[0].append(p[3]['code'])
 
 def p_importhere(p):
   '''ImportHere :
