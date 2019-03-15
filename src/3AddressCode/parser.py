@@ -14,17 +14,17 @@ tokens = lexer.tokens   # Need token list
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--input",help="name of GO input file")
-ap.add_argument("-o", "--output",help="name of output file(.gv)")
+ap.add_argument("-c", "--code",help="name of output file(.gv)")
 args = vars(ap.parse_args())
 
 if args["input"] is None:
     args["input"] = "test1.go"
 
-# if args["output"] is None:
-#     args["output"] = "output1.gv"
+if args["code"] is None:
+    args["code"] = "code.txt"
 
 file = args["input"]
-# outfile = open(args["output"],"w")
+outfile = open(args["code"],"w")
 
 globalsymboltable = {}
 globalsymboltable['local_variable_size'] = 0
@@ -165,6 +165,7 @@ def p_start(p):
       out += str + "\n"
   global globalsymboltable
   print(out)
+  outfile.write(out)
   print(globalsymboltable)
 
 def p_sourcefile(p):
