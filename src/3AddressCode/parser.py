@@ -1,8 +1,3 @@
-# should append code in beginning of expr (also append previous code[p[1]['code']] in p[0]['code'] )
-# don't pass code in reducing to identifier
-# an extra variable is printed when using 2 variables
-# check if a variable is declared during reducing
-
 import sys
 import os
 import csv
