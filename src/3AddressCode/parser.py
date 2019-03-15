@@ -552,8 +552,9 @@ def p_simplestmt(p):
                   print("Error in line "+str(p.lineno(2))+" : mismatch in no. of lhs and rhs expressions")
                   exit(1)
               for i in range(0,len(p[1]['exprs'])):
-                  p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']
                   print(p[1]['exprs'][i])
+                  print(check_if_variable_declared(p[1]['exprs'][i]['place']))
+                  p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']
                   if(check_if_variable_declared(p[1]['exprs'][i]['place']) and (check_if_variable_declared(p[3]['exprs'][i]['place']) or p[3]['exprs'][i]['value']!="")):
                     if(p[1]['exprs'][i]['type']=='float' and p[3]['exprs'][i]['type']=='int'):
                         tmp = getlabel()
@@ -1335,6 +1336,9 @@ def p_pexprnoparen(p):
       label1 = getlabel()
       register_variable(str(label))
       register_variable(str(label1))
+      if(int(p[3]['place']) >= p[1]['type']['arr_length']):
+        print("Error in line "+str(p.lineno(2))+" : Array index out of range")
+        exit(1)
       p[0]['code'] = p[1]['code']
       p[0]['code'] += "\n"+p[3]['code']
       p[0]['place'] = label
@@ -1841,4 +1845,4 @@ parser = yacc.yacc()            # Build the parser
 with open(file,'r') as f:
     input_str = f.read()
 
-parser.parse(input_str,debug=0)
+parser.parse(input_str,debug=1)
