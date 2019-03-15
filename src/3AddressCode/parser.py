@@ -9,7 +9,8 @@ tokens = lexer.tokens   # Need token list
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--input",help="name of GO input file")
-ap.add_argument("-c", "--code",help="name of output file(.gv)")
+ap.add_argument("-c", "--code",help="name of 3AC output file")
+ap.add_argument("-s", "--csv",help="name of csv file")
 args = vars(ap.parse_args())
 
 if args["input"] is None:
@@ -18,8 +19,12 @@ if args["input"] is None:
 if args["code"] is None:
     args["code"] = "code.txt"
 
+if args["csv"] is None:
+    args["csv"] = "symbol_table.csv"
+
 file = args["input"]
 outfile = open(args["code"],"w")
+outfile1 = open(args["csv"],"w")
 
 globalsymboltable = {}
 globalsymboltable['local_variable_size'] = 0
@@ -47,7 +52,7 @@ def make_symbol_table(label,tabletype): #use global keyword
     local_symbol_table['local_variable_size'] = 0
     local_symbol_table["CS335_name"]=label
     if(type != None):
-      local_symbol_table["CS335_type"]=tabletype  
+      local_symbol_table["CS335_type"]=tabletype
     if "CS335_childtables" in prev_table.keys():
         pass
     else:
@@ -98,13 +103,6 @@ def register_variable(variable):
     return
 
 def add_variable_attribute_api(variable,attribute,value):
-#   if(value['val'] == 'struct'):
-#     make_symbol_table(variable,'struct')
-#     for objects in value['struct_fields']:
-#       register_variable(objects['name'])
-#       add_variable_attribute(objects['name'],'type',objects['type'])
-#     go_one_level_up()
-#   else:
     add_variable_attribute(variable,attribute,value)
 
 def check_if_variable_declared(variable):
@@ -164,7 +162,7 @@ def bfs():
             symout+="Name="+current["CS335_name"]+",Type="+current["CS335_type"]+"\n"
             symout+="Table Variables:\n"
             for key, var in current.items():
-              if(key=="CS335_childtables" or key=="CS335_name" or key=="CS335_type" or key=="local_variable_size" or key=="CS335_parent" or key=="CS335_args" or key=="CS335_response"):
+              if(key=="CS335_childtables" or key=="CS335_update_label" or key=="CS335_loop_label" or key=="CS335_exit_label" or key=="CS335_name" or key=="CS335_type" or key=="local_variable_size" or key=="CS335_parent" or key=="CS335_args" or key=="CS335_response"):
                 continue
               symout+="variable name="+str(key)+","
               for attr,val in var.items():
@@ -175,15 +173,14 @@ def bfs():
               for i,childtable in enumerate(current["CS335_childtables"]):
                 queue.append(childtable)
                 if((i+1) == len(current["CS335_childtables"])):
-                  symout+=childtable["CS335_name"]                
+                  symout+=childtable["CS335_name"]
                 else:
                   symout+=childtable["CS335_name"]+","
               symout+="\n"
             symout+="\n"
-    with open('csvfile.csv','wb') as f:
+    with open(args['csv'],'wb') as f:
       f.write(symout)
-    print(symout)
-                  
+
 
 def p_start(p):
   '''start : SourceFile'''
@@ -195,13 +192,8 @@ def p_start(p):
   out = ""
   for str in ir:
       out += str + "\n"
-  print(out)
   outfile.write(out)
-  bfs()  
-  
-
-
-  print(globalsymboltable)
+  bfs()
 
 def p_sourcefile(p):
     '''SourceFile : cmtlist PackageClause cmtlist Imports cmtlist DeclList cmtlist
@@ -572,7 +564,7 @@ def p_simplestmt(p):
                         p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
               else:
                 print("Error in line "+str(p.lineno(2))+" : variable not declared")
-                exit(1)     
+                exit(1)
           if(flag == 1):
             if(check_if_variable_declared(p[1]['place']) and (check_if_variable_declared(p[3]['place']) or p[3]['value']!="")):
               p[0]['code'] += p[1]['code'] + "\n" + p[3]['code'] + "\n"
