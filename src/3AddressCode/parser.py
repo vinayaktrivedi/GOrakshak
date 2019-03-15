@@ -1260,6 +1260,9 @@ def p_nondeclstmt(p):
                     p[0]['code'] += p[2]['exprs'][i]['code'] + "\n"
                 else:
                     p[0]['code'] += "\n" + p[2]['exprs'][i]['code'] + "\n"
+                if(check_if_variable_declared(p[2]['exprs'][i]['place']) == 0 and p[2]['exprs'][i]['value'] == ''):
+                  print("Error in line "+str(p.lineno(1))+" : return variable not declared")
+                  exit(1)
                 p[0]['code'] += "return " + p[2]['exprs'][i]['place']
 
         if(flag == 0):
