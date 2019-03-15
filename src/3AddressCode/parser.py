@@ -693,6 +693,10 @@ def p_formarker(p):
     current["CS335_exit_label"] = p[0]['exit_label']
     current["CS335_update_label"] = p[0]['update_label']
 
+def p_ifmarker(p):
+  '''ifmarker :
+                '''
+  make_symbol_table("if")
 
 def p_ifheader(p):
     '''IfHeader : OSimpleStmt
@@ -704,32 +708,32 @@ def p_ifheader(p):
 
 
 def p_ifstmt(p):
-    '''IfStmt : IF IfHeader LoopBody ElseIfList'''
+    '''IfStmt : IF IfHeader ifmarker LoopBody revmarker ElseIfList'''
     nextlabel = getlabel()
     exitlabel = getlabel()
     p[0] = {}
-    if(len(p[4]['extra']) == 0):
-        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+exitlabel + "\n" + p[3]['code']
+    if(len(p[6]['extra']) == 0):
+        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+exitlabel + "\n" + p[4]['code']
     else:
-        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+nextlabel + "\n" + p[3]['code'] + "\n" + "goto "+exitlabel
-    for i in range(0,len(p[4]['extra'])):
-        if((i+1) == len(p[4]['extra'])):
-            if(p[4]['extra'][i]['type']=="elseif"):
-                p[0]['code'] += "\n" + nextlabel+":" + "\n" + p[4]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[4]['extra'][i]['ifheader_place'] +"=0 goto "+exitlabel + "\n" + p[4]['extra'][i]['body']
+        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+nextlabel + "\n" + p[4]['code'] + "\n" + "goto "+exitlabel
+    for i in range(0,len(p[6]['extra'])):
+        if((i+1) == len(p[6]['extra'])):
+            if(p[6]['extra'][i]['type']=="elseif"):
+                p[0]['code'] += "\n" + nextlabel+":" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +"=0 goto "+exitlabel + "\n" + p[6]['extra'][i]['body']
             else:
-                p[0]['code'] += "\n" + nextlabel+":" + "\n" + "else "+ "\n" + p[4]['extra'][i]['body']
+                p[0]['code'] += "\n" + nextlabel+":" + "\n" + "else "+ "\n" + p[6]['extra'][i]['body']
         else:
             nextlabel2= getlabel()
-            if(p[4]['extra'][i]['type']=="elseif"):
-                p[0]['code'] += "\n" + nextlabel+":" + "\n" + p[4]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[4]['extra'][i]['ifheader_place'] +"=0 goto "+nextlabel2 + "\n" + p[4]['extra'][i]['body'] + "\n" + "goto "+exitlabel
+            if(p[6]['extra'][i]['type']=="elseif"):
+                p[0]['code'] += "\n" + nextlabel+":" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +"=0 goto "+nextlabel2 + "\n" + p[6]['extra'][i]['body'] + "\n" + "goto "+exitlabel
             nextlabel = nextlabel2
     p[0]['code'] += "\n" + exitlabel+":"
 
 def p_elseif(p):
-    '''ElseIf : ELSE IF IfHeader LoopBody'''
+    '''ElseIf : ELSE IF IfHeader ifmarker LoopBody revmarker'''
     p[0] = {}
     p[0]['extra_dict'] = {}
-    p[0]['extra_dict']['body'] = p[4]['code']
+    p[0]['extra_dict']['body'] = p[5]['code']
     p[0]['extra_dict']['type'] = "elseif"
     p[0]['extra_dict']['ifheader_code'] = p[3]['code']
     p[0]['extra_dict']['ifheader_place'] = p[3]['place']
