@@ -120,7 +120,6 @@ def check_if_variable_declared(variable):
                 i = i - 1
         except:
             i = i - 1
-    #print(globalsymboltable)
     child_tables = globalsymboltable['CS335_childtables']
     for childs in child_tables:
       if(childs['CS335_type'] == 'function' and childs['CS335_name'] == variable):
@@ -339,10 +338,8 @@ def p_vardecl(p):
           var = p[1]['variable'][j]
           add_variable_attribute_api(var,'type',p[2]['type'])
           p[0]['code'] += var+" = "+p[4]['exprs'][i]['place']+"\n"
-          #print(p[2]['type'])
           increase_local_size(size[p[2]['type']['val']])
           i = i+1
-    #print(p[0]['code'])
 
 
 def p_constdecl(p):
@@ -542,8 +539,6 @@ def p_simplestmt(p):
                       elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
                           p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
                       else:
-                          print(p[1]['exprs'][i]['type'])
-                          print(p[3]['exprs'][i]['type'])
                           print("Error in line "+str(p.lineno(2))+" : type mismatch")
                           exit(1)
                   else:
@@ -594,7 +589,6 @@ def p_simplestmt(p):
                   exit(1)
               for i in range(0,len(p[1]['exprs'])):
                   p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']
-                  print(p[1]['exprs'][i])
                   if(check_if_variable_declared(p[1]['exprs'][i]['place']) and (check_if_variable_declared(p[3]['exprs'][i]['place']) or p[3]['exprs'][i]['value']!="")):
                     if(p[1]['exprs'][i]['type']=='float' and p[3]['exprs'][i]['type']=='int'):
                         tmp = getlabel()
@@ -604,13 +598,9 @@ def p_simplestmt(p):
                     elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
                         p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
                     else:
-                        print(p[1]['exprs'][i]['type'])
-                        print(p[3]['exprs'][i]['type'])
                         print("Error in line "+str(p.lineno(2))+" : type mismatch")
                         exit(1)
                   else:
-                    # print(p[1]['exprs'][i])
-                    # print(p[3]['exprs'][i])
                     print("Error in line "+str(p.lineno(2))+" : variable not declared")
                     exit(1)
               p[0]['place'] = p[1]['exprs'][0]['place']
@@ -1108,7 +1098,6 @@ def p_exprortypelist(p):
     x['type'] = p[3]['type']
     x['value'] = p[3]['type']
     p[0]['exprs'].append(x)
-  #print(p[0]['exprs'])
 
 
 def p_oliteral(p):
@@ -1233,7 +1222,6 @@ def p_name(p):
         x['val'] = ''
     else:
         x = get_variable_attribute(str(p[1]),"type")
-    print(x)
     if(x['val'] == 'array' or x['val'] == 'struct'):
       p[0]['type'] = x
     else:
@@ -1295,6 +1283,7 @@ def p_nondeclstmt(p):
     p[0] = {}
     if(len(p)==2):
         p[0]['code'] = p[1]['code']
+    global stack
     if(len(p)==3):
         string = ""
         if(str(p[1]) == "break"):
@@ -1308,15 +1297,26 @@ def p_nondeclstmt(p):
             flag = 1
             string = "return"
             p[0]['code'] = ""
+            function = stack[-1]["CS335_name"]
+            num = len(get_function_symbol_table(function)["CS335_response"])
+            try:
+              if(num != len(p[2]['exprs'])):
+                print("Error in line "+str(p.lineno(1))+" : mismatch in no of returns")
+                exit(1)
+            except:
+              print("Error in line "+str(p.lineno(1))+" : mismatch in no of returns")
+              exit(1)
             for i in range(0,len(p[2]['exprs'])):
                 if(i==0):
                     p[0]['code'] += p[2]['exprs'][i]['code'] + "\n"
                 else:
                     p[0]['code'] += "\n" + p[2]['exprs'][i]['code'] + "\n"
+                if(check_if_variable_declared(p[2]['exprs'][i]['place']) == 0 and p[2]['exprs'][i]['value'] == ''):
+                  print("Error in line "+str(p.lineno(1))+" : return variable not declared")
+                  exit(1)
                 p[0]['code'] += "return " + p[2]['exprs'][i]['place']
 
         if(flag == 0):
-            global stack
             current= stack[-1]
             if (string == "break"):
                 p[0]['code'] = "goto "+current["CS335_exit_label"] + "\n" + p[2]['code']
@@ -1380,6 +1380,9 @@ def p_pexprnoparen(p):
       label1 = getlabel()
       register_variable(str(label))
       register_variable(str(label1))
+      if(int(p[3]['place']) >= p[1]['type']['arr_length']):
+        print("Error in line "+str(p.lineno(2))+" : Array index out of range")
+        exit(1)
       p[0]['code'] = p[1]['code']
       p[0]['code'] += "\n"+p[3]['code']
       p[0]['place'] = label
@@ -1387,7 +1390,6 @@ def p_pexprnoparen(p):
       p[0]['code'] += str(label)+" = "+str(label1)+"["+p[3]['place']+"]"
       p[0]['value'] = 1
       p[0]['type'] = p[1]['type']['arr_type']
-      #print(p[0]['code'])
     if(len(p)==6):
         # what to do
         dummy = 0
@@ -1821,7 +1823,7 @@ def p_pseudocall(p):
   p[0] = {}
   func_symbol_table = get_function_symbol_table(str(p[1]['place']))
   if(func_symbol_table == -1):
-    print("Error, function not defined!")
+    print("Error in line "+str(p.lineno(2))+" : function not defined!")
     exit(1)
   response = func_symbol_table['CS335_response']
   args = func_symbol_table['CS335_args']
@@ -1850,7 +1852,6 @@ def p_pseudocall(p):
     p[0]['code'] = p[1]['code']
     p[0]['code'] += "\n"+p[3]['code']
     exprs = p[3]['exprs']
-    #print(exprs)
     i=0
     for dicts in args:
       if(exprs[i]['type']!=dicts['arg_type']['val']):
