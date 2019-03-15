@@ -80,7 +80,7 @@ def get_variable_attribute(variable,attribute):
     global globalsymboltable
     local_symbol_table = stack[-1]
     while 1:
-        
+
         if variable in local_symbol_table:
           if attribute in local_symbol_table[variable]:
             return local_symbol_table[variable][attribute]
@@ -134,7 +134,7 @@ def increase_local_size(size):
   symbol_table = stack[-1]
 
   if 'local_variable_size' in symbol_table:
-    symbol_table['local_variable_size'] += size 
+    symbol_table['local_variable_size'] += size
   else:
     symbol_table['local_variable_size'] = size
 
@@ -142,9 +142,9 @@ def get_function_symbol_table(funcname):
   global globalsymboltable
   child_tables = globalsymboltable['CS335_childtables']
   for child in child_tables:
-    
+
     if(child['CS335_type'] == 'function' and child['CS335_name'] == funcname):
-      return child 
+      return child
   return -1
 
 
@@ -157,8 +157,14 @@ def p_start(p):
   '''start : SourceFile'''
   p[0] = {}
   p[0]['code'] = p[1]['code']
-  print(p[0]['code'])
+  ir = p[0]['code'].split('\n')
+  # ir = [str.strip() for str in p[0]['code'].splitlines()]
+  ir = filter(bool, p[0]['code'].splitlines())
+  out = ""
+  for str in ir:
+      out += str + "\n"
   global globalsymboltable
+  print(out)
   print(globalsymboltable)
 
 def p_sourcefile(p):
@@ -273,7 +279,8 @@ def p_vardecl(p):
         print("Error in line "+str(p.lineno(2))+" :type mismatch")
         exit(1)
 
-      for var in p[1]['variable']:
+      for j in range(0,len(p[1]['variable'])):
+        var = p[1]['variable'][j]
         add_variable_attribute_api(var,'type',p[3]['type'])
         p[0]['code'] += var+" = "+p[3]['exprs'][i]['place']+"\n"
         increase_local_size(size[p[3]['type']['val']])
@@ -288,7 +295,8 @@ def p_vardecl(p):
           print("Error in line "+str(p.lineno(3))+" : mismatch in no of variables and no of assignments")
           exit(1)
 
-        for var in p[1]['variable']:
+        for j in range(0,len(p[1]['variable'])):
+          var = p[1]['variable'][j]
           add_variable_attribute_api(var,'type',p[2]['type'])
           p[0]['code'] += var+" = "+p[4]['exprs'][i]['place']+"\n"
           #print(p[2]['type'])
@@ -396,14 +404,12 @@ def p_simplestmt(p):
           for exprs in func_responses :
             if(exprs['type']!=p[1]['exprs'][i]['type']):
               print("Error in line "+str(p.lineno(2))+" :type mismatch for function return type")
-              
+
               exit(1)
             p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+" = "+str(exprs['place'])
             i = i+1
 
         else:
-
-
           flag = 0
           if(str(p[2]) == "+="):
               op = "+"
@@ -778,7 +784,7 @@ def p_funcmarker(p):
 def p_funcdec1_(p):
     '''FuncDecl_ : IDENTIFIER ArgList FuncRes
                | LEFT_OR OArgTypeListOComma OR_RIGHT IDENTIFIER ArgList FuncRes'''
-    
+
     global globalsymboltable
     global stack
     globalsymboltable[str(p[1])] = {}
@@ -813,7 +819,7 @@ def p_funcbody(p):
     p[0]['var_size'] = p[5]['var_size']
 
 def p_funcrevmarker(p):
-  '''funcrevmarker : 
+  '''funcrevmarker :
                     '''
   p[0] = {}
   p[0]['var_size'] = str(get_size())
@@ -1206,7 +1212,10 @@ def p_nondeclstmt(p):
             string = "return"
             p[0]['code'] = ""
             for i in range(0,len(p[2]['exprs'])):
-                p[0]['code'] += p[2]['exprs'][i]['code'] + "\n"
+                if(i==0):
+                    p[0]['code'] += p[2]['exprs'][i]['code'] + "\n"
+                else:
+                    p[0]['code'] += "\n" + p[2]['exprs'][i]['code'] + "\n"
                 p[0]['code'] += "return " + p[2]['exprs'][i]['place']
 
         if(flag == 0):
@@ -1218,7 +1227,6 @@ def p_nondeclstmt(p):
                 p[0]['code'] = "goto "+current["CS335_update_label"] + "\n" + p[2]['code']
             else:
                 p[0]['code'] = string + " " + p[2]['code']
-        # not done for return in multiple exp
     if(len(p)==4):
         # what to do
         dummy = 0
@@ -1630,7 +1638,7 @@ def p_arrayexp(p):
       exit(1)
     else:
       temp_label = getlabel()
-      p[0]['code'] += str(temp_label)+" = "+str(i*size[c_type])
+      p[0]['code'] += "\n" + str(temp_label)+" = "+str(i*size[c_type])
       p[0]['code'] += "\n"+objects['code'] + "\n"
       p[0]['code'] += str(label2)+"["+str(temp_label)+"] = "+str(objects['place'])
     i = i+1
@@ -1759,7 +1767,7 @@ def p_pseudocall(p):
         p[0]['code'] += "\npop "+str(label)
     else:
       p[0]['func_responses'] = 'void'
-  
+
 
 def p_cmtlist(p):
   '''cmtlist :
