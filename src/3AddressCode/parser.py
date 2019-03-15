@@ -1242,6 +1242,7 @@ def p_nondeclstmt(p):
     p[0] = {}
     if(len(p)==2):
         p[0]['code'] = p[1]['code']
+    global stack
     if(len(p)==3):
         string = ""
         if(str(p[1]) == "break"):
@@ -1255,6 +1256,15 @@ def p_nondeclstmt(p):
             flag = 1
             string = "return"
             p[0]['code'] = ""
+            function = stack[-1]["CS335_name"]
+            num = len(get_function_symbol_table(function)["CS335_response"])
+            try:
+              if(num != len(p[2]['exprs'])):
+                print("Error in line "+str(p.lineno(1))+" : mismatch in no of returns")
+                exit(1)
+            except:
+              print("Error in line "+str(p.lineno(1))+" : mismatch in no of returns")
+              exit(1)
             for i in range(0,len(p[2]['exprs'])):
                 if(i==0):
                     p[0]['code'] += p[2]['exprs'][i]['code'] + "\n"
@@ -1266,7 +1276,6 @@ def p_nondeclstmt(p):
                 p[0]['code'] += "return " + p[2]['exprs'][i]['place']
 
         if(flag == 0):
-            global stack
             current= stack[-1]
             if (string == "break"):
                 p[0]['code'] = "goto "+current["CS335_exit_label"] + "\n" + p[2]['code']
