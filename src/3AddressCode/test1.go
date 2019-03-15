@@ -2,10 +2,18 @@ package main;
 
 import "fmt";
 
+type person struct {
+    name string;
+    age  int;
+};
+
 func main(){
 
 	var i int;
 	i= 2;
+  var s person;
+  // s = person{name: "Sean", age: 50};
+
     switch i==1 {
     case 1:
         i++;

@@ -285,9 +285,12 @@ def p_typedeclname(p):
     '''TypeDeclName : IDENTIFIER'''
     p[0] = {}
     p[0]['variable'] = str(p[1])
+    p[0]['code'] = str(p[1])
 
 def p_typedecl(p):
-  '''TypeDecl : TypeDeclName NType'''
+    '''TypeDecl : TypeDeclName NType'''
+    p[0] = {}
+    p[0]['code'] = p[1]['code'] + p[2]['type']['val']
 #   make_symbol_table(p[1]['variable'],'type')
 #   add_variable_attribute_api(p[1]['variable'],'type',p[2]['type'])
 
@@ -448,8 +451,8 @@ def p_case(p):
     elif(len(p)==4):
         p[0]['type'] = "notdefault"
         p[0]['value']=p[2]['place']
-        
-        
+
+
 
 
 def p_compoundstmt(p):
@@ -473,7 +476,7 @@ def p_caseblock(p):
     p[0]['code']=p[2]['code']
     p[0]['type']=p[1]['type']
     p[0]['value']=p[1]['value']
-    
+
 
 def p_caseblocklist(p):
 
@@ -783,6 +786,7 @@ def p_labelname(p):
 
 def p_newname(p):
   '''NewName : IDENTIFIER'''
+  p[0] = {}
   p[0]['names'] = str(p[1])
 
 
@@ -1200,23 +1204,23 @@ def p_switchstmt(p):
     nextlabel = getlabel()
     exitlabel = getlabel()
     p[0] = {}
-    p[0]["code"]= p[2]['code']+"\n" 
+    p[0]["code"]= p[2]['code']+"\n"
     dummy = getlabel()
     for i in range(0,len(p[4])):
         if(p[4][i]["type"] == "notdefault"):
             p[0]['code']+= dummy +"= "+p[2]['place']+"=="+p[4][i]["value"] +"\n"
             if((i+1)==len(p[4])):
                 p[0]['code']+= "if "+dummy +"=0 goto "+exitlabel + "\n" + p[4][i]['code']
-                break 
+                break
             else:
                 p[0]['code']+= "if "+dummy +"=0 goto "+nextlabel + "\n" + p[4][i]['code'] + "\n" + "goto "+exitlabel+"\n"
-        
+
         else:
             p[0]['code']+= p[4][i]['code']
             break
         p[0]['code']+= nextlabel+":\n"
         nextlabel=getlabel()
-        
+
     p[0]['code'] += "\n" + exitlabel+":"
 
 def p_prec5expr_(p):
