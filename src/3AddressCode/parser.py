@@ -384,14 +384,15 @@ def p_simplestmt(p):
 
           func_responses = p[3]['func_responses']
           if(len(func_responses)!=len(p[1]['exprs'])):
-            print("length mismatch for function return type")
+            print("Error in line "+str(p.lineno(2))+" :length mismatch for function return type")
             exit(1)
 
           i=0
           p[0]['code'] += p[3]['code']
           for exprs in func_responses :
             if(exprs['type']!=p[1]['exprs'][i]['type']):
-              print("type mismatch for function return type")
+              print("Error in line "+str(p.lineno(2))+" :type mismatch for function return type")
+              
               exit(1)
             p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+" = "+str(exprs['place'])
             i = i+1
@@ -1737,7 +1738,7 @@ def p_pseudocall(p):
     i=0
     for dicts in args:
       if(exprs[i]['type']!=dicts['arg_type']['val']):
-        print("Argument type mismatch")
+        print("Error in line "+str(p.lineno(2))+" : Argument type mismatch")
         exit(1)
       p[0]['code'] += "\npush "+str(exprs[i]['place'])
       i = i+1
