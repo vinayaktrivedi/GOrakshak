@@ -58,4 +58,8 @@ CS335_24 = *CS335_23
 n = CS335_24
 CS335_25 = !90
 n = CS335_25
+xy = 2
+CS335_27 = BaseAddress(g)
+CS335_26 = CS335_27[9]
+uzi = CS335_26
 EndFunc;

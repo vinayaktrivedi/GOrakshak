@@ -47,6 +47,7 @@ func main(){
 	u = &(&k);
 	n = **u;
 	n = !90;
+  xy,uzi := 2,g[9];
 };
 
 // package main;

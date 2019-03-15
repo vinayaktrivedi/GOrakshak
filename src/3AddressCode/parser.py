@@ -392,7 +392,6 @@ def p_simplestmt(p):
     if(len(p) == 4):
         p[0]['code'] = ""
         if('funccall' in p[3]):
-
           func_responses = p[3]['func_responses']
           if(len(func_responses)!=len(p[1]['exprs'])):
             print("Error in line "+str(p.lineno(2))+" :length mismatch for function return type")
@@ -401,11 +400,17 @@ def p_simplestmt(p):
           i=0
           p[0]['code'] += p[3]['code']
           for exprs in func_responses :
-            if(exprs['type']!=p[1]['exprs'][i]['type']):
-              print("Error in line "+str(p.lineno(2))+" :type mismatch for function return type")
-
-              exit(1)
-            p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+" = "+str(exprs['place'])
+            if(p[1]['exprs'][i]['type']=='float' and exprs['type']=='int'):
+              tmp = getlabel()
+              register_variable(tmp)
+              p[0]['code'] += "\n" + tmp + " = inttofloat " + str(exprs['place'])
+              p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+" = "+str(exprs['place'])
+            else:
+              if(exprs['type']!=p[1]['exprs'][i]['type']):
+                print("Error in line "+str(p.lineno(2))+" :type mismatch for function return type")
+                exit(1)
+              else:
+                p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+" = "+str(exprs['place'])
             i = i+1
 
         else:
@@ -428,6 +433,9 @@ def p_simplestmt(p):
           if(str(p[2]) == "/="):
               # check for divide by zero
               op = "/"
+              if(p[3]['value'] == 0):
+                print("Error in line "+str(p.lineno(2))+" :can't divide by zero")
+                exit(1)
               typ = p[1]['type']
               if(p[3]['type'] == "float"):
                   typ = "float"
@@ -477,29 +485,66 @@ def p_simplestmt(p):
           if(str(p[2]) == "="):
               flag = 2
           if(str(p[2]) == ":="):
-              flag = 2
+              flag = 3
+              p[0]['code'] = ""
+              if(len(p[1]['exprs']) != len(p[3]['exprs'])):
+                  print("Error in line "+str(p.lineno(2))+" : mismatch in no. of lhs and rhs expressions")
+                  exit(1)
+              for i in range(0,len(p[1]['exprs'])):
+                  p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']
+                  if(check_if_variable_declared(p[1]['exprs'][i]['place'])):
+                      if(p[1]['exprs'][i]['type']=='float' and p[3]['exprs'][i]['type']=='int'):
+                          tmp = getlabel()
+                          register_variable(tmp)
+                          p[0]['code'] += "\n" + tmp + " = inttofloat " + p[3]['exprs'][i]['place']
+                          p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + tmp
+                      elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
+                          p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
+                      else:
+                          print(p[1]['exprs'][i]['type'])
+                          print(p[3]['exprs'][i]['type'])
+                          print("Error in line "+str(p.lineno(2))+" : type mismatch")
+                          exit(1)
+                  else:
+                      if(check_if_variable_declared(p[3]['exprs'][i]['place']) or p[3]['exprs'][i]['value']!=""):
+                        p[1]['exprs'][i]['type'] = p[3]['exprs'][i]['type']
+                        register_variable(p[1]['exprs'][i]['place'])
+                        add_variable_attribute(p[1]['exprs'][i]['place'],'type',{'val':p[3]['exprs'][i]['type']})
+                        p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
+                      else:
+                        print("Error in line "+str(p.lineno(2))+" : variable "+ p[3]['exprs'][i]['place'] +" not declared")
+                        exit(1)
+              p[0]['place'] = p[1]['exprs'][0]['place']
+
           if(flag == 0):
               p[0]['code'] += p[1]['code'] + "\n" + p[3]['code'] + "\n"
-              if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
-                  print("Error in line "+str(p.lineno(2))+" : can't assign float to int")
-                  exit(1)
-              if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
-                  tmp = getlabel()
-                  register_variable(tmp)
-                  p[0]['code'] += tmp + " = inttofloat " + p[3]['place'] + "\n"
-                  p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + "float " + tmp
-                  p[0]['place'] = p[1]['place']
-              if(p[1]['type'] == p[3]['type']):
-                  typ = p[1]['type']
-                  if(p[3]['value']):
-                      p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
-                  else:
-                      p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
-
+              if(check_if_variable_declared(p[1]['place']) and (check_if_variable_declared(p[3]['place']) or p[3]['value']!="")):
+                if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
+                    print("Error in line "+str(p.lineno(2))+" : can't assign float to int")
+                    exit(1)
+                if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
+                    tmp = getlabel()
+                    register_variable(tmp)
+                    p[0]['code'] += tmp + " = inttofloat " + p[3]['place'] + "\n"
+                    p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + "float " + tmp
+                    p[0]['place'] = p[1]['place']
+                if(p[1]['type'] == p[3]['type']):
+                    typ = p[1]['type']
+                    if(p[3]['value']!=""):
+                        p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
+                    else:
+                        p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
+              else:
+                print("Error in line "+str(p.lineno(2))+" : variable not declared")
+                exit(1)     
           if(flag == 1):
+            if(check_if_variable_declared(p[1]['place']) and (check_if_variable_declared(p[3]['place']) or p[3]['value']!="")):
               p[0]['code'] += p[1]['code'] + "\n" + p[3]['code'] + "\n"
               p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
               p[0]['place'] = p[1]['place']
+            else:
+              print("Error in line "+str(p.lineno(2))+" : variable not declared")
+              exit(1)
 
           if(flag == 2):
               p[0]['code'] = ""
@@ -508,18 +553,25 @@ def p_simplestmt(p):
                   exit(1)
               for i in range(0,len(p[1]['exprs'])):
                   p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']
-                  if(p[1]['exprs'][i]['type']=='int' and p[3]['exprs'][i]['type']=='float'):
-                      tmp = getlabel()
-                      register_variable(tmp)
-                      p[0]['code'] += "\n" + tmp + " = inttofloat " + p[3]['exprs'][i]['place']
-                      p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + tmp
-                  elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
-                      p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
+                  print(p[1]['exprs'][i])
+                  if(check_if_variable_declared(p[1]['exprs'][i]['place']) and (check_if_variable_declared(p[3]['exprs'][i]['place']) or p[3]['exprs'][i]['value']!="")):
+                    if(p[1]['exprs'][i]['type']=='float' and p[3]['exprs'][i]['type']=='int'):
+                        tmp = getlabel()
+                        register_variable(tmp)
+                        p[0]['code'] += "\n" + tmp + " = inttofloat " + p[3]['exprs'][i]['place']
+                        p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + tmp
+                    elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
+                        p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
+                    else:
+                        print(p[1]['exprs'][i]['type'])
+                        print(p[3]['exprs'][i]['type'])
+                        print("Error in line "+str(p.lineno(2))+" : type mismatch")
+                        exit(1)
                   else:
-                      print(p[1]['exprs'][i]['type'])
-                      print(p[3]['exprs'][i]['type'])
-                      print("Error in line "+str(p.lineno(2))+" : type mismatch")
-                      exit(1)
+                    # print(p[1]['exprs'][i])
+                    # print(p[3]['exprs'][i])
+                    print("Error in line "+str(p.lineno(2))+" : variable not declared")
+                    exit(1)
               p[0]['place'] = p[1]['exprs'][0]['place']
 
 
@@ -1131,11 +1183,12 @@ def p_name(p):
     '''Name : IDENTIFIER'''
     p[0] = {}
     p[0]['code'] = ""
+    x = {}
     if(check_if_variable_declared(str(p[1])) == 0):
-        print("Error in line "+str(p.lineno(1))+" : variable not in scope")
-        exit(1)
-    x = get_variable_attribute(str(p[1]),"type")
-
+        x['val'] = ''
+    else:
+        x = get_variable_attribute(str(p[1]),"type")
+    print(x)
     if(x['val'] == 'array' or x['val'] == 'struct'):
       p[0]['type'] = x
     else:
@@ -1280,6 +1333,8 @@ def p_pexprnoparen(p):
     if(len(p)==5):
       label = getlabel()
       label1 = getlabel()
+      register_variable(str(label))
+      register_variable(str(label1))
       p[0]['code'] = p[1]['code']
       p[0]['code'] += "\n"+p[3]['code']
       p[0]['place'] = label
@@ -1388,30 +1443,33 @@ def p_prec5expr_(p):
         if(str(p[2]) == "/"):
             op = "/"
             # can handle divide by zero here
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
+                if(p[3]['value']==0):
+                  print("Error in line "+str(p.lineno(2))+" :can't divide by zero")
+                  exit(1)
                 p[0]['value'] = (p[1]['value'] / p[3]['value'])
 
         if(str(p[2]) == "*"):
             op = "*"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] * p[3]['value'])
 
         if(str(p[2]) == "%"):
             flag = 1
             op = "%"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] % p[3]['value'])
 
         if(str(p[2]) == "<<"):
             flag = 1
             op = "<<"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] << p[3]['value'])
 
         if(str(p[2]) == "&"):
             flag = 1
             op = "%"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] & p[3]['value'])
 
         if(str(p[2]) == "&^"):
@@ -1467,24 +1525,24 @@ def p_prec4expr_(p):
         flag = 0
         if(str(p[2]) == "+"):
             op = "+"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] + p[3]['value'])
 
         if(str(p[2]) == "-"):
             op = "-"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] - p[3]['value'])
 
         if(str(p[2]) == "^"):
             flag = 1
             op = "^"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] ^ p[3]['value'])
 
         if(str(p[2]) == "|"):
             flag = 1
             op = "|"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] | p[3]['value'])
         if(flag == 0):
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
@@ -1539,27 +1597,27 @@ def p_prec3expr_(p):
         if(str(p[2]) == "=="):
             op = "=="
 
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] == p[3]['value'])
         if(str(p[2]) == "!="):
             op = "!="
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] != p[3]['value'])
         if(str(p[2]) == "<="):
             op = "<="
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] <= p[3]['value'])
         if(str(p[2]) == ">="):
             op = ">="
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""!=""):
                 p[0]['value'] = (p[1]['value'] >= p[3]['value'])
         if(str(p[2]) == ">"):
             op = ">"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] > p[3]['value'])
         if(str(p[2]) == "<"):
             op = "<"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] < p[3]['value'])
         p[0]['place'] = getlabel()
         register_variable(p[0]['place'])
@@ -1586,7 +1644,7 @@ def p_prec2expr_(p):
             exit(1)
         p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] + " && " + p[3]['place']
         p[0]['type'] = p[1]['type']
-        if(p[1]['value'] and p[3]['value']):
+        if(p[1]['value']!="" and p[3]['value']!=""):
             p[0]['value'] = p[1]['value'] and p[3]['value']
 
 def p_expr(p):
@@ -1615,7 +1673,7 @@ def p_expr(p):
             exit(1)
         p[0]['code'] = p[0]['place'] + " = " + p[1]['place'] + " || " + p[3]['place']
         p[0]['type'] = p[1]['type']
-        if(p[1]['value'] and p[3]['value']):
+        if(p[1]['value']!="" and p[3]['value']!=""):
             p[0]['value'] = p[1]['value'] or p[3]['value']
 
 def p_chexpr(p):
@@ -1630,6 +1688,8 @@ def p_arrayexp(p):
   array_label = getlabel()
   p[0]['place'] = array_label
   label2 = getlabel()
+  register_variable(str(array_label))
+  register_variable(str(label2))
   p[0]['code'] = str(label2)+" = BaseAddress("+str(array_label)+")"
   for objects in p[2]['exprs']:
     if(objects['type']!=c_type):
