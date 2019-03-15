@@ -23,7 +23,9 @@ outfile = open(args["code"],"w")
 
 globalsymboltable = {}
 globalsymboltable['local_variable_size'] = 0
-globalsymboltable["CS335_name"] = "global_symbol_table"
+globalsymboltable["CS335_name"] = "globalsymboltable"
+globalsymboltable["CS335_type"] = "global_symbol_table"
+
 stack = []
 stack.append(globalsymboltable)
 counter=0
@@ -38,12 +40,14 @@ def getlabel():
   counter += 1
   return "CS335_"+str(counter)
 
-def make_symbol_table(label): #use global keyword
+def make_symbol_table(label,tabletype): #use global keyword
     global stack
     prev_table = stack[-1]
     local_symbol_table = {}
     local_symbol_table['local_variable_size'] = 0
     local_symbol_table["CS335_name"]=label
+    if(type != None):
+      local_symbol_table["CS335_type"]=tabletype  
     if "CS335_childtables" in prev_table.keys():
         pass
     else:
@@ -148,6 +152,40 @@ def get_size():
   symbol_table = stack[-1]
   return symbol_table['local_variable_size']
 
+def bfs():
+    symout=""
+    global globalsymboltable
+    visited, queue = set(), [globalsymboltable]
+    while queue:
+        current = queue.pop(0)
+        if current["CS335_name"] not in visited:
+            visited.add(current["CS335_name"])
+            #do work
+            symout+="Table Info:\n"
+            symout+="Name="+current["CS335_name"]+",Type="+current["CS335_type"]+"\n"
+            symout+="Table Variables:\n"
+            for key, var in current.items():
+              if(key=="CS335_childtables" or key=="CS335_name" or key=="CS335_type" or key=="local_variable_size" or key=="CS335_parent" or key=="CS335_args" or key=="CS335_response"):
+                continue
+              symout+="variable name="+str(key)+","
+              for attr,val in var.items():
+                symout+="attribute="+str(attr)+","+"value="+str(val)+","
+              symout+="\n"
+            if "CS335_childtables" in current:
+              symout+="Child Tables:\n"
+              for i,childtable in enumerate(current["CS335_childtables"]):
+                queue.append(childtable)
+                if((i+1) == len(current["CS335_childtables"])):
+                  symout+=childtable["CS335_name"]                
+                else:
+                  symout+=childtable["CS335_name"]+","
+              symout+="\n"
+            symout+="\n"
+    with open('csvfile.csv','wb') as f:
+      f.write(symout)
+    print(symout)
+                  
+
 def p_start(p):
   '''start : SourceFile'''
   p[0] = {}
@@ -158,9 +196,12 @@ def p_start(p):
   out = ""
   for str in ir:
       out += str + "\n"
-  global globalsymboltable
   print(out)
   outfile.write(out)
+  bfs()  
+  
+
+
   print(globalsymboltable)
 
 def p_sourcefile(p):
@@ -599,7 +640,7 @@ def p_compoundstmt(p):
 def p_compundmarker(p):
     '''compundmarker :
                 '''
-    make_symbol_table("compound_statement")
+    make_symbol_table(getlabel(),"compound statement/else")
 
 def p_revmarker(p):
     '''revmarker :
@@ -682,7 +723,7 @@ def p_forstmt(p):
 def p_formarker(p):
     '''formarker :
                   '''
-    make_symbol_table("loopbody")
+    make_symbol_table(getlabel(),"For loop")
     p[0]={}
     p[0]['loop_label']=getlabel()
     p[0]['exit_label']=getlabel()
@@ -696,7 +737,7 @@ def p_formarker(p):
 def p_ifmarker(p):
   '''ifmarker :
                 '''
-  make_symbol_table("if")
+  make_symbol_table(getlabel(),"If/else if")
 
 def p_ifheader(p):
     '''IfHeader : OSimpleStmt
@@ -834,7 +875,7 @@ def p_funcdec1(p):
 def p_funcmarker(p):
     '''funcmarker :
               '''
-    make_symbol_table("func_unknown")
+    make_symbol_table("func_unknown",None)
 
 def p_funcdec1_(p):
     '''FuncDecl_ : IDENTIFIER ArgList FuncRes
