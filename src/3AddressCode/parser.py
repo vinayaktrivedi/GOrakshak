@@ -27,6 +27,7 @@ file = args["input"]
 # outfile = open(args["output"],"w")
 
 globalsymboltable = {}
+globalsymboltable['local_variable_size'] = 0
 globalsymboltable["CS335_name"] = "global_symbol_table"
 stack = []
 stack.append(globalsymboltable)
@@ -46,6 +47,7 @@ def make_symbol_table(label): #use global keyword
     global stack
     prev_table = stack[-1]
     local_symbol_table = {}
+    local_symbol_table['local_variable_size'] = 0
     local_symbol_table["CS335_name"]=label
     if "CS335_childtables" in prev_table.keys():
         pass
@@ -78,6 +80,7 @@ def get_variable_attribute(variable,attribute):
     global globalsymboltable
     local_symbol_table = stack[-1]
     while 1:
+        
         if variable in local_symbol_table:
           if attribute in local_symbol_table[variable]:
             return local_symbol_table[variable][attribute]
@@ -107,6 +110,7 @@ def add_variable_attribute_api(variable,attribute,value):
 
 def check_if_variable_declared(variable):
     global stack
+    global globalsymboltable
     i = len(stack)-1
     while(i>=0):
         symbol_table = stack[i]
@@ -117,8 +121,36 @@ def check_if_variable_declared(variable):
                 i = i - 1
         except:
             i = i - 1
+    #print(globalsymboltable)
+    child_tables = globalsymboltable['CS335_childtables']
+    for childs in child_tables:
+      if(childs['CS335_type'] == 'function' and childs['CS335_name'] == variable):
+        return 1
+
     return 0
 
+def increase_local_size(size):
+  global stack
+  symbol_table = stack[-1]
+
+  if 'local_variable_size' in symbol_table:
+    symbol_table['local_variable_size'] += size 
+  else:
+    symbol_table['local_variable_size'] = size
+
+def get_function_symbol_table(funcname):
+  global globalsymboltable
+  child_tables = globalsymboltable['CS335_childtables']
+  for child in child_tables:
+    if(child['CS335_type'] == 'function' and childs['CS335_name'] == funcname):
+      return child 
+  return -1
+
+
+def get_size():
+  global stack
+  symbol_table = stack[-1]
+  return symbol_table['local_variable_size']
 
 def p_start(p):
   '''start : SourceFile'''
@@ -212,9 +244,11 @@ def p_vardecl(p):
           | DeclNameList EQUAL ExprList'''
     p[0] = {}
     p[0]['code'] = ""
+    global size
     if(len(p)==3):
         for var in p[1]['variable']:
             add_variable_attribute_api(var,'type',p[2]['type'])
+            increase_local_size(size[p[2]['type']['val']])
     elif(len(p)==4):
       i = 0 
       if(len(p[1]['variable']) != len(p[3]['exprs'])):
@@ -224,6 +258,7 @@ def p_vardecl(p):
       for var in p[1]['variable']:
         add_variable_attribute_api(var,'type',p[3]['type'])
         p[0]['code'] += var+" = "+p[3]['exprs'][i]['place']+"\n"
+        increase_local_size(size[p[3]['type']['val']])
         i = i+1
     else:
       i=0
@@ -238,6 +273,8 @@ def p_vardecl(p):
         for var in p[1]['variable']:
           add_variable_attribute_api(var,'type',p[2]['type'])
           p[0]['code'] += var+" = "+p[4]['exprs'][i]['place']+"\n"
+          #print(p[2]['type'])
+          increase_local_size(size[p[2]['type']['val']])
           i = i+1
     #print(p[0]['code'])
 
@@ -248,9 +285,11 @@ def p_constdecl(p):
           | DeclNameList EQUAL ExprList '''
     p[0] = {}
     p[0]['code'] = ""
+    global size
     if(len(p)==3):
         for var in p[1]['variable']:
             add_variable_attribute_api(var,'type',p[2]['type'])
+            increase_local_size(size[p[2]['type']['val']])
     elif(len(p)==4):
       i = 0 
       if(len(p[1]['variable']) != len(p[3]['exprs'])):
@@ -260,6 +299,7 @@ def p_constdecl(p):
       for var in p[1]['variable']:
         add_variable_attribute_api(var,'type',p[3]['type'])
         p[0]['code'] += var+" = "+p[3]['exprs'][i]['place']+"\n"
+        increase_local_size(size[p[3]['type']['val']])
         i = i+1
     else:
       i=0
@@ -274,6 +314,7 @@ def p_constdecl(p):
         for var in p[1]['variable']:
           add_variable_attribute_api(var,'type',p[2]['type'])
           p[0]['code'] += var+" = "+p[4]['exprs'][i]['place']+"\n"
+          increase_local_size(size[p[2]['type']['val']])
           i = i+1
 
 
@@ -697,7 +738,7 @@ def p_interfacetype(p):
 def p_funcdec1(p):
   '''FuncDecl : FUNCTION  funcmarker FuncDecl_  FuncBody'''
   p[0] = {}
-  p[0]['code'] = p[3]['func_name'] + ":\tBeginFunc 24;\n" +  p[4]['code'] + "\nEndFunc;"
+  p[0]['code'] = p[3]['func_name'] + ":\tBeginFunc "+ str(p[4]['var_size']) +";\n" +  p[4]['code'] + "\nEndFunc;"
 
 def p_funcmarker(p):
     '''funcmarker :
@@ -707,7 +748,12 @@ def p_funcmarker(p):
 def p_funcdec1_(p):
     '''FuncDecl_ : IDENTIFIER ArgList FuncRes
                | LEFT_OR OArgTypeListOComma OR_RIGHT IDENTIFIER ArgList FuncRes'''
+    
+    global globalsymboltable
     global stack
+    globalsymboltable[str(p[1])] = {}
+    globalsymboltable[str(p[1])]['type'] = {'val' : 'function'}
+    globalsymboltable[str(p[1])]['exists']=1
     current = stack[-1]
     p[0] = {}
     if(len(p)==4):
@@ -731,10 +777,17 @@ def p_argList(p):
 
 def p_funcbody(p):
     '''FuncBody :
-              | LBRACE  cmtlist StmtList  cmtlist revmarker RBRACE'''
+              | LBRACE  cmtlist StmtList  cmtlist funcrevmarker RBRACE'''
     p[0] = {}
     p[0]['code']=p[3]['code']
+    p[0]['var_size'] = p[5]['var_size']
 
+def p_funcrevmarker(p):
+  '''funcrevmarker : 
+                    '''
+  p[0] = {}
+  p[0]['var_size'] = str(get_size())
+  go_one_level_up()
 
 def p_funcres(p):
     '''FuncRes :
@@ -809,9 +862,19 @@ def p_funcrettype(p):
                  | OtherType
                  | PtrType
                  | DotName
-                 | NewType'''
+                 | myType'''
     p[0] = {}
     p[0]['response'] = p[1]['type']
+def p_mytype(p):
+  '''myType : NewType
+            | myType COMMA NewType'''
+  p[0] = {}
+  if(len(p)==2):
+    p[0]['type'] = []
+    p[0]['type'].append(p[1]['type'])
+  else:
+    p[0]['type'] = p[1]['type']
+    p[0]['type'].append(p[3]['type'])
 
 def p_dotname(p):
   '''DotName : Name
@@ -888,6 +951,24 @@ def p_exprlist(p):
 def p_exprortypelist(p):
   '''ExprOrTypeList : ExprOrType
                     | ExprOrTypeList COMMA ExprOrType'''
+  p[0] = {}
+  p[0]['exprs'] = []
+  if(len(p)==2):
+    p[0]['code'] = p[1]['code']
+    x = {}
+    x['place'] = p[1]['place']
+    x['type'] = p[1]['type']
+    x['value'] = p[1]['value']
+    p[0]['exprs'].append(x)
+  else:
+    p[0]['code'] = p[1]['code']
+    p[0]['code'] += "\n"+p[3]['code']
+    p[0]['exprs'] = p[1]['exprs']
+    x = {}
+    x['place'] = p[3]['place']
+    x['type'] = p[3]['type']
+    x['value'] = p[3]['type']
+    p[0]['exprs'].append(x)
 
 def p_oliteral(p):
     '''OLiteral :
@@ -1037,10 +1118,10 @@ def p_argtypelist(p):
     p[0] = {}
     p[0]['argList'] = []
     if(len(p) == 2):
-        p[0]['argList'] = p[1]['args']
+        p[0]['argList'].append(p[1]['args'])
     else:
         p[0]['argList'] = p[1]['argList']
-        p[0]['argList'] = p[3]['args']
+        p[0]['argList'].append(p[3]['args'])
 
 def p_oargtypelistocomma(p):
     '''OArgTypeListOComma :
@@ -1117,6 +1198,8 @@ def p_pexpr(p):
         p[0]['value'] = p[1]['value']
         p[0]['type'] = p[1]['type']
         p[0]['place'] = p[1]['place']
+        if(p[0]['type'] == "functioncall"):
+          p[0]['func_responses'] = p[1]['func_responses']
     else:
       p[0]['code'] = p[1]['code']
       p[0]['place'] = p[1]['code']
@@ -1143,6 +1226,8 @@ def p_pexprnoparen(p):
         p[0]['value'] = p[1]['value']
         p[0]['type'] = p[1]['type']
         p[0]['place'] = p[1]['place']
+        if(p[0]['type'] == "functioncall"):
+          p[0]['func_responses'] = p[1]['func_responses']
     if(len(p)==4):
         # what to do
         dummy = 0
@@ -1192,6 +1277,12 @@ def p_complitexpr(p):
 def p_exportype(p):
   '''ExprOrType : Expr
                   | NonExprType'''
+  p[0] = {}
+  p[0]['code'] = p[1]['code']
+  p[0]['place'] = p[1]['place']
+  p[0]['type'] = p[1]['type']
+  p[0]['value'] = p[1]['value']
+
 
 def p_nameortype(p):
     '''NameOrType : NType'''
@@ -1502,6 +1593,53 @@ def p_pseudocall(p):
   '''PseudoCall : PExpr LPAREN RPAREN
                   | PExpr LPAREN ExprOrTypeList OComma RPAREN
                   | PExpr LPAREN ExprOrTypeList DDD OComma RPAREN'''
+  p[0] = {}
+  func_symbol_table = get_function_symbol_table(str(p[1]))
+  if(func_symbol_table == -1):
+    print("Error, function not defined!")
+    exit(1)
+  response = func_symbol_table['CS335_response']
+  args = func_symbol_table('CS335_args')
+  p[0]['func_responses'] = []
+  p[0]['type'] = "functioncall"
+  p[0]['value'] = ""
+  p[0]['place'] = ""
+  p[0]['code'] = ""
+  if(len(p)==4):
+    p[0]['code'] = p[1]['code']
+    p[0]['code'] += "\ncall "+str(p[1]['place'])
+    if(response != 'void'):
+      for var in response:
+        label = getlabel()
+        x = {}
+        x['place'] = label
+        x['type'] = var['val']
+        p[0]['func_responses'].append(x)
+        p[0]['code'] += "\npop "+str(label)
+    else:
+      p[0]['func_responses'] = 'void'
+  elif(len(p) == 6):
+    p[0]['code'] = p[1]['code']
+    p[0]['code'] += "\n"+p[3]['code']
+    exprs = p[3]['exprs']
+    i=0
+    for dicts in args:
+      if(exprs[i]['type']!=dicts['arg_type']):
+        print("Argument type mismatch")
+        exit(1)
+      p[0]['code'] += "\npush "+str(exprs[i]['place'])
+    p[0]['code'] += "\ncall "+str(p[1]['place'])
+    if(response != 'void'):
+      for var in response:
+        label = getlabel()
+        x = {}
+        x['place'] = label
+        x['type'] = var['val']
+        p[0]['func_responses'].append(x)
+        p[0]['code'] += "\npop "+str(label)
+    else:
+      p[0]['func_responses'] = 'void'
+  
 
 def p_cmtlist(p):
   '''cmtlist :
@@ -1516,4 +1654,4 @@ parser = yacc.yacc()            # Build the parser
 with open(file,'r') as f:
     input_str = f.read()
 
-parser.parse(input_str,debug=1)
+parser.parse(input_str,debug=0)
