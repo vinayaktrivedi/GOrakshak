@@ -10,6 +10,10 @@ type person struct {
     name string;
     age  int;
 };
+func f(a int,b int) int,int {
+	var a int;
+	var b bool;
+};
 func main(){
 
 	var a int ;
