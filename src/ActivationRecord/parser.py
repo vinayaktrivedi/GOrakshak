@@ -24,6 +24,7 @@ if args["input"] is None:
 #     args["output"] = "output1.gv"
 
 file = args["input"]
+offset = 0
 # outfile = open(args["output"],"w")
 
 globalsymboltable = {}
@@ -283,13 +284,16 @@ def p_vardecl(p):
     if(len(p)==3):
         for var in p[1]['variable']:
             add_variable_attribute_api(var,'type',p[2]['type'])
-
+            add_variable_attribute_api(var,'offset',offset)
             if(p[2]['type']['val'] == 'array'):
               increase_local_size(size[p[2]['type']['arr_type']]*p[2]['type']['arr_length'])
+              offset += size[p[2]['type']['arr_type']]*p[2]['type']['arr_length']
             elif(p[2]['type']['val'][0] == '*'):
               increase_local_size(4)
+              offset += 4
             else:
               increase_local_size(size[p[2]['type']['val']])
+              offset += size[p[2]['type']['val']]
 
     elif(len(p)==4):
       i = 0
@@ -300,8 +304,10 @@ def p_vardecl(p):
       for j in range(0,len(p[1]['variable'])):
         var = p[1]['variable'][j]
         add_variable_attribute_api(var,'type',p[3]['type'])
+        add_variable_attribute_api(var,'offset',offset)
         p[0]['code'] += var+" = "+p[3]['exprs'][i]['place']+"\n"
         increase_local_size(size[p[3]['type']['val']])
+        offset += size[p[3]['type']['val']]
         i = i+1
     else:
       i=0
@@ -316,9 +322,11 @@ def p_vardecl(p):
         for j in range(0,len(p[1]['variable'])):
           var = p[1]['variable'][j]
           add_variable_attribute_api(var,'type',p[2]['type'])
+          add_variable_attribute_api(var,'offset',offset)
           p[0]['code'] += var+" = "+p[4]['exprs'][i]['place']+"\n"
           #print(p[2]['type'])
           increase_local_size(size[p[2]['type']['val']])
+          offset += size[p[2]['type']['val']]
           i = i+1
     #print(p[0]['code'])
 
@@ -333,7 +341,9 @@ def p_constdecl(p):
     if(len(p)==3):
         for var in p[1]['variable']:
             add_variable_attribute_api(var,'type',p[2]['type'])
+            add_variable_attribute_api(var,'offset',offset)
             increase_local_size(size[p[2]['type']['val']])
+            offset += size[p[2]['type']['val']]
     elif(len(p)==4):
       i = 0
       if(len(p[1]['variable']) != len(p[3]['exprs'])):
@@ -341,8 +351,10 @@ def p_constdecl(p):
         exit(1)
       for var in p[1]['variable']:
         add_variable_attribute_api(var,'type',p[3]['type'])
+        add_variable_attribute_api(var,'offset',offset)
         p[0]['code'] += var+" = "+p[3]['exprs'][i]['place']+"\n"
         increase_local_size(size[p[3]['type']['val']])
+        offset += size[p[3]['type']['val']]
         i = i+1
     else:
       i=0
@@ -356,8 +368,10 @@ def p_constdecl(p):
 
         for var in p[1]['variable']:
           add_variable_attribute_api(var,'type',p[2]['type'])
+          add_variable_attribute_api(var,'offset',offset)
           p[0]['code'] += var+" = "+p[4]['exprs'][i]['place']+"\n"
           increase_local_size(size[p[2]['type']['val']])
+          offset += size[p[2]['type']['val']]
           i = i+1
 
 
@@ -798,6 +812,7 @@ def p_funcmarker(p):
     '''funcmarker :
               '''
     make_symbol_table("func_unknown")
+    offset = 8
 
 same_func_count={}
 def p_funcdec1_(p):
@@ -825,6 +840,7 @@ def p_funcdec1_(p):
         current['CS335_show_label']= p[0]['func_name'] 
 
 
+
 def p_functype(p):
   '''FuncType : FUNCTION ArgList FuncRes'''
 
@@ -847,8 +863,9 @@ def p_funcrevmarker(p):
   '''funcrevmarker :
                     '''
   p[0] = {}
-  p[0]['var_size'] = str(get_size())
+  p[0]['var_size'] = offset-8
   go_one_level_up()
+  offset = 0 
 
 def p_funcres(p):
     '''FuncRes :
@@ -1180,6 +1197,8 @@ def p_argtype(p):
     if(len(p) == 3):
         p[0]['args']['arg_type'] = p[2]['type']
         p[0]['args']['arg_name'] = str(p[1])
+        register_variable(str(p[1]))
+        add_variable_attribute(str(p[1]),'type',p[2]['type'])
 
 def p_argtypelist(p):
     '''ArgTypeList : ArgType
