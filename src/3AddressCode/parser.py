@@ -1,8 +1,3 @@
-# should append code in beginning of expr (also append previous code[p[1]['code']] in p[0]['code'] )
-# don't pass code in reducing to identifier
-# an extra variable is printed when using 2 variables
-# check if a variable is declared during reducing
-
 import sys
 import os
 import csv
@@ -14,21 +9,28 @@ tokens = lexer.tokens   # Need token list
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--input",help="name of GO input file")
-ap.add_argument("-o", "--output",help="name of output file(.gv)")
+ap.add_argument("-c", "--code",help="name of 3AC output file")
+ap.add_argument("-s", "--csv",help="name of csv file")
 args = vars(ap.parse_args())
 
 if args["input"] is None:
     args["input"] = "test1.go"
 
-# if args["output"] is None:
-#     args["output"] = "output1.gv"
+if args["code"] is None:
+    args["code"] = "code.txt"
+
+if args["csv"] is None:
+    args["csv"] = "symbol_table.csv"
 
 file = args["input"]
-# outfile = open(args["output"],"w")
+outfile = open(args["code"],"w")
+outfile1 = open(args["csv"],"w")
 
 globalsymboltable = {}
 globalsymboltable['local_variable_size'] = 0
-globalsymboltable["CS335_name"] = "global_symbol_table"
+globalsymboltable["CS335_name"] = "globalsymboltable"
+globalsymboltable["CS335_type"] = "global_symbol_table"
+
 stack = []
 stack.append(globalsymboltable)
 counter=0
@@ -43,12 +45,14 @@ def getlabel():
   counter += 1
   return "CS335_"+str(counter)
 
-def make_symbol_table(label): #use global keyword
+def make_symbol_table(label,tabletype): #use global keyword
     global stack
     prev_table = stack[-1]
     local_symbol_table = {}
     local_symbol_table['local_variable_size'] = 0
     local_symbol_table["CS335_name"]=label
+    if(type != None):
+      local_symbol_table["CS335_type"]=tabletype
     if "CS335_childtables" in prev_table.keys():
         pass
     else:
@@ -99,13 +103,6 @@ def register_variable(variable):
     return
 
 def add_variable_attribute_api(variable,attribute,value):
-#   if(value['val'] == 'struct'):
-#     make_symbol_table(variable,'struct')
-#     for objects in value['struct_fields']:
-#       register_variable(objects['name'])
-#       add_variable_attribute(objects['name'],'type',objects['type'])
-#     go_one_level_up()
-#   else:
     add_variable_attribute(variable,attribute,value)
 
 def check_if_variable_declared(variable):
@@ -121,7 +118,6 @@ def check_if_variable_declared(variable):
                 i = i - 1
         except:
             i = i - 1
-    #print(globalsymboltable)
     child_tables = globalsymboltable['CS335_childtables']
     for childs in child_tables:
       if(childs['CS335_type'] == 'function' and childs['CS335_name'] == variable):
@@ -153,18 +149,41 @@ def get_size():
   symbol_table = stack[-1]
   return symbol_table['local_variable_size']
 
-def convert_to_csv():
+
+def bfs():
+    symout=""
     global globalsymboltable
-    csv_columns = globalsymboltable.keys()
-    csv_file = "symbol_table.csv"
-    try:
-        with open(csv_file, 'w') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
-            writer.writeheader()
-            writer.writerow(globalsymboltable)
-    except IOError:
-        print("I/O error")
-        
+    visited, queue = set(), [globalsymboltable]
+    while queue:
+        current = queue.pop(0)
+        if current["CS335_name"] not in visited:
+            visited.add(current["CS335_name"])
+            #do work
+            symout+="Table Info:\n"
+            symout+="Name="+current["CS335_name"]+",Type="+current["CS335_type"]+"\n"
+            symout+="Table Variables:\n"
+            for key, var in current.items():
+              if(key=="CS335_childtables" or key=="CS335_update_label" or key=="CS335_loop_label" or key=="CS335_exit_label" or key=="CS335_name" or key=="CS335_type" or key=="local_variable_size" or key=="CS335_parent" or key=="CS335_args" or key=="CS335_response"):
+                continue
+              symout+="variable name="+str(key)+","
+              for attr,val in var.items():
+                symout+="attribute="+str(attr)+","+"value="+str(val)+","
+              symout+="\n"
+            if "CS335_childtables" in current:
+              symout+="Child Tables:\n"
+              for i,childtable in enumerate(current["CS335_childtables"]):
+                queue.append(childtable)
+                if((i+1) == len(current["CS335_childtables"])):
+                  symout+=childtable["CS335_name"]
+                else:
+                  symout+=childtable["CS335_name"]+","
+              symout+="\n"
+            symout+="\n"
+    with open(args['csv'],'wb') as f:
+      f.write(symout)
+
+
+>>>>>>> 88718a9a584737b45aa9ac215f09c56b223f5752
 def p_start(p):
   '''start : SourceFile'''
   p[0] = {}
@@ -175,10 +194,10 @@ def p_start(p):
   out = ""
   for str in ir:
       out += str + "\n"
-  global globalsymboltable
-  print(out)
-  print(globalsymboltable)
-  convert_to_csv()
+
+  outfile.write(out)
+  bfs()
+
 
 def p_sourcefile(p):
     '''SourceFile : cmtlist PackageClause cmtlist Imports cmtlist DeclList cmtlist
@@ -315,10 +334,8 @@ def p_vardecl(p):
           var = p[1]['variable'][j]
           add_variable_attribute_api(var,'type',p[2]['type'])
           p[0]['code'] += var+" = "+p[4]['exprs'][i]['place']+"\n"
-          #print(p[2]['type'])
           increase_local_size(size[p[2]['type']['val']])
           i = i+1
-    #print(p[0]['code'])
 
 
 def p_constdecl(p):
@@ -409,7 +426,6 @@ def p_simplestmt(p):
     if(len(p) == 4):
         p[0]['code'] = ""
         if('funccall' in p[3]):
-
           func_responses = p[3]['func_responses']
           if(len(func_responses)!=len(p[1]['exprs'])):
             print("Error in line "+str(p.lineno(2))+" :length mismatch for function return type")
@@ -418,11 +434,17 @@ def p_simplestmt(p):
           i=0
           p[0]['code'] += p[3]['code']
           for exprs in func_responses :
-            if(exprs['type']!=p[1]['exprs'][i]['type']):
-              print("Error in line "+str(p.lineno(2))+" :type mismatch for function return type")
-
-              exit(1)
-            p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+" = "+str(exprs['place'])
+            if(p[1]['exprs'][i]['type']=='float' and exprs['type']=='int'):
+              tmp = getlabel()
+              register_variable(tmp)
+              p[0]['code'] += "\n" + tmp + " = inttofloat " + str(exprs['place'])
+              p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+" = "+str(exprs['place'])
+            else:
+              if(exprs['type']!=p[1]['exprs'][i]['type']):
+                print("Error in line "+str(p.lineno(2))+" :type mismatch for function return type")
+                exit(1)
+              else:
+                p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+" = "+str(exprs['place'])
             i = i+1
 
         else:
@@ -445,6 +467,9 @@ def p_simplestmt(p):
           if(str(p[2]) == "/="):
               # check for divide by zero
               op = "/"
+              if(p[3]['value'] == 0):
+                print("Error in line "+str(p.lineno(2))+" :can't divide by zero")
+                exit(1)
               typ = p[1]['type']
               if(p[3]['type'] == "float"):
                   typ = "float"
@@ -494,29 +519,64 @@ def p_simplestmt(p):
           if(str(p[2]) == "="):
               flag = 2
           if(str(p[2]) == ":="):
-              flag = 2
+              flag = 3
+              p[0]['code'] = ""
+              if(len(p[1]['exprs']) != len(p[3]['exprs'])):
+                  print("Error in line "+str(p.lineno(2))+" : mismatch in no. of lhs and rhs expressions")
+                  exit(1)
+              for i in range(0,len(p[1]['exprs'])):
+                  p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']
+                  if(check_if_variable_declared(p[1]['exprs'][i]['place'])):
+                      if(p[1]['exprs'][i]['type']=='float' and p[3]['exprs'][i]['type']=='int'):
+                          tmp = getlabel()
+                          register_variable(tmp)
+                          p[0]['code'] += "\n" + tmp + " = inttofloat " + p[3]['exprs'][i]['place']
+                          p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + tmp
+                      elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
+                          p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
+                      else:
+                          print("Error in line "+str(p.lineno(2))+" : type mismatch")
+                          exit(1)
+                  else:
+                      if(check_if_variable_declared(p[3]['exprs'][i]['place']) or p[3]['exprs'][i]['value']!=""):
+                        p[1]['exprs'][i]['type'] = p[3]['exprs'][i]['type']
+                        register_variable(p[1]['exprs'][i]['place'])
+                        add_variable_attribute(p[1]['exprs'][i]['place'],'type',{'val':p[3]['exprs'][i]['type']})
+                        p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
+                      else:
+                        print("Error in line "+str(p.lineno(2))+" : variable "+ p[3]['exprs'][i]['place'] +" not declared")
+                        exit(1)
+              p[0]['place'] = p[1]['exprs'][0]['place']
+
           if(flag == 0):
               p[0]['code'] += p[1]['code'] + "\n" + p[3]['code'] + "\n"
-              if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
-                  print("Error in line "+str(p.lineno(2))+" : can't assign float to int")
-                  exit(1)
-              if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
-                  tmp = getlabel()
-                  register_variable(tmp)
-                  p[0]['code'] += tmp + " = inttofloat " + p[3]['place'] + "\n"
-                  p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + "float " + tmp
-                  p[0]['place'] = p[1]['place']
-              if(p[1]['type'] == p[3]['type']):
-                  typ = p[1]['type']
-                  if(p[3]['value']):
-                      p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
-                  else:
-                      p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
-
+              if(check_if_variable_declared(p[1]['place']) and (check_if_variable_declared(p[3]['place']) or p[3]['value']!="")):
+                if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
+                    print("Error in line "+str(p.lineno(2))+" : can't assign float to int")
+                    exit(1)
+                if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
+                    tmp = getlabel()
+                    register_variable(tmp)
+                    p[0]['code'] += tmp + " = inttofloat " + p[3]['place'] + "\n"
+                    p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + "float " + tmp
+                    p[0]['place'] = p[1]['place']
+                if(p[1]['type'] == p[3]['type']):
+                    typ = p[1]['type']
+                    if(p[3]['value']!=""):
+                        p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
+                    else:
+                        p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
+              else:
+                print("Error in line "+str(p.lineno(2))+" : variable not declared")
+                exit(1)
           if(flag == 1):
+            if(check_if_variable_declared(p[1]['place']) and (check_if_variable_declared(p[3]['place']) or p[3]['value']!="")):
               p[0]['code'] += p[1]['code'] + "\n" + p[3]['code'] + "\n"
               p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
               p[0]['place'] = p[1]['place']
+            else:
+              print("Error in line "+str(p.lineno(2))+" : variable not declared")
+              exit(1)
 
           if(flag == 2):
               p[0]['code'] = ""
@@ -525,18 +585,20 @@ def p_simplestmt(p):
                   exit(1)
               for i in range(0,len(p[1]['exprs'])):
                   p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']
-                  if(p[1]['exprs'][i]['type']=='int' and p[3]['exprs'][i]['type']=='float'):
-                      tmp = getlabel()
-                      register_variable(tmp)
-                      p[0]['code'] += "\n" + tmp + " = inttofloat " + p[3]['exprs'][i]['place']
-                      p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + tmp
-                  elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
-                      p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
+                  if(check_if_variable_declared(p[1]['exprs'][i]['place']) and (check_if_variable_declared(p[3]['exprs'][i]['place']) or p[3]['exprs'][i]['value']!="")):
+                    if(p[1]['exprs'][i]['type']=='float' and p[3]['exprs'][i]['type']=='int'):
+                        tmp = getlabel()
+                        register_variable(tmp)
+                        p[0]['code'] += "\n" + tmp + " = inttofloat " + p[3]['exprs'][i]['place']
+                        p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + tmp
+                    elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
+                        p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
+                    else:
+                        print("Error in line "+str(p.lineno(2))+" : type mismatch")
+                        exit(1)
                   else:
-                      print(p[1]['exprs'][i]['type'])
-                      print(p[3]['exprs'][i]['type'])
-                      print("Error in line "+str(p.lineno(2))+" : type mismatch")
-                      exit(1)
+                    print("Error in line "+str(p.lineno(2))+" : variable not declared")
+                    exit(1)
               p[0]['place'] = p[1]['exprs'][0]['place']
 
 
@@ -564,7 +626,7 @@ def p_compoundstmt(p):
 def p_compundmarker(p):
     '''compundmarker :
                 '''
-    make_symbol_table("compound_statement")
+    make_symbol_table(getlabel(),"compound statement/else")
 
 def p_revmarker(p):
     '''revmarker :
@@ -647,7 +709,7 @@ def p_forstmt(p):
 def p_formarker(p):
     '''formarker :
                   '''
-    make_symbol_table("loopbody")
+    make_symbol_table(getlabel(),"For loop")
     p[0]={}
     p[0]['loop_label']=getlabel()
     p[0]['exit_label']=getlabel()
@@ -658,6 +720,10 @@ def p_formarker(p):
     current["CS335_exit_label"] = p[0]['exit_label']
     current["CS335_update_label"] = p[0]['update_label']
 
+def p_ifmarker(p):
+  '''ifmarker :
+                '''
+  make_symbol_table(getlabel(),"If/else if")
 
 def p_ifheader(p):
     '''IfHeader : OSimpleStmt
@@ -669,32 +735,32 @@ def p_ifheader(p):
 
 
 def p_ifstmt(p):
-    '''IfStmt : IF IfHeader LoopBody ElseIfList'''
+    '''IfStmt : IF IfHeader ifmarker LoopBody revmarker ElseIfList'''
     nextlabel = getlabel()
     exitlabel = getlabel()
     p[0] = {}
-    if(len(p[4]['extra']) == 0):
-        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+exitlabel + "\n" + p[3]['code']
+    if(len(p[6]['extra']) == 0):
+        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+exitlabel + "\n" + p[4]['code']
     else:
-        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+nextlabel + "\n" + p[3]['code'] + "\n" + "goto "+exitlabel
-    for i in range(0,len(p[4]['extra'])):
-        if((i+1) == len(p[4]['extra'])):
-            if(p[4]['extra'][i]['type']=="elseif"):
-                p[0]['code'] += "\n" + nextlabel+":" + "\n" + p[4]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[4]['extra'][i]['ifheader_place'] +"=0 goto "+exitlabel + "\n" + p[4]['extra'][i]['body']
+        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+nextlabel + "\n" + p[4]['code'] + "\n" + "goto "+exitlabel
+    for i in range(0,len(p[6]['extra'])):
+        if((i+1) == len(p[6]['extra'])):
+            if(p[6]['extra'][i]['type']=="elseif"):
+                p[0]['code'] += "\n" + nextlabel+":" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +"=0 goto "+exitlabel + "\n" + p[6]['extra'][i]['body']
             else:
-                p[0]['code'] += "\n" + nextlabel+":" + "\n" + "else "+ "\n" + p[4]['extra'][i]['body']
+                p[0]['code'] += "\n" + nextlabel+":" + "\n" + "else "+ "\n" + p[6]['extra'][i]['body']
         else:
             nextlabel2= getlabel()
-            if(p[4]['extra'][i]['type']=="elseif"):
-                p[0]['code'] += "\n" + nextlabel+":" + "\n" + p[4]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[4]['extra'][i]['ifheader_place'] +"=0 goto "+nextlabel2 + "\n" + p[4]['extra'][i]['body'] + "\n" + "goto "+exitlabel
+            if(p[6]['extra'][i]['type']=="elseif"):
+                p[0]['code'] += "\n" + nextlabel+":" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +"=0 goto "+nextlabel2 + "\n" + p[6]['extra'][i]['body'] + "\n" + "goto "+exitlabel
             nextlabel = nextlabel2
     p[0]['code'] += "\n" + exitlabel+":"
 
 def p_elseif(p):
-    '''ElseIf : ELSE IF IfHeader LoopBody'''
+    '''ElseIf : ELSE IF IfHeader ifmarker LoopBody revmarker'''
     p[0] = {}
     p[0]['extra_dict'] = {}
-    p[0]['extra_dict']['body'] = p[4]['code']
+    p[0]['extra_dict']['body'] = p[5]['code']
     p[0]['extra_dict']['type'] = "elseif"
     p[0]['extra_dict']['ifheader_code'] = p[3]['code']
     p[0]['extra_dict']['ifheader_place'] = p[3]['place']
@@ -795,7 +861,7 @@ def p_funcdec1(p):
 def p_funcmarker(p):
     '''funcmarker :
               '''
-    make_symbol_table("func_unknown")
+    make_symbol_table("func_unknown",None)
 
 def p_funcdec1_(p):
     '''FuncDecl_ : IDENTIFIER ArgList FuncRes
@@ -1028,7 +1094,6 @@ def p_exprortypelist(p):
     x['type'] = p[3]['type']
     x['value'] = p[3]['type']
     p[0]['exprs'].append(x)
-  #print(p[0]['exprs'])
 
 
 def p_oliteral(p):
@@ -1148,11 +1213,11 @@ def p_name(p):
     '''Name : IDENTIFIER'''
     p[0] = {}
     p[0]['code'] = ""
+    x = {}
     if(check_if_variable_declared(str(p[1])) == 0):
-        print("Error in line "+str(p.lineno(1))+" : variable not in scope")
-        exit(1)
-    x = get_variable_attribute(str(p[1]),"type")
-
+        x['val'] = ''
+    else:
+        x = get_variable_attribute(str(p[1]),"type")
     if(x['val'] == 'array' or x['val'] == 'struct'):
       p[0]['type'] = x
     else:
@@ -1214,6 +1279,7 @@ def p_nondeclstmt(p):
     p[0] = {}
     if(len(p)==2):
         p[0]['code'] = p[1]['code']
+    global stack
     if(len(p)==3):
         string = ""
         if(str(p[1]) == "break"):
@@ -1227,15 +1293,26 @@ def p_nondeclstmt(p):
             flag = 1
             string = "return"
             p[0]['code'] = ""
+            function = stack[-1]["CS335_name"]
+            num = len(get_function_symbol_table(function)["CS335_response"])
+            try:
+              if(num != len(p[2]['exprs'])):
+                print("Error in line "+str(p.lineno(1))+" : mismatch in no of returns")
+                exit(1)
+            except:
+              print("Error in line "+str(p.lineno(1))+" : mismatch in no of returns")
+              exit(1)
             for i in range(0,len(p[2]['exprs'])):
                 if(i==0):
                     p[0]['code'] += p[2]['exprs'][i]['code'] + "\n"
                 else:
                     p[0]['code'] += "\n" + p[2]['exprs'][i]['code'] + "\n"
+                if(check_if_variable_declared(p[2]['exprs'][i]['place']) == 0 and p[2]['exprs'][i]['value'] == ''):
+                  print("Error in line "+str(p.lineno(1))+" : return variable not declared")
+                  exit(1)
                 p[0]['code'] += "return " + p[2]['exprs'][i]['place']
 
         if(flag == 0):
-            global stack
             current= stack[-1]
             if (string == "break"):
                 p[0]['code'] = "goto "+current["CS335_exit_label"] + "\n" + p[2]['code']
@@ -1297,6 +1374,11 @@ def p_pexprnoparen(p):
     if(len(p)==5):
       label = getlabel()
       label1 = getlabel()
+      register_variable(str(label))
+      register_variable(str(label1))
+      if(int(p[3]['place']) >= p[1]['type']['arr_length']):
+        print("Error in line "+str(p.lineno(2))+" : Array index out of range")
+        exit(1)
       p[0]['code'] = p[1]['code']
       p[0]['code'] += "\n"+p[3]['code']
       p[0]['place'] = label
@@ -1304,7 +1386,6 @@ def p_pexprnoparen(p):
       p[0]['code'] += str(label)+" = "+str(label1)+"["+p[3]['place']+"]"
       p[0]['value'] = 1
       p[0]['type'] = p[1]['type']['arr_type']
-      #print(p[0]['code'])
     if(len(p)==6):
         # what to do
         dummy = 0
@@ -1405,30 +1486,33 @@ def p_prec5expr_(p):
         if(str(p[2]) == "/"):
             op = "/"
             # can handle divide by zero here
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
+                if(p[3]['value']==0):
+                  print("Error in line "+str(p.lineno(2))+" :can't divide by zero")
+                  exit(1)
                 p[0]['value'] = (p[1]['value'] / p[3]['value'])
 
         if(str(p[2]) == "*"):
             op = "*"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] * p[3]['value'])
 
         if(str(p[2]) == "%"):
             flag = 1
             op = "%"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] % p[3]['value'])
 
         if(str(p[2]) == "<<"):
             flag = 1
             op = "<<"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] << p[3]['value'])
 
         if(str(p[2]) == "&"):
             flag = 1
             op = "%"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] & p[3]['value'])
 
         if(str(p[2]) == "&^"):
@@ -1484,24 +1568,24 @@ def p_prec4expr_(p):
         flag = 0
         if(str(p[2]) == "+"):
             op = "+"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] + p[3]['value'])
 
         if(str(p[2]) == "-"):
             op = "-"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] - p[3]['value'])
 
         if(str(p[2]) == "^"):
             flag = 1
             op = "^"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] ^ p[3]['value'])
 
         if(str(p[2]) == "|"):
             flag = 1
             op = "|"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] | p[3]['value'])
         if(flag == 0):
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
@@ -1556,27 +1640,27 @@ def p_prec3expr_(p):
         if(str(p[2]) == "=="):
             op = "=="
 
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] == p[3]['value'])
         if(str(p[2]) == "!="):
             op = "!="
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] != p[3]['value'])
         if(str(p[2]) == "<="):
             op = "<="
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] <= p[3]['value'])
         if(str(p[2]) == ">="):
             op = ">="
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""!=""):
                 p[0]['value'] = (p[1]['value'] >= p[3]['value'])
         if(str(p[2]) == ">"):
             op = ">"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] > p[3]['value'])
         if(str(p[2]) == "<"):
             op = "<"
-            if(p[1]['value'] and p[3]['value']):
+            if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] < p[3]['value'])
         p[0]['place'] = getlabel()
         register_variable(p[0]['place'])
@@ -1603,7 +1687,7 @@ def p_prec2expr_(p):
             exit(1)
         p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] + " && " + p[3]['place']
         p[0]['type'] = p[1]['type']
-        if(p[1]['value'] and p[3]['value']):
+        if(p[1]['value']!="" and p[3]['value']!=""):
             p[0]['value'] = p[1]['value'] and p[3]['value']
 
 def p_expr(p):
@@ -1632,7 +1716,7 @@ def p_expr(p):
             exit(1)
         p[0]['code'] = p[0]['place'] + " = " + p[1]['place'] + " || " + p[3]['place']
         p[0]['type'] = p[1]['type']
-        if(p[1]['value'] and p[3]['value']):
+        if(p[1]['value']!="" and p[3]['value']!=""):
             p[0]['value'] = p[1]['value'] or p[3]['value']
 
 def p_chexpr(p):
@@ -1647,6 +1731,8 @@ def p_arrayexp(p):
   array_label = getlabel()
   p[0]['place'] = array_label
   label2 = getlabel()
+  register_variable(str(array_label))
+  register_variable(str(label2))
   p[0]['code'] = str(label2)+" = BaseAddress("+str(array_label)+")"
   for objects in p[2]['exprs']:
     if(objects['type']!=c_type):
@@ -1733,7 +1819,7 @@ def p_pseudocall(p):
   p[0] = {}
   func_symbol_table = get_function_symbol_table(str(p[1]['place']))
   if(func_symbol_table == -1):
-    print("Error, function not defined!")
+    print("Error in line "+str(p.lineno(2))+" : function not defined!")
     exit(1)
   response = func_symbol_table['CS335_response']
   args = func_symbol_table['CS335_args']
@@ -1762,7 +1848,6 @@ def p_pseudocall(p):
     p[0]['code'] = p[1]['code']
     p[0]['code'] += "\n"+p[3]['code']
     exprs = p[3]['exprs']
-    #print(exprs)
     i=0
     for dicts in args:
       if(exprs[i]['type']!=dicts['arg_type']['val']):

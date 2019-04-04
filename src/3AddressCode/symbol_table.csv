@@ -1,2 +1,37 @@
+<<<<<<< HEAD
 local_variable_size,CS335_name,main,df,fmt,strings,adfdf,CS335_childtables,f
 0,global_symbol_table,"{'type': {'val': 'function'}, 'exists': 1}","{'exists': 1, 'import': 1}","{'exists': 1, 'import': 1}","{'exists': 1, 'import': 1}","{'exists': 1, 'import': 1}","[{'local_variable_size': 5, 'CS335_name': 'f', 'CS335_parent': {'local_variable_size': 0, 'CS335_name': 'global_symbol_table', 'main': {'type': {'val': 'function'}, 'exists': 1}, 'df': {'exists': 1, 'import': 1}, 'fmt': {'exists': 1, 'import': 1}, 'strings': {'exists': 1, 'import': 1}, 'adfdf': {'exists': 1, 'import': 1}, 'CS335_childtables': [...], 'f': {'type': {'val': 'function'}, 'exists': 1}}, 'CS335_args': [{'arg_type': {'val': 'int'}, 'arg_name': 'a'}, {'arg_type': {'val': 'int'}, 'arg_name': 'b'}], 'CS335_response': [{'val': 'int'}, {'val': 'int'}], 'CS335_type': 'function', 'a': {'exists': 1, 'type': {'val': 'int'}}, 'b': {'exists': 1, 'type': {'val': 'bool'}}}, {'local_variable_size': 124, 'CS335_name': 'main', 'CS335_parent': {'local_variable_size': 0, 'CS335_name': 'global_symbol_table', 'main': {'type': {'val': 'function'}, 'exists': 1}, 'df': {'exists': 1, 'import': 1}, 'fmt': {'exists': 1, 'import': 1}, 'strings': {'exists': 1, 'import': 1}, 'adfdf': {'exists': 1, 'import': 1}, 'CS335_childtables': [...], 'f': {'type': {'val': 'function'}, 'exists': 1}}, 'CS335_args': [], 'CS335_response': 'void', 'CS335_type': 'function', 'a': {'exists': 1, 'type': {'val': 'int'}}, 'b': {'exists': 1, 'type': {'val': 'int'}}, 'c': {'exists': 1, 'type': {'val': 'int'}}, 'd': {'exists': 1, 'type': {'val': 'int'}}, 'e': {'exists': 1, 'type': {'val': 'array', 'arr_length': 3, 'arr_type': 'int'}}, 'i': {'exists': 1, 'type': {'val': 'int'}}, 'CS335_5': {'exists': 1}, 'g': {'exists': 1, 'type': {'val': 'array', 'arr_length': 20, 'arr_type': 'int'}}, 'n': {'exists': 1, 'type': {'val': 'int'}}, 'CS335_18': {'exists': 1}, 'CS335_19': {'exists': 1}, 'k': {'exists': 1, 'type': {'val': 'int'}}, 'CS335_20': {'exists': 1}, 'u': {'exists': 1, 'type': {'val': '**int'}}, 'CS335_21': {'exists': 1}, 'CS335_22': {'exists': 1}, 'CS335_23': {'exists': 1}, 'CS335_24': {'exists': 1}, 'CS335_25': {'exists': 1}}]","{'type': {'val': 'function'}, 'exists': 1}"
+=======
+Table Info:
+Name=globalsymboltable,Type=global_symbol_table
+Table Variables:
+variable name=fmt,attribute=import,value=1,attribute=exists,value=1,
+variable name=main,attribute=type,value={'val': 'function'},attribute=exists,value=1,
+Child Tables:
+main
+
+Table Info:
+Name=main,Type=function
+Table Variables:
+variable name=num,attribute=type,value={'val': 'int'},attribute=exists,value=1,
+variable name=CS335_1,attribute=exists,value=1,
+variable name=CS335_4,attribute=exists,value=1,
+Child Tables:
+CS335_2,CS335_5,CS335_6
+
+Table Info:
+Name=CS335_2,Type=If/else if
+Table Variables:
+variable name=CS335_3,attribute=exists,value=1,
+variable name=u,attribute=type,value={'val': 'int'},attribute=exists,value=1,
+
+Table Info:
+Name=CS335_5,Type=If/else if
+Table Variables:
+
+Table Info:
+Name=CS335_6,Type=compound statement/else
+Table Variables:
+variable name=CS335_7,attribute=exists,value=1,
+
+>>>>>>> 88718a9a584737b45aa9ac215f09c56b223f5752

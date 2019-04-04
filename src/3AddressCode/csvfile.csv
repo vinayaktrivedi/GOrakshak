@@ -1,0 +1,32 @@
+Table Info:
+Name=globalsymboltable,Type=global_symbol_table
+Table Variables:
+variable name=fmt,attribute=import,value=1,attribute=exists,value=1,
+variable name=main,attribute=type,value={'val': 'function'},attribute=exists,value=1,
+Child Tables:
+main
+
+Table Info:
+Name=main,Type=function
+Table Variables:
+variable name=num,attribute=type,value={'val': 'int'},attribute=exists,value=1,
+variable name=CS335_1,attribute=exists,value=1,
+variable name=CS335_4,attribute=exists,value=1,
+Child Tables:
+CS335_2,CS335_5,CS335_6
+
+Table Info:
+Name=CS335_2,Type=If/else if
+Table Variables:
+variable name=CS335_3,attribute=exists,value=1,
+variable name=u,attribute=type,value={'val': 'int'},attribute=exists,value=1,
+
+Table Info:
+Name=CS335_5,Type=If/else if
+Table Variables:
+
+Table Info:
+Name=CS335_6,Type=compound statement/else
+Table Variables:
+variable name=CS335_7,attribute=exists,value=1,
+
