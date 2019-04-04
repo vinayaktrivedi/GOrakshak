@@ -138,14 +138,16 @@ def increase_local_size(size):
   else:
     symbol_table['local_variable_size'] = size
 
-def get_function_symbol_table(funcname):
+def get_function_symbol_tables(funcname):
   global globalsymboltable
   child_tables = globalsymboltable['CS335_childtables']
+  ret=[]
   for child in child_tables:
-
     if(child['CS335_type'] == 'function' and child['CS335_name'] == funcname):
-      return child
-  return -1
+      ret.append(child)
+  if len(ret)==0:
+    return -1
+  return ret
 
 
 def get_size():
@@ -797,6 +799,7 @@ def p_funcmarker(p):
               '''
     make_symbol_table("func_unknown")
 
+same_func_count={}
 def p_funcdec1_(p):
     '''FuncDecl_ : IDENTIFIER ArgList FuncRes
                | LEFT_OR OArgTypeListOComma OR_RIGHT IDENTIFIER ArgList FuncRes'''
@@ -809,11 +812,17 @@ def p_funcdec1_(p):
     current = stack[-1]
     p[0] = {}
     if(len(p)==4):
-        p[0]['func_name'] = str(p[1])
+        if(str(p[1]) in same_func_count.keys()):
+          same_func_count[str(p[1])]+=1          
+        else:
+          same_func_count[str(p[1])]=1
+
+        p[0]['func_name'] = str(p[1])+str(same_func_count[str(p[1])])        
         current['CS335_args'] = p[2]['argList']
         current['CS335_response'] = p[3]['response']
         current['CS335_name']= str(p[1])          #replaces func_unknown by actual func name
         current['CS335_type']= "function"
+        current['CS335_show_label']= p[0]['func_name'] 
 
 
 def p_functype(p):
@@ -1731,20 +1740,52 @@ def p_pseudocall(p):
                   | PExpr LPAREN ExprOrTypeList OComma RPAREN
                   | PExpr LPAREN ExprOrTypeList DDD OComma RPAREN'''
   p[0] = {}
-  func_symbol_table = get_function_symbol_table(str(p[1]['place']))
-  if(func_symbol_table == -1):
+  func_symbol_tables = get_function_symbol_tables(str(p[1]['place']))
+  if(func_symbol_tables == -1):
     print("Error, function not defined!")
     exit(1)
-  response = func_symbol_table['CS335_response']
-  args = func_symbol_table['CS335_args']
   p[0]['func_responses'] = []
   p[0]['type'] = "functioncall"
   p[0]['value'] = ""
   p[0]['place'] = ""
   p[0]['code'] = ""
+  final_func=None
+  for matching_name_func in func_symbol_tables:
+    args = matching_name_func['CS335_args']
+    response = matching_name_func['CS335_response']
+    if(len(p)==4):
+      if(len(args)!=0):
+        continue
+      else:
+        final_func=matching_name_func
+        break
+
+    exprs = p[3]['exprs']
+    if(len(args)!=len(exprs)):
+      continue
+    
+    i=0
+    arg_match=1
+    for dicts in args:
+      if(exprs[i]['type']!=dicts['arg_type']['val']):
+        arg_match=0
+        break
+      i = i+1
+    if(arg_match==0):
+      continue
+    else:
+      final_func=matching_name_func
+      break
+
+  if(final_func == None):
+      print("Error in line "+str(p.lineno(2))+" : Argument type mismatch")
+      exit(1)
+  response = final_func['CS335_response']
+  args = final_func['CS335_args']
+
   if(len(p)==4):
     p[0]['code'] = p[1]['code']
-    p[0]['code'] += "\ncall "+str(p[1]['place'])
+    p[0]['code'] += "\ncall "+final_func['CS335_show_label']
     if(response != 'void'):
       for var in response:
         label = getlabel()
@@ -1765,13 +1806,10 @@ def p_pseudocall(p):
     #print(exprs)
     i=0
     for dicts in args:
-      if(exprs[i]['type']!=dicts['arg_type']['val']):
-        print("Error in line "+str(p.lineno(2))+" : Argument type mismatch")
-        exit(1)
       p[0]['code'] += "\npush "+str(exprs[i]['place'])
       i = i+1
 
-    p[0]['code'] += "\ncall "+str(p[1]['place'])
+    p[0]['code'] += "\ncall "+final_func['CS335_show_label']
     if(response != 'void'):
       for var in response:
         label = getlabel()
