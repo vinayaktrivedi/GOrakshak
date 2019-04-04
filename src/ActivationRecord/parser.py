@@ -71,6 +71,18 @@ def go_one_level_up():
     global stack
     stack = stack[:-1]
 
+def get_current_func_sym_table():
+    global stack
+    # i = -1
+    i = len(stack) - 1
+    while(i >= 0):
+        if(stack[i]['CS335_type'] != 'function'):
+            print("heer")
+            i = i - 1
+        else:
+            return stack[i]
+    return stack[i+1]
+
 def add_variable_attribute(variable,attribute,value):
     global stack
     symbol_table = stack[-1]
@@ -1324,7 +1336,8 @@ def p_nondeclstmt(p):
             p[0]['code'] = ""
             # function = stack[-1]["CS335_name"]
             # num = len(get_function_symbol_tables(function)["CS335_response"])
-            num = len(stack[-1]["CS335_response"])
+            # num = len(stack[-1]["CS335_response"])
+            num = len(get_current_func_sym_table()["CS335_response"])
             try:
               if(num != len(p[2]['exprs'])):
                 print("Error in line "+str(p.lineno(1))+" : mismatch in no of returns")
