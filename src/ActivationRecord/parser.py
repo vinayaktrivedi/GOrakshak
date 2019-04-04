@@ -281,6 +281,7 @@ def p_vardecl(p):
     p[0] = {}
     p[0]['code'] = ""
     global size
+    global offset
     if(len(p)==3):
         for var in p[1]['variable']:
             add_variable_attribute_api(var,'type',p[2]['type'])
@@ -862,6 +863,7 @@ def p_funcbody(p):
 def p_funcrevmarker(p):
   '''funcrevmarker :
                     '''
+  global offset
   p[0] = {}
   p[0]['var_size'] = offset-8
   go_one_level_up()
