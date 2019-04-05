@@ -1427,9 +1427,12 @@ def p_pexprnoparen(p):
     p[0] = {}
     if(len(p)==2):
         if 'func_responses' in p[1]:
-
-          p[0]['type'] = p[1]['func_responses'][0]['type']
-          p[0]['place'] = p[1]['place'][0]
+          if(p[1]['func_responses'] == 'void'):
+            p[0]['type'] = 'void'
+            p[0]['place'] = 'void'
+          else:
+            p[0]['type'] = p[1]['func_responses'][0]['type']
+            p[0]['place'] = p[1]['place'][0]
         else:
           p[0]['type'] = p[1]['type']
           p[0]['place'] = p[1]['place']

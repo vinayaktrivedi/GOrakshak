@@ -3,7 +3,9 @@ import "fmt";
 
 LIM := 41;
 var facts [LIM]int;
-
+func x() int,int {
+	return 1,2;
+};
 
 func Factorial(n int)int {
 	result := 0;
@@ -17,4 +19,5 @@ func Factorial(n int)int {
 
 func main() {
 	c := Factorial(12);
+	f,g := x();
 };
