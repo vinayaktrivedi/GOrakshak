@@ -962,7 +962,7 @@ def p_funcrevmarker(p):
   p[0] = {}
   p[0]['var_size'] = offset
   go_one_level_up()
-  
+
 
 def p_funcres(p):
     '''FuncRes :
