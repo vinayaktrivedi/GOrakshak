@@ -6,7 +6,6 @@ var facts [LIM]int;
 
 
 func Factorial(n int)int {
-
 	result := 0;
 	if n > 0 {
 		result = n * Factorial(n-1);
@@ -19,4 +18,3 @@ func Factorial(n int)int {
 func main() {
 	c := Factorial(12);
 };
-

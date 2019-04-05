@@ -578,11 +578,14 @@ def p_simplestmt(p):
                           exit(1)
                   else:
                       if(check_if_variable_declared(p[3]['exprs'][i]['place']) or p[3]['exprs'][i]['value']!=""):
+                        global offset
                         p[1]['exprs'][i]['type'] = p[3]['exprs'][i]['type']
                         register_variable(p[1]['exprs'][i]['place'])
                         add_variable_attribute(p[1]['exprs'][i]['place'],'type',{'val':p[3]['exprs'][i]['type']})
                         add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
                         p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
+                        offset += size[p[3]['exprs'][i]['type']]
+                        increase_local_size(size[p[3]['exprs'][i]['type']])
                       else:
                         print("Error in line "+str(p.lineno(2))+" : variable "+ p[3]['exprs'][i]['place'] +" not declared")
                         exit(1)
@@ -900,11 +903,13 @@ def p_interfacetype(p):
 def p_funcdec1(p):
   '''FuncDecl : FUNCTION  funcmarker FuncDecl_  FuncBody'''
   p[0] = {}
-  p[0]['code'] = p[3]['func_name'] + ":\tBeginFunc "+ str(p[4]['var_size']) +";\n" + "push rbp\n"+"mov rbp rsp\n"+"push rbx\n push r15\n push r14\n push r13\n push r12\n"+ p[4]['code'] + "\nEndFunc;"
-
+  global offset
+  p[0]['code'] = p[3]['func_name'] + ":\tBeginFunc "+ str(offset) +";\n" + "push rbp\n"+"mov rbp rsp\n"+"push rbx\n push r15\n push r14\n push r13\n push r12\n"+ p[4]['code'] + "\nEndFunc;"
+  offset = 0
 def p_funcmarker(p):
     '''funcmarker :
               '''
+    global offset
     make_symbol_table("func_unknown",None)
     offset = 8
 
@@ -958,9 +963,9 @@ def p_funcrevmarker(p):
                     '''
   global offset
   p[0] = {}
-  p[0]['var_size'] = offset-8
+  p[0]['var_size'] = offset
   go_one_level_up()
-  offset = 0
+  
 
 def p_funcres(p):
     '''FuncRes :
