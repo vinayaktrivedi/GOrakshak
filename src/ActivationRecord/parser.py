@@ -134,10 +134,12 @@ def check_if_variable_declared(variable):
                 i = i - 1
         except:
             i = i - 1
-    child_tables = globalsymboltable['CS335_childtables']
-    for childs in child_tables:
-      if(childs['CS335_type'] == 'function' and childs['CS335_name'] == variable):
-        return 1
+
+    if 'CS335_childtables' in globalsymboltable:
+      child_tables = globalsymboltable['CS335_childtables']
+      for childs in child_tables:
+        if(childs['CS335_type'] == 'function' and childs['CS335_name'] == variable):
+          return 1
 
     return 0
 
@@ -145,6 +147,7 @@ def increase_local_size(size):
   global stack
   symbol_table = stack[-1]
 
+  #print(size)
   if 'local_variable_size' in symbol_table:
     symbol_table['local_variable_size'] += size
   else:
@@ -196,8 +199,9 @@ def bfs():
                   symout+=childtable["CS335_name"]+","
               symout+="\n"
             symout+="\n"
-    with open(args['csv'],'wb') as f:
-      f.write(symout)
+    #with open(args['csv'],'wb') as f:
+      #f.write(symout)
+    dummy = 0
 
 
 def p_start(p):
@@ -212,6 +216,7 @@ def p_start(p):
       out += str + "\n"
   outfile.write(out)
   bfs()
+  print(out)
 
 def p_sourcefile(p):
     '''SourceFile : cmtlist PackageClause cmtlist Imports cmtlist DeclList cmtlist
@@ -335,6 +340,7 @@ def p_vardecl(p):
       for j in range(0,len(p[1]['variable'])):
         var = p[1]['variable'][j]
         add_variable_attribute_api(var,'type',p[3]['type'])
+        add_variable_attribute_api(var,'value',p[3]['exprs'][i]['value'])
         add_variable_attribute_api(var,'offset',offset)
         p[0]['code'] += var+" = "+p[3]['exprs'][i]['place']+"\n"
         increase_local_size(size[p[3]['type']['val']])
@@ -353,6 +359,7 @@ def p_vardecl(p):
         for j in range(0,len(p[1]['variable'])):
           var = p[1]['variable'][j]
           add_variable_attribute_api(var,'type',p[2]['type'])
+          add_variable_attribute_api(var,'value',p[4]['exprs'][i]['value'])
           add_variable_attribute_api(var,'offset',offset)
           p[0]['code'] += var+" = "+p[4]['exprs'][i]['place']+"\n"
           increase_local_size(size[p[2]['type']['val']])
@@ -380,6 +387,7 @@ def p_constdecl(p):
         exit(1)
       for var in p[1]['variable']:
         add_variable_attribute_api(var,'type',p[3]['type'])
+        add_variable_attribute_api(var,'value',p[3]['exprs'][i]['value'])
         add_variable_attribute_api(var,'offset',offset)
         p[0]['code'] += var+" = "+p[3]['exprs'][i]['place']+"\n"
         increase_local_size(size[p[3]['type']['val']])
@@ -397,6 +405,7 @@ def p_constdecl(p):
 
         for var in p[1]['variable']:
           add_variable_attribute_api(var,'type',p[2]['type'])
+          add_variable_attribute_api(var,'value',p[4]['exprs'][i]['value'])
           add_variable_attribute_api(var,'offset',offset)
           p[0]['code'] += var+" = "+p[4]['exprs'][i]['place']+"\n"
           increase_local_size(size[p[2]['type']['val']])
@@ -558,10 +567,12 @@ def p_simplestmt(p):
                       if(p[1]['exprs'][i]['type']=='float' and p[3]['exprs'][i]['type']=='int'):
                           tmp = getlabel()
                           register_variable(tmp)
+                          add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
                           p[0]['code'] += "\n" + tmp + " = inttofloat " + p[3]['exprs'][i]['place']
                           p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + tmp
                       elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
                           p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
+                          add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
                       else:
                           print("Error in line "+str(p.lineno(2))+" : type mismatch")
                           exit(1)
@@ -570,6 +581,7 @@ def p_simplestmt(p):
                         p[1]['exprs'][i]['type'] = p[3]['exprs'][i]['type']
                         register_variable(p[1]['exprs'][i]['place'])
                         add_variable_attribute(p[1]['exprs'][i]['place'],'type',{'val':p[3]['exprs'][i]['type']})
+                        add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
                         p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
                       else:
                         print("Error in line "+str(p.lineno(2))+" : variable "+ p[3]['exprs'][i]['place'] +" not declared")
@@ -619,8 +631,11 @@ def p_simplestmt(p):
                         register_variable(tmp)
                         p[0]['code'] += "\n" + tmp + " = inttofloat " + p[3]['exprs'][i]['place']
                         p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + tmp
+                        add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
+                        
                     elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
                         p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
+                        add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
                     else:
                         print("Error in line "+str(p.lineno(2))+" : type mismatch")
                         exit(1)
@@ -851,6 +866,7 @@ def p_othertype(p):
         if(p[2]['type'] == 'int' or p[2]['type'] == 'void'):
           p[0]['type'] = {}
           p[0]['type']['val'] = 'array'
+          #print(p[2]['value'])
           p[0]['type']['arr_length'] = p[2]['value']
           p[0]['type']['arr_type'] = p[4]['type']['val']
         else:
@@ -884,7 +900,7 @@ def p_interfacetype(p):
 def p_funcdec1(p):
   '''FuncDecl : FUNCTION  funcmarker FuncDecl_  FuncBody'''
   p[0] = {}
-  p[0]['code'] = p[3]['func_name'] + ":\tBeginFunc "+ str(p[4]['var_size']) +";\n" +  p[4]['code'] + "\nEndFunc;"
+  p[0]['code'] = p[3]['func_name'] + ":\tBeginFunc "+ str(p[4]['var_size']) +";\n" + "push rbp\n"+"mov rbp rsp\n"+"push rbx\n push r15\n push r14\n push r13\n push r12\n"+ p[4]['code'] + "\nEndFunc;"
 
 def p_funcmarker(p):
     '''funcmarker :
@@ -1251,18 +1267,21 @@ def p_declname(p):
 def p_name(p):
     '''Name : IDENTIFIER'''
     p[0] = {}
+    p[0]['value'] = ""
     p[0]['code'] = ""
+
     x = {}
     if(check_if_variable_declared(str(p[1])) == 0):
         x['val'] = ''
     else:
         x = get_variable_attribute(str(p[1]),"type")
+        p[0]['value'] = get_variable_attribute(str(p[1]),'value')
+
     if(x['val'] == 'array' or x['val'] == 'struct'):
       p[0]['type'] = x
     else:
       p[0]['type'] = x['val']
 
-    p[0]['value'] = ""
     p[0]['place'] = str(p[1])
 
 def p_argtype(p):
@@ -1405,10 +1424,17 @@ def p_pexprnoparen(p):
                     | ForCompExpr'''
     p[0] = {}
     if(len(p)==2):
+        if 'func_responses' in p[1]:
+          
+          p[0]['type'] = p[1]['func_responses'][0]['type']
+          p[0]['place'] = p[1]['place'][0]
+        else:
+          p[0]['type'] = p[1]['type']
+          p[0]['place'] = p[1]['place']
         p[0]['code'] = p[1]['code']
         p[0]['value'] = p[1]['value']
-        p[0]['type'] = p[1]['type']
-        p[0]['place'] = p[1]['place']
+        #p[0]['type'] = p[1]['type']
+        # p[0]['place'] = p[1]['place']
         if(p[0]['type'] == "functioncall"):
           p[0]['func_responses'] = p[1]['func_responses']
     if(len(p)==4):
@@ -1745,6 +1771,7 @@ def p_expr(p):
         if(z):
             p[0]['code'] = str(p[1])
         else:
+
             p[0]['code'] = p[1]['code']
             p[0]['place'] = p[1]['place']
             p[0]['value'] = p[1]['value']
@@ -1860,6 +1887,7 @@ def p_pseudocall(p):
                   | PExpr LPAREN ExprOrTypeList OComma RPAREN
                   | PExpr LPAREN ExprOrTypeList DDD OComma RPAREN'''
   p[0] = {}
+  p[0]['place'] = []
   func_symbol_tables = get_function_symbol_tables(str(p[1]['place']))
   if(func_symbol_tables == -1):
     print("Error in line "+str(p.lineno(2))+" : function not defined!")
@@ -1867,7 +1895,6 @@ def p_pseudocall(p):
   p[0]['func_responses'] = []
   p[0]['type'] = "functioncall"
   p[0]['value'] = ""
-  p[0]['place'] = ""
   p[0]['code'] = ""
   final_func=None
   for matching_name_func in func_symbol_tables:
@@ -1916,6 +1943,7 @@ def p_pseudocall(p):
 
         p[0]['func_responses'].append(x)
         p[0]['code'] += "\npop "+str(label)
+        p[0]['place'].append(label)
     else:
       p[0]['func_responses'] = 'void'
 
@@ -1938,6 +1966,7 @@ def p_pseudocall(p):
         x['value'] = ""
         p[0]['func_responses'].append(x)
         p[0]['code'] += "\npop "+str(label)
+        p[0]['place'].append(label)
     else:
       p[0]['func_responses'] = 'void'
 
