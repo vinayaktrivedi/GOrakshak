@@ -1936,6 +1936,7 @@ def p_pseudocall(p):
     if(response != 'void'):
       for var in response:
         label = getlabel()
+        register_variable(label)
         x = {}
         x['place'] = label
         x['type'] = var['val']
@@ -1960,6 +1961,7 @@ def p_pseudocall(p):
     if(response != 'void'):
       for var in response:
         label = getlabel()
+        register_variable(label)
         x = {}
         x['place'] = label
         x['type'] = var['val']

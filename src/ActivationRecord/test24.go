@@ -16,7 +16,7 @@ func Factorial(n int)int {
 };
 
 
-// func main() {
-// 	c := Factorial(12);
-// }
+func main() {
+	c := Factorial(12);
+};
 
