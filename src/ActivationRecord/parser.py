@@ -73,11 +73,9 @@ def go_one_level_up():
 
 def get_current_func_sym_table():
     global stack
-    # i = -1
     i = len(stack) - 1
     while(i >= 0):
         if(stack[i]['CS335_type'] != 'function'):
-            print("heer")
             i = i - 1
         else:
             return stack[i]
@@ -199,8 +197,8 @@ def bfs():
                   symout+=childtable["CS335_name"]+","
               symout+="\n"
             symout+="\n"
-    #with open(args['csv'],'wb') as f:
-      #f.write(symout)
+    with open(args['csv'],'wb') as f:
+      f.write(symout)
     dummy = 0
 
 
@@ -216,7 +214,6 @@ def p_start(p):
       out += str + "\n"
   outfile.write(out)
   bfs()
-  print(out)
 
 def p_sourcefile(p):
     '''SourceFile : cmtlist PackageClause cmtlist Imports cmtlist DeclList cmtlist
@@ -635,7 +632,7 @@ def p_simplestmt(p):
                         p[0]['code'] += "\n" + tmp + " = inttofloat " + p[3]['exprs'][i]['place']
                         p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + tmp
                         add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
-                        
+
                     elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
                         p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
                         add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
@@ -1430,7 +1427,7 @@ def p_pexprnoparen(p):
     p[0] = {}
     if(len(p)==2):
         if 'func_responses' in p[1]:
-          
+
           p[0]['type'] = p[1]['func_responses'][0]['type']
           p[0]['place'] = p[1]['place'][0]
         else:
