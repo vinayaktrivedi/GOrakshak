@@ -622,8 +622,8 @@ def p_simplestmt(p):
               p[0]['code'] = ""
               if(len(p[1]['exprs']) != len(p[3]['exprs'])):
                   print("Error in line "+str(p.lineno(2))+" : mismatch in no. of lhs and rhs expressions")
-                  # print(p[1]['exprs'])
-                  # print(p[3]['exprs'])
+                  print(p[1]['exprs'])
+                  print(p[3]['exprs'])
                   exit(1)
               for i in range(0,len(p[1]['exprs'])):
                   p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']
@@ -1120,11 +1120,11 @@ def p_exprlist(p):
     p[0] = {}
     p[0]['exprs'] = []
     if(len(p)==2):
-        # print("hello")
-        # print(p[1])
+        print("hello")
+        print(p[1])
         p[0]['exprs'].append({'code':p[1]['code'],'type':p[1]['type'],'place':p[1]['place'],'value':p[1]['value']})
         if(p[1]['type'] == "functioncall"):
-          # print(p[1])
+          print(p[1])
           p[0]['func_responses'] = p[1]['func_responses']
           p[0]['funccall'] = 1
           p[0]['code'] = p[1]['code']
@@ -1406,7 +1406,7 @@ def p_pexpr(p):
         p[0]['value'] = p[1]['value']
         p[0]['type'] = p[1]['type']
         p[0]['place'] = p[1]['place']
-        # print("cc")
+        print("cc")
         if(p[0]['type'] == "functioncall"):
           p[0]['func_responses'] = p[1]['func_responses']
     else:
@@ -1432,7 +1432,7 @@ def p_pexprnoparen(p):
                     | ForCompExpr'''
     p[0] = {}
     if(len(p)==2):
-        # print(p[1])
+        print(p[1])
         # if 'func_responses' in p[1]:
         #   if(p[1]['func_responses'] == 'void'):
         #     p[0]['type'] = 'void'
@@ -1554,7 +1554,7 @@ def p_prec5expr_(p):
         p[0]['value'] = p[1]['value']
         p[0]['type'] = p[1]['type']
         p[0]['place'] = p[1]['place']
-        # print("e")
+        print("e")
         if(p[0]['type'] == "functioncall"):
           p[0]['func_responses'] = p[1]['func_responses']
     else:
@@ -1603,7 +1603,6 @@ def p_prec5expr_(p):
             op = "&^"
 
         if(flag == 0):
-            ## Error is here, check if type is function call(also check same error in all grammar rules)
             if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
                 tmp = getlabel()
                 register_variable(tmp)
@@ -1759,7 +1758,7 @@ def p_prec2expr_(p):
         p[0]['place'] = p[1]['place']
         p[0]['value'] = p[1]['value']
         p[0]['type'] = p[1]['type']
-        # print("no")
+        print("no")
         if(p[0]['type'] == "functioncall"):
           p[0]['func_responses'] = p[1]['func_responses']
     else:
@@ -1790,7 +1789,7 @@ def p_expr(p):
             p[0]['place'] = p[1]['place']
             p[0]['value'] = p[1]['value']
             p[0]['type'] = p[1]['type']
-            # print("yo")
+            print("yo")
             if(p[0]['type'] == "functioncall"):
               p[0]['func_responses'] = p[1]['func_responses']
     else:
