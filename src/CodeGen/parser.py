@@ -638,8 +638,6 @@ def p_simplestmt(p):
               p[0]['code'] = ""
               if(len(p[1]['exprs']) != len(p[3]['exprs'])):
                   print("Error in line "+str(p.lineno(2))+" : mismatch in no. of lhs and rhs expressions")
-                  # print(p[1]['exprs'])
-                  # print(p[3]['exprs'])
                   exit(1)
               for i in range(0,len(p[1]['exprs'])):
                   p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']

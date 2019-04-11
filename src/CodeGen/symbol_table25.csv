@@ -1,0 +1,33 @@
+Table Info:
+Name=globalsymboltable,Type=global_symbol_table
+Table Variables:
+variable name=FibonacciRecursion,attribute=type,value={'val': 'function'},attribute=exists,value=1,
+variable name=fmt,attribute=import,value=1,attribute=exists,value=1,
+variable name=time,attribute=import,value=1,attribute=exists,value=1,
+variable name=main,attribute=type,value={'val': 'function'},attribute=exists,value=1,
+Child Tables:
+FibonacciRecursion,main
+
+Table Info:
+Name=FibonacciRecursion,Type=function
+Table Variables:
+variable name=CS335_9,attribute=exists,value=1,
+variable name=CS335_8,attribute=exists,value=1,
+variable name=CS335_7,attribute=exists,value=1,
+variable name=CS335_1,attribute=exists,value=1,
+variable name=CS335_6,attribute=exists,value=1,
+variable name=CS335_5,attribute=exists,value=1,
+variable name=n,attribute=type,value={'val': 'int'},attribute=exists,value=1,
+Child Tables:
+CS335_2
+
+Table Info:
+Name=main,Type=function
+Table Variables:
+variable name=c,attribute=type,value={'val': 'int'},attribute=exists,value=1,attribute=offset,value=8,
+variable name=CS335_10,attribute=exists,value=1,
+
+Table Info:
+Name=CS335_2,Type=If/else if
+Table Variables:
+

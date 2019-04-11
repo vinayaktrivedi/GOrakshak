@@ -1,0 +1,37 @@
+package main
+import fmt
+main1:	BeginFunc 12;
+push rbp
+mov rbp rsp
+push rbx
+ push r15
+ push r14
+ push r13
+ push r12
+CS335_1 = 89 *int 7
+CS335_2 = CS335_1 -int 67
+CS335_3 = CS335_2 +int 99
+num = CS335_3
+num = num -int 45
+CS335_4 = 89 +int 1
+num = num *int CS335_4
+CS335_5 = num < 0
+if CS335_5=0 goto CS335_14
+CS335_7 = -num
+num = CS335_7
+goto CS335_15
+CS335_14:
+CS335_8 = num < 10
+else if CS335_8=0 goto CS335_16
+num = num +int 85
+num = num +int 1
+goto CS335_15
+CS335_16:
+else 
+CS335_11 = 90 -int 56
+num = CS335_11
+CS335_12 = 2 *int num
+CS335_13 = CS335_12 -int 67
+num = CS335_13
+CS335_15:
+EndFunc;

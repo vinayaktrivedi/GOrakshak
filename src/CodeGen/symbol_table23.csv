@@ -1,0 +1,47 @@
+Table Info:
+Name=globalsymboltable,Type=global_symbol_table
+Table Variables:
+variable name=f,attribute=type,value={'val': 'function'},attribute=exists,value=1,
+variable name=fmt,attribute=import,value=1,attribute=exists,value=1,
+variable name=main,attribute=type,value={'val': 'function'},attribute=exists,value=1,
+Child Tables:
+f,main
+
+Table Info:
+Name=f,Type=function
+Table Variables:
+variable name=a,attribute=type,value={'val': 'int'},attribute=exists,value=1,
+variable name=b,attribute=type,value={'val': 'int'},attribute=exists,value=1,
+variable name=CS335_1,attribute=exists,value=1,
+variable name=t,attribute=type,value={'val': 'int'},attribute=exists,value=1,attribute=offset,value=8,
+variable name=y,attribute=type,value={'val': 'int'},attribute=exists,value=1,attribute=offset,value=12,
+Child Tables:
+CS335_2,CS335_3
+
+Table Info:
+Name=main,Type=function
+Table Variables:
+variable name=CS335_15,attribute=exists,value=1,
+variable name=CS335_14,attribute=exists,value=1,
+variable name=CS335_13,attribute=exists,value=1,
+variable name=CS335_12,attribute=exists,value=1,
+variable name=CS335_11,attribute=exists,value=1,
+variable name=CS335_10,attribute=exists,value=1,
+variable name=b,attribute=type,value={'val': 'int'},attribute=value,value=,attribute=exists,value=1,attribute=offset,value=20,
+variable name=CS335_9,attribute=exists,value=1,
+variable name=CS335_8,attribute=exists,value=1,
+variable name=g,attribute=type,value={'val': 'int'},attribute=exists,value=1,attribute=offset,value=24,
+variable name=k,attribute=type,value={'val': 'int'},attribute=value,value=720,attribute=exists,value=1,attribute=offset,value=12,
+variable name=CS335_7,attribute=exists,value=1,
+variable name=CS335_6,attribute=exists,value=1,
+variable name=n,attribute=type,value={'val': 'int'},attribute=value,value=0,attribute=exists,value=1,attribute=offset,value=8,
+variable name=u,attribute=type,value={'val': '**int'},attribute=value,value=,attribute=exists,value=1,attribute=offset,value=16,
+
+Table Info:
+Name=CS335_2,Type=If/else if
+Table Variables:
+
+Table Info:
+Name=CS335_3,Type=compound statement/else
+Table Variables:
+

@@ -1,0 +1,39 @@
+package main
+import fmt
+f1:	BeginFunc 16;
+push rbp
+mov rbp rsp
+push rbx
+ push r15
+ push r14
+ push r13
+ push r12
+return 2
+EndFunc;
+main1:	BeginFunc 28;
+push rbp
+mov rbp rsp
+push rbx
+ push r15
+ push r14
+ push r13
+ push r12
+CS335_1 = 90 +int 67
+CS335_2 = CS335_1 -int 90
+n = CS335_2
+CS335_3 = 90 *int 8
+k = CS335_3
+push 45
+push 67
+call f1
+pop CS335_4
+b = CS335_4
+CS335_5 = &k
+CS335_6 = &CS335_5
+u = CS335_6
+CS335_7 = *u
+CS335_8 = *CS335_7
+n = CS335_8
+CS335_9 = !90
+n = CS335_9
+EndFunc;
