@@ -1,0 +1,52 @@
+package main
+import fmt
+main1:	BeginFunc 20;
+push rbp
+mov rbp rsp
+push rbx
+ push r15
+ push r14
+ push r13
+ push r12
+sum = 0
+i = 0
+CS335_3:
+CS335_1 = i < 10
+if CS335_1 =0 goto CS335_4
+sum = sum +int i
+num = 0
+CS335_6 = sum *int i
+CS335_7 = CS335_6 > 89
+if CS335_7=0 goto CS335_12
+CS335_9 = num -int sum
+sum = CS335_9
+goto CS335_13
+CS335_12:
+else 
+CS335_11 = -25
+sum = CS335_11
+CS335_13:
+CS335_14 = num < 0
+if CS335_14=0 goto CS335_23
+CS335_16 = -num
+num = CS335_16
+goto CS335_24
+CS335_23:
+CS335_17 = num < 10
+else if CS335_17=0 goto CS335_25
+num = num +int 85
+num = num +int 1
+goto CS335_24
+CS335_25:
+else 
+CS335_20 = 90 -int 56
+num = CS335_20
+CS335_21 = 2 *int num
+CS335_22 = CS335_21 -int 67
+num = CS335_22
+CS335_24:
+CS335_5:
+i = i +int 1
+ goto CS335_3
+CS335_4:
+EndFunc;

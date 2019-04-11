@@ -1,0 +1,36 @@
+package main
+import fmt
+f1:	BeginFunc 16;
+push rbp
+mov rbp rsp
+push rbx
+ push r15
+ push r14
+ push r13
+ push r12
+return 2
+EndFunc;
+main1:	BeginFunc 24;
+push rbp
+mov rbp rsp
+push rbx
+ push r15
+ push r14
+ push r13
+ push r12
+CS335_1 = 67 +int 90
+CS335_2 = CS335_1 -int 89
+CS335_3 = inttofloat CS335_2
+a = CS335_3
+c = 10
+a = a *float 90.8
+CS335_5 = inttofloat c
+CS335_4 = 10.0 *float CS335_5
+CS335_6 = a +float CS335_4
+a = CS335_6
+push 10
+push b
+call f1
+pop CS335_7
+c = CS335_7
+EndFunc;

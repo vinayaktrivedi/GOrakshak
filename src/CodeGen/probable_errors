@@ -1,0 +1,6 @@
+in p_argtypelist:
+	in len(p) == 2:
+		in func_responses
+			error might be that we are just assigning the first value
+in p_pseudocall:
+	above len(p) == 4

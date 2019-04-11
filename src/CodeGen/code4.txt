@@ -1,0 +1,30 @@
+package main
+import fmt
+main1:	BeginFunc 12;
+push rbp
+mov rbp rsp
+push rbx
+ push r15
+ push r14
+ push r13
+ push r12
+i = 2
+CS335_1 = i == 1
+CS335_4= CS335_1==1
+if CS335_4=0 goto CS335_2
+i = i +int 1
+goto CS335_3
+CS335_2:
+CS335_4= CS335_1==2
+if CS335_4=0 goto CS335_5
+i = i -int 1
+goto CS335_3
+CS335_5:
+CS335_4= CS335_1==3
+if CS335_4=0 goto CS335_6
+i = i +int 1
+goto CS335_3
+CS335_6:
+i = i -int 1
+CS335_3:
+EndFunc;

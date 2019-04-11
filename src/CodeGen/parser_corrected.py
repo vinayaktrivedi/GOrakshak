@@ -34,8 +34,7 @@ globalsymboltable = {}
 globalsymboltable['local_variable_size'] = 0
 globalsymboltable["CS335_name"] = "globalsymboltable"
 globalsymboltable["CS335_type"] = "global_symbol_table"
-globalsymboltable['custom_types'] = {}
-globalsymboltable['custom_types']['structures'] = {}
+
 stack = []
 stack.append(globalsymboltable)
 counter=0
@@ -111,9 +110,6 @@ def get_variable_attribute(variable,attribute):
           local_symbol_table = local_symbol_table['CS335_parent']
 
 def register_variable(variable):
-    if variable in lexer.keywords:
-      print("Error in line "+str(p.lineno(2))+" :tried to declare reserved keyword")
-      exit(1)
     global stack
     symbol_table = stack[-1]
     symbol_table[variable] = {}
@@ -201,8 +197,8 @@ def bfs():
                   symout+=childtable["CS335_name"]+","
               symout+="\n"
             symout+="\n"
-    #with open(args['csv'],'wb') as f:
-      #f.write(symout)
+    with open(args['csv'],'wb') as f:
+      f.write(symout)
     dummy = 0
 
 
@@ -328,9 +324,6 @@ def p_vardecl(p):
             elif(p[2]['type']['val'][0] == '*'):
               increase_local_size(4)
               offset += 4
-            elif p[2]['type']['val'] == 'struct' :
-              increase_local_size(p[2]['type']['size'])
-              offset += p[2]['type']['size']
             else:
               increase_local_size(size[p[2]['type']['val']])
               offset += size[p[2]['type']['val']]
@@ -432,21 +425,8 @@ def p_typedecl(p):
     '''TypeDecl : TypeDeclName NType'''
     p[0] = {}
     p[0]['code'] = p[1]['code'] + p[2]['type']['val']
-    global globalsymboltable
-    if 'val' in p[2]['type']:
-      if p[2]['type']['val'] == 'struct':
-        globalsymboltable['custom_types']['structures'][p[1]['variable']] = {}
-        struct_fields = p[2]['type']['struct_fields']
-        globalsymboltable['custom_types']['structures'][p[1]['variable']]['struct_fields'] = struct_fields
-        struct_size = 0
-        global size 
-        print(struct_fields)
-        for fields in struct_fields:
-          for variable in fields:
-            struct_size += size[variable['type']['val']]
-        globalsymboltable['custom_types']['structures'][p[1]['variable']]['size'] = struct_size
-
-
+#   make_symbol_table(p[1]['variable'],'type')
+#   add_variable_attribute_api(p[1]['variable'],'type',p[2]['type'])
 
 def p_simplestmt(p):
     '''SimpleStmt : Expr
@@ -479,19 +459,14 @@ def p_simplestmt(p):
         p[0]['place'] = p[1]['place']
     if(len(p) == 4):
         p[0]['code'] = ""
-        if('funccall' in p[3] and str(p[2])!=':='):
-          if(len(p[3]['exprs']) == 1):
-              func_responses = p[3]['exprs'][0]['func_responses']
-              if(len(func_responses)!=len(p[1]['exprs'])):
-                print("Error in line "+str(p.lineno(2))+" :length mismatch for function return type")
-                exit(1)
-          else:
-              print("Error in line "+str(p.lineno(2))+" : can't assign multiple functions")
-              exit(1)
+        if('funccall' in p[3]):
+          func_responses = p[3]['func_responses']
+          if(len(func_responses)!=len(p[1]['exprs'])):
+            print("Error in line "+str(p.lineno(2))+" :length mismatch for function return type")
+            exit(1)
 
           i=0
-          func_responses = p[3]['exprs'][0]['func_responses']
-          p[0]['code'] += p[3]['exprs'][0]['code']
+          p[0]['code'] += p[3]['code']
           for exprs in func_responses :
             if(p[1]['exprs'][i]['type']=='float' and exprs['type']=='int'):
               tmp = getlabel()
@@ -599,28 +574,17 @@ def p_simplestmt(p):
                           print("Error in line "+str(p.lineno(2))+" : type mismatch")
                           exit(1)
                   else:
-                      p3_type = ""
-                      p3_place = ""
-                      if(p[3]['exprs'][i]['type'] == 'functioncall'):
-                          p3_type = p[3]['exprs'][i]['func_responses'][0]['type']
-                          p3_place = p[3]['exprs'][i]['func_responses'][0]['place']
-                          # if(len(p[3]['func_responses']) != 1):
-                          #     print("Error in line "+str(p.lineno(2))+" : No of return values can be just 1")
-                          #     exit(1)
-                      else:
-                          p3_type = p[3]['exprs'][i]['type']
-                          p3_place = p[3]['exprs'][i]['place']
-                      if(check_if_variable_declared(p3_place) or p[3]['exprs'][i]['value']!=""):
+                      if(check_if_variable_declared(p[3]['exprs'][i]['place']) or p[3]['exprs'][i]['value']!=""):
                         global offset
-                        p[1]['exprs'][i]['type'] = p3_type
+                        p[1]['exprs'][i]['type'] = p[3]['exprs'][i]['type']
                         register_variable(p[1]['exprs'][i]['place'])
-                        add_variable_attribute(p[1]['exprs'][i]['place'],'type',{'val':p3_type})
+                        add_variable_attribute(p[1]['exprs'][i]['place'],'type',{'val':p[3]['exprs'][i]['type']})
                         add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
-                        p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p3_place
-                        offset += size[p3_type]
-                        increase_local_size(size[p3_type])
+                        p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
+                        offset += size[p[3]['exprs'][i]['type']]
+                        increase_local_size(size[p[3]['exprs'][i]['type']])
                       else:
-                        print("Error in line "+str(p.lineno(2))+" : variable "+ p3_place +" not declared")
+                        print("Error in line "+str(p.lineno(2))+" : variable "+ p[3]['exprs'][i]['place'] +" not declared")
                         exit(1)
               p[0]['place'] = p[1]['exprs'][0]['place']
 
@@ -658,6 +622,8 @@ def p_simplestmt(p):
               p[0]['code'] = ""
               if(len(p[1]['exprs']) != len(p[3]['exprs'])):
                   print("Error in line "+str(p.lineno(2))+" : mismatch in no. of lhs and rhs expressions")
+                  print(p[1]['exprs'])
+                  print(p[3]['exprs'])
                   exit(1)
               for i in range(0,len(p[1]['exprs'])):
                   p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']
@@ -1091,13 +1057,8 @@ def p_mytype(p):
 def p_dotname(p):
   '''DotName : Name
              | Name DOT IDENTIFIER'''
-  p[0] = {}
-  p[0]['type'] = {}
-  global globalsymboltable
-  if p[1]['place'] in globalsymboltable['custom_types']['structures'] :
-    p[0]['type']['val'] = 'struct'
-    p[0]['type']['struct_fields'] = globalsymboltable['custom_types']['structures'][p[1]['place']]['struct_fields']
-    p[0]['type']['size'] = globalsymboltable['custom_types']['structures'][p[1]['place']]['size']
+
+
 
 def p_ocomma(p):
   '''OComma :
@@ -1159,16 +1120,14 @@ def p_exprlist(p):
     p[0] = {}
     p[0]['exprs'] = []
     if(len(p)==2):
-        # print("hello")
-        # print(p[1])
+        print("hello")
+        print(p[1])
         p[0]['exprs'].append({'code':p[1]['code'],'type':p[1]['type'],'place':p[1]['place'],'value':p[1]['value']})
         if(p[1]['type'] == "functioncall"):
-          # print(p[1])
-          # p[0]['func_responses'] = p[1]['func_responses']
-          # p[0]['funccall'] = 1
-          # p[0]['code'] = p[1]['code']
-          p[0]['exprs'][-1]['func_responses'] = p[1]['func_responses']
+          print(p[1])
+          p[0]['func_responses'] = p[1]['func_responses']
           p[0]['funccall'] = 1
+          p[0]['code'] = p[1]['code']
     else:
         p[0]['exprs'].extend(p[1]['exprs'])
         p[0]['exprs'].append({'code':p[3]['code'],'type':p[3]['type'],'place':p[3]['place'],'value':p[3]['value']})
@@ -1431,7 +1390,7 @@ def p_nondeclstmt(p):
             else:
                 p[0]['code'] = string + " " + p[2]['code']
     if(len(p)==4):
-        # 
+        # what to do
         dummy = 0
 
 def p_dotdotdot(p):
@@ -1447,7 +1406,7 @@ def p_pexpr(p):
         p[0]['value'] = p[1]['value']
         p[0]['type'] = p[1]['type']
         p[0]['place'] = p[1]['place']
-        # print("cc")
+        print("cc")
         if(p[0]['type'] == "functioncall"):
           p[0]['func_responses'] = p[1]['func_responses']
     else:
@@ -1473,7 +1432,7 @@ def p_pexprnoparen(p):
                     | ForCompExpr'''
     p[0] = {}
     if(len(p)==2):
-        # print(p[1])
+        print(p[1])
         # if 'func_responses' in p[1]:
         #   if(p[1]['func_responses'] == 'void'):
         #     p[0]['type'] = 'void'
@@ -1490,29 +1449,27 @@ def p_pexprnoparen(p):
         p[0]['place'] = p[1]['place']
         if(p[0]['type'] == "functioncall"):
           p[0]['func_responses'] = p[1]['func_responses']
-    if(len(p)==4 or len(p)==6):
-        # Struct accessing here!!
-        struct_name = p[1]['place']
-        
-    if(len(p)==5):
-      if str(p[2]) == "[(":
+    if(len(p)==4):
+        # what to do
         dummy = 0
-      else:
-        label = getlabel()
-        label1 = getlabel()
-        register_variable(str(label))
-        register_variable(str(label1))
-        if(int(p[3]['place']) >= p[1]['type']['arr_length']):
-          print("Error in line "+str(p.lineno(2))+" : Array index out of range")
-          exit(1)
-        p[0]['code'] = p[1]['code']
-        p[0]['code'] += "\n"+p[3]['code']
-        p[0]['place'] = label
-        p[0]['code'] = "\n" + str(label1) + " = BaseAddress(" + p[1]['place'] + ")\n"
-        p[0]['code'] += str(label)+" = "+str(label1)+"["+p[3]['place']+"]"
-        p[0]['value'] = 1
-        p[0]['type'] = p[1]['type']['arr_type']
-    
+    if(len(p)==5):
+      label = getlabel()
+      label1 = getlabel()
+      register_variable(str(label))
+      register_variable(str(label1))
+      if(int(p[3]['place']) >= p[1]['type']['arr_length']):
+        print("Error in line "+str(p.lineno(2))+" : Array index out of range")
+        exit(1)
+      p[0]['code'] = p[1]['code']
+      p[0]['code'] += "\n"+p[3]['code']
+      p[0]['place'] = label
+      p[0]['code'] = "\n" + str(label1) + " = BaseAddress(" + p[1]['place'] + ")\n"
+      p[0]['code'] += str(label)+" = "+str(label1)+"["+p[3]['place']+"]"
+      p[0]['value'] = 1
+      p[0]['type'] = p[1]['type']['arr_type']
+    if(len(p)==6):
+        # what to do
+        dummy = 0
     if(len(p)==7):
         # what to do
         dummy = 0
@@ -1597,7 +1554,7 @@ def p_prec5expr_(p):
         p[0]['value'] = p[1]['value']
         p[0]['type'] = p[1]['type']
         p[0]['place'] = p[1]['place']
-        # print("e")
+        print("e")
         if(p[0]['type'] == "functioncall"):
           p[0]['func_responses'] = p[1]['func_responses']
     else:
@@ -1646,46 +1603,22 @@ def p_prec5expr_(p):
             op = "&^"
 
         if(flag == 0):
-            ## Error is here, check if type is function call(also check same error in all grammar rules)
-            ## Assuming here that functions have only a single return value
-            p1_type = ""
-            p3_type = ""
-            p3_place = ""
-            p1_place = ""
-            if(p[1]['type'] == 'functioncall'):
-                p1_type = p[1]['func_responses'][0]['type']
-                p1_place = p[1]['func_responses'][0]['place']
-                if(len(p[1]['func_responses']) != 1):
-                    print("Error in line "+str(p.lineno(2))+" : No of return values can be just 1")
-                    exit(1)
-            else:
-                p1_type = p[1]['type']
-                p1_place = p[1]['place']
-            if(p[3]['type'] == 'functioncall'):
-                p3_type = p[3]['func_responses'][0]['type']
-                p3_place = p[3]['func_responses'][0]['place']
-                if(len(p[3]['func_responses']) != 1):
-                    print("Error in line "+str(p.lineno(2))+" : No of return values can be just 1")
-                    exit(1)
-            else:
-                p3_type = p[3]['type']
-                p3_place = p[3]['place']
-            if(p1_type == 'int' and p3_type == 'float'):
-              tmp = getlabel()
-              register_variable(tmp)
-              p[0]['code'] += tmp + " = inttofloat " + p1_place + "\n"
-              p[0]['code'] += p[0]['place'] + " = " + tmp + " " + op + "float " + p3_place
-              p[0]['type'] = 'float'
-            if(p1_type == 'float' and p3_type == 'int'):
-              tmp = getlabel()
-              register_variable(tmp)
-              p[0]['code'] += tmp + " = inttofloat " + p3_place + "\n"
-              p[0]['code'] += p[0]['place'] +  " = " +  p1_place + " " + op + "float " + tmp
-              p[0]['type'] = 'float'
-            if(p1_type == p3_type):
-              typ = p1_type
-              p[0]['code'] += p[0]['place'] + " = " + p1_place + " " + op + typ + " " + p3_place
-              p[0]['type'] = p1_type
+            if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
+                tmp = getlabel()
+                register_variable(tmp)
+                p[0]['code'] += tmp + " = inttofloat " + p[1]['place'] + "\n"
+                p[0]['code'] += p[0]['place'] + " = " + tmp + " " + op + "float " + p[3]['place']
+                p[0]['type'] = 'float'
+            if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
+                tmp = getlabel()
+                register_variable(tmp)
+                p[0]['code'] += tmp + " = inttofloat " + p[3]['place'] + "\n"
+                p[0]['code'] += p[0]['place'] +  " = " +  p[1]['place'] + " " + op + "float " + tmp
+                p[0]['type'] = 'float'
+            if(p[1]['type'] == p[3]['type']):
+                typ = p[1]['type']
+                p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
+                p[0]['type'] = p[1]['type']
         if(flag == 1):
             if(p[1]['type'] != 'int' or p[3]['type'] != 'int'):
                 print("Error in line "+str(p.lineno(2))+" : Both expressions should be of type integer")
@@ -1737,75 +1670,27 @@ def p_prec4expr_(p):
             if(p[1]['value']!="" and p[3]['value']!=""):
                 p[0]['value'] = (p[1]['value'] | p[3]['value'])
         if(flag == 0):
-            ## Error is here, check if type is function call(also check same error in all grammar rules)
-            ## Assuming here that functions have only a single return value
-            p1_type = ""
-            p3_type = ""
-            p3_place = ""
-            p1_place = ""
-            if(p[1]['type'] == 'functioncall'):
-                p1_type = p[1]['func_responses'][0]['type']
-                p1_place = p[1]['func_responses'][0]['place']
-                if(len(p[1]['func_responses']) != 1):
-                    print("Error in line "+str(p.lineno(2))+" : No of return values can be just 1")
-                    exit(1)
-            else:
-                p1_type = p[1]['type']
-                p1_place = p[1]['place']
-            if(p[3]['type'] == 'functioncall'):
-                p3_type = p[3]['func_responses'][0]['type']
-                p3_place = p[3]['func_responses'][0]['place']
-                if(len(p[3]['func_responses']) != 1):
-                    print("Error in line "+str(p.lineno(2))+" : No of return values can be just 1")
-                    exit(1)
-            else:
-                p3_type = p[3]['type']
-                p3_place = p[3]['place']
-
-            if(p1_type == 'int' and p3_type == 'float'):
+            if(p[1]['type'] == 'int' and p[3]['type'] == 'float'):
                 tmp = getlabel()
                 register_variable(tmp)
-                p[0]['code'] += tmp + " = inttofloat " + p1_place + "\n"
-                p[0]['code'] += p[0]['place'] + " = " + tmp + " " + op + "float " + p3_place
+                p[0]['code'] += tmp + " = inttofloat " + p[1]['place'] + "\n"
+                p[0]['code'] += p[0]['place'] + " = " + tmp + " " + op + "float " + p[3]['place']
                 p[0]['type'] = 'float'
-            if(p1_type == 'float' and p3_type == 'int'):
+            if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
                 tmp = getlabel()
                 register_variable(tmp)
-                p[0]['code'] += tmp + " = inttofloat " + p3_place + "\n"
-                p[0]['code'] += p[0]['place'] + " = " + p1_place +" "+ op + "float " + tmp
+                p[0]['code'] += tmp + " = inttofloat " + p[3]['place'] + "\n"
+                p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] +" "+ op + "float " + tmp
                 p[0]['type'] = 'float'
-            if(p1_type == p3_type):
-                typ = p1_type
-                p[0]['code'] += p[0]['place'] + " = " + p1_place + " " + op + typ + " " + p3_place
-                p[0]['type'] = p1_type
+            if(p[1]['type'] == p[3]['type']):
+                typ = p[1]['type']
+                p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
+                p[0]['type'] = p[1]['type']
         else:
-            p1_type = ""
-            p3_type = ""
-            p3_place = ""
-            p1_place = ""
-            if(p[1]['type'] == 'functioncall'):
-                p1_type = p[1]['func_responses'][0]['type']
-                p1_place = p[1]['func_responses'][0]['place']
-                if(len(p[1]['func_responses']) != 1):
-                    print("Error in line "+str(p.lineno(2))+" : No of return values can be just 1")
-                    exit(1)
-            else:
-                p1_type = p[1]['type']
-                p1_place = p[1]['place']
-            if(p[3]['type'] == 'functioncall'):
-                p3_type = p[3]['func_responses'][0]['type']
-                p3_place = p[3]['func_responses'][0]['place']
-                if(len(p[3]['func_responses']) != 1):
-                    print("Error in line "+str(p.lineno(2))+" : No of return values can be just 1")
-                    exit(1)
-            else:
-                p3_type = p[3]['type']
-                p3_place = p[3]['place']
-
-            if(p1_type != 'int' or p3_type != 'int'):
+            if(p[1]['type'] != 'int' or p[3]['type'] != 'int'):
                 print("Error in line "+str(p.lineno(2))+" : Both expressions should be of type integer")
                 exit(1)
-            p[0]['code'] += p[0]['place'] + " = " + p1_place + " " + op + " " + p3_place
+            p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] + " " + op + " " + p[3]['place']
             p[0]['type'] = 'int'
 
 
@@ -1873,7 +1758,7 @@ def p_prec2expr_(p):
         p[0]['place'] = p[1]['place']
         p[0]['value'] = p[1]['value']
         p[0]['type'] = p[1]['type']
-        # print("no")
+        print("no")
         if(p[0]['type'] == "functioncall"):
           p[0]['func_responses'] = p[1]['func_responses']
     else:
@@ -1904,7 +1789,7 @@ def p_expr(p):
             p[0]['place'] = p[1]['place']
             p[0]['value'] = p[1]['value']
             p[0]['type'] = p[1]['type']
-            # print("yo")
+            print("yo")
             if(p[0]['type'] == "functioncall"):
               p[0]['func_responses'] = p[1]['func_responses']
     else:
@@ -2115,4 +2000,4 @@ parser = yacc.yacc()            # Build the parser
 with open(file,'r') as f:
     input_str = f.read()
 
-parser.parse(input_str,debug=0)
+parser.parse(input_str,debug=1)

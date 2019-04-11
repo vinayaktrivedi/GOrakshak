@@ -1,0 +1,35 @@
+Table Info:
+Name=globalsymboltable,Type=global_symbol_table
+Table Variables:
+variable name=Factorial,attribute=type,value={'val': 'function'},attribute=exists,value=1,
+variable name=LIM,attribute=type,value={'val': 'int'},attribute=value,value=41,attribute=exists,value=1,
+variable name=fmt,attribute=import,value=1,attribute=exists,value=1,
+variable name=facts,attribute=type,value={'arr_length': 41, 'arr_type': 'int', 'val': 'array'},attribute=exists,value=1,attribute=offset,value=4,
+variable name=main,attribute=type,value={'val': 'function'},attribute=exists,value=1,
+Child Tables:
+Factorial,main
+
+Table Info:
+Name=Factorial,Type=function
+Table Variables:
+variable name=CS335_1,attribute=exists,value=1,
+variable name=n,attribute=type,value={'val': 'int'},attribute=exists,value=1,
+variable name=result,attribute=type,value={'val': 'int'},attribute=value,value=0,attribute=exists,value=1,
+Child Tables:
+CS335_2
+
+Table Info:
+Name=main,Type=function
+Table Variables:
+variable name=a,attribute=type,value={'val': 'int'},attribute=value,value=,attribute=exists,value=1,attribute=offset,value=16,
+variable name=c,attribute=type,value={'val': 'int'},attribute=exists,value=1,attribute=offset,value=12,
+variable name=CS335_8,attribute=exists,value=1,
+variable name=CS335_9,attribute=exists,value=1,
+
+Table Info:
+Name=CS335_2,Type=If/else if
+Table Variables:
+variable name=CS335_3,attribute=exists,value=1,
+variable name=CS335_5,attribute=exists,value=1,
+variable name=CS335_4,attribute=exists,value=1,
+

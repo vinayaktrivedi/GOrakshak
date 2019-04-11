@@ -5,9 +5,10 @@ type Vertex struct {
     Y int;
 };
 var num int;
-func foo(a int){
-    var b int; 
-    b = 2;  
+func foo(a int) int, int{
+    var b int;
+    b = 2;
+    return b,3;
 };
 func foo(){
 	var c int;
@@ -18,6 +19,7 @@ func foo(a int,b int, c int){
 	var p int;
 	foo(p,q,d);
 };
+
 func main(){
     var xx Vertex;
     var num int;
@@ -33,5 +35,5 @@ func main(){
     var q int;
     var p int;
     foo(k,q,p);
-    
+    p, k = foo(3);
 };

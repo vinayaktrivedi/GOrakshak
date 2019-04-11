@@ -1,0 +1,43 @@
+package main
+import fmt
+hello1:	BeginFunc 8;
+push rbp
+mov rbp rsp
+push rbx
+ push r15
+ push r14
+ push r13
+ push r12
+return 2
+EndFunc;
+main1:	BeginFunc 96;
+push rbp
+mov rbp rsp
+push rbx
+ push r15
+ push r14
+ push r13
+ push r12
+CS335_2 = BaseAddress(g)
+CS335_1 = CS335_2[10]
+CS335_1 = 0
+CS335_4 = BaseAddress(g)
+CS335_3 = CS335_4[9]
+CS335_3 = 90
+CS335_6 = BaseAddress(g)
+CS335_5 = CS335_6[1]
+CS335_5 = 845
+call hello1
+pop CS335_9
+CS335_7 = CS335_9
+sum = 0
+i = 0
+CS335_12:
+CS335_10 = i < 10
+if CS335_10 =0 goto CS335_13
+sum = sum +int i
+CS335_14:
+i = i +int 1
+ goto CS335_12
+CS335_13:
+EndFunc;

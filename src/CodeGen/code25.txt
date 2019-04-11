@@ -1,0 +1,39 @@
+package main
+import fmt
+import time
+FibonacciRecursion1:	BeginFunc 8;
+push rbp
+mov rbp rsp
+push rbx
+ push r15
+ push r14
+ push r13
+ push r12
+CS335_1 = n <= 1
+if CS335_1=0 goto CS335_4
+return n
+CS335_4:
+CS335_5 = n -int 1
+push CS335_5
+call FibonacciRecursion1
+pop CS335_6
+CS335_7 = n -int 2
+push CS335_7
+call FibonacciRecursion1
+pop CS335_8
+CS335_9 = CS335_6 +int CS335_8
+return CS335_9
+EndFunc;
+main1:	BeginFunc 12;
+push rbp
+mov rbp rsp
+push rbx
+ push r15
+ push r14
+ push r13
+ push r12
+push 19
+call FibonacciRecursion1
+pop CS335_10
+c = CS335_10
+EndFunc;
