@@ -1,3 +1,5 @@
 *.pyc
 src/ply/__init__.pyc
 src/ply/lex.pyc
+*.out
+*parsetab.py*
