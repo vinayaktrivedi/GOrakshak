@@ -6,6 +6,7 @@ from config import *
 import process
 import os
 import sys
+import pickle
 
 
 #taking input 3ac
@@ -24,16 +25,26 @@ for x in lines:
         stripped[i] = stripped[i].replace(" ", "")
     threeAC.append(stripped)
 
+#taking global symbol table
+symboltablesfile = open('examplePickle', 'rb')      
+global_symbol_table = pickle.load(symboltablesfile) 
+
+#also attach address in stack of variables, assign type based on local, global, temp,constant
 for i in threeAC:
     ir.append(process.IR(i))
 
 
-blocks= blocks.findAllBlocks()
 
+#finding blocks
+blocks = blocks.findAllBlocks()
+
+#code gen globals, use global_symbol_table
 generateHelper.genGlobals()
 
+#code gen blocks
 for block in blocks:
     nextUseTable = nextUse.nextUseTable(block)
     generate.genCodeForBlock(block,nextUseTable)
 
+#code gen final
 generateHelper.close()
