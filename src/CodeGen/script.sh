@@ -1,5 +1,5 @@
 #!/bin/bash
-for i in {1..25}
+for i in {1..26}
 do
 	python parser.py --input="../../tests/Codegen/test$i.go"
 	cat code.txt > "code$i.txt"

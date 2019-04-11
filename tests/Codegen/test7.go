@@ -6,10 +6,10 @@ import (
     "adfdf";
 );
 
-type person struct {
-    name string;
-    age  int;
-};
+// type person struct {
+//     name string;
+//     age  int;
+// };
 
 func f(a int,b int) int {
 	var a int;

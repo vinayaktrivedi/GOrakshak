@@ -439,7 +439,7 @@ def p_typedecl(p):
         struct_fields = p[2]['type']['struct_fields']
         globalsymboltable['custom_types']['structures'][p[1]['variable']]['struct_fields'] = struct_fields
         struct_size = 0
-        global size 
+        global size
         print(struct_fields)
         for fields in struct_fields:
           for variable in fields:
@@ -580,48 +580,101 @@ def p_simplestmt(p):
           if(str(p[2]) == ":="):
               flag = 3
               p[0]['code'] = ""
-              if(len(p[1]['exprs']) != len(p[3]['exprs'])):
+              p3_len = 0
+
+              if('funccall' in p[3]):
+                if(len(p[3]['exprs']) == 1):
+                    func_responses = p[3]['exprs'][0]['func_responses']
+                    p3_len = len(func_responses)
+                    if(len(func_responses)!=len(p[1]['exprs'])):
+                      print("Error in line "+str(p.lineno(2))+" :length mismatch for function return type")
+                      exit(1)
+                else:
+                    print("Error in line "+str(p.lineno(2))+" : can't assign multiple functions")
+                    exit(1)
+              else:
+                  p3_len = len(p[3]['exprs'])
+
+              if(len(p[1]['exprs']) != p3_len):
                   print("Error in line "+str(p.lineno(2))+" : mismatch in no. of lhs and rhs expressions")
                   exit(1)
-              for i in range(0,len(p[1]['exprs'])):
-                  p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']
-                  if(check_if_variable_declared(p[1]['exprs'][i]['place'])):
-                      if(p[1]['exprs'][i]['type']=='float' and p[3]['exprs'][i]['type']=='int'):
+              if('funccall' in p[3]):
+                  i=0
+                  func_responses = p[3]['exprs'][0]['func_responses']
+                  p[0]['code'] += p[3]['exprs'][0]['code']
+                  for exprs in func_responses :
+                    if(check_if_variable_declared(p[1]['exprs'][i]['place'])):
+                        if(p[1]['exprs'][i]['type']=='float' and exprs['type']=='int'):
                           tmp = getlabel()
                           register_variable(tmp)
-                          add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
-                          p[0]['code'] += "\n" + tmp + " = inttofloat " + p[3]['exprs'][i]['place']
-                          p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + tmp
-                      elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
-                          p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
-                          add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
-                      else:
-                          print("Error in line "+str(p.lineno(2))+" : type mismatch")
-                          exit(1)
-                  else:
-                      p3_type = ""
-                      p3_place = ""
-                      if(p[3]['exprs'][i]['type'] == 'functioncall'):
-                          p3_type = p[3]['exprs'][i]['func_responses'][0]['type']
-                          p3_place = p[3]['exprs'][i]['func_responses'][0]['place']
-                          # if(len(p[3]['func_responses']) != 1):
-                          #     print("Error in line "+str(p.lineno(2))+" : No of return values can be just 1")
-                          #     exit(1)
-                      else:
-                          p3_type = p[3]['exprs'][i]['type']
-                          p3_place = p[3]['exprs'][i]['place']
-                      if(check_if_variable_declared(p3_place) or p[3]['exprs'][i]['value']!=""):
+                          p[0]['code'] += "\n" + tmp + " = inttofloat " + str(exprs['place'])
+                          p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+" = "+str(exprs['place'])
+                        else:
+                          if(exprs['type']!=p[1]['exprs'][i]['type']):
+                            print("Error in line "+str(p.lineno(2))+" :type mismatch for function return type")
+                            exit(1)
+                          else:
+                            p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+" = "+str(exprs['place'])
+                    else:
                         global offset
-                        p[1]['exprs'][i]['type'] = p3_type
+                        p[1]['exprs'][i]['type'] = exprs['type']
                         register_variable(p[1]['exprs'][i]['place'])
-                        add_variable_attribute(p[1]['exprs'][i]['place'],'type',{'val':p3_type})
-                        add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
-                        p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p3_place
-                        offset += size[p3_type]
-                        increase_local_size(size[p3_type])
+                        add_variable_attribute(p[1]['exprs'][i]['place'],'type',{'val':exprs['type']})
+                        p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + str(exprs['place'])
+                        offset += size[exprs['type']]
+                        increase_local_size(size[exprs['type']])
+                    i = i+1
+              else:
+                  for i in range(0,len(p[1]['exprs'])):
+                      p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']
+                      if(check_if_variable_declared(p[1]['exprs'][i]['place'])):
+                          p3_type = ""
+                          p3_place = ""
+                          if(p[3]['exprs'][i]['type'] == 'functioncall'):
+                              p3_type = p[3]['exprs'][i]['func_responses'][0]['type']
+                              p3_place = p[3]['exprs'][i]['func_responses'][0]['place']
+                              # if(len(p[3]['func_responses']) != 1):
+                              #     print("Error in line "+str(p.lineno(2))+" : No of return values can be just 1")
+                              #     exit(1)
+                          else:
+                              p3_type = p[3]['exprs'][i]['type']
+                              p3_place = p[3]['exprs'][i]['place']
+                          if(p[1]['exprs'][i]['type']=='float' and p3_type=='int'):
+                              tmp = getlabel()
+                              register_variable(tmp)
+                              add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
+                              p[0]['code'] += "\n" + tmp + " = inttofloat " + p3_place
+                              p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + tmp
+                          elif(p[1]['exprs'][i]['type'] == p3_type):
+                              p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p3_place
+                              add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
+                          else:
+                              print("Error in line "+str(p.lineno(2))+" : type mismatch")
+                              exit(1)
                       else:
-                        print("Error in line "+str(p.lineno(2))+" : variable "+ p3_place +" not declared")
-                        exit(1)
+                          p3_type = ""
+                          p3_place = ""
+                          if(p[3]['exprs'][i]['type'] == 'functioncall'):
+                              p3_type = p[3]['exprs'][i]['func_responses'][0]['type']
+                              p3_place = p[3]['exprs'][i]['func_responses'][0]['place']
+                              # if(len(p[3]['func_responses']) != 1):
+                              #     print("Error in line "+str(p.lineno(2))+" : No of return values can be just 1")
+                              #     exit(1)
+                          else:
+                              p3_type = p[3]['exprs'][i]['type']
+                              p3_place = p[3]['exprs'][i]['place']
+                          if(check_if_variable_declared(p3_place) or p[3]['exprs'][i]['value']!=""):
+                            # global offset
+                            p[1]['exprs'][i]['type'] = p3_type
+                            register_variable(p[1]['exprs'][i]['place'])
+                            add_variable_attribute(p[1]['exprs'][i]['place'],'type',{'val':p3_type})
+                            add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
+                            p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p3_place
+                            offset += size[p3_type]
+                            increase_local_size(size[p3_type])
+                          else:
+                            print("Error in line "+str(p.lineno(2))+" : variable "+ p3_place +" not declared")
+                            exit(1)
               p[0]['place'] = p[1]['exprs'][0]['place']
 
           if(flag == 0):
@@ -1431,7 +1484,7 @@ def p_nondeclstmt(p):
             else:
                 p[0]['code'] = string + " " + p[2]['code']
     if(len(p)==4):
-        # 
+        #
         dummy = 0
 
 def p_dotdotdot(p):
@@ -1493,7 +1546,7 @@ def p_pexprnoparen(p):
     if(len(p)==4 or len(p)==6):
         # Struct accessing here!!
         struct_name = p[1]['place']
-        
+
     if(len(p)==5):
       if str(p[2]) == "[(":
         dummy = 0
@@ -1512,7 +1565,7 @@ def p_pexprnoparen(p):
         p[0]['code'] += str(label)+" = "+str(label1)+"["+p[3]['place']+"]"
         p[0]['value'] = 1
         p[0]['type'] = p[1]['type']['arr_type']
-    
+
     if(len(p)==7):
         # what to do
         dummy = 0
