@@ -1,6 +1,8 @@
 #These are a set of reserved tokens in GO, NOT to be used as identifiers
 reserved = {
+
     'for':'FOR',
+    'struct':'STRUCT',
     'const':'CONSTANT',
     'continue':'CONTINUE',
     'break':'BREAK',

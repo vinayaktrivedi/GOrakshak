@@ -1,6 +1,9 @@
 package main;
 import "fmt";
-
+type Vertex struct {
+    x int;
+    Y int;
+};
 var num int;
 func foo(a int){
     var b int; 
@@ -16,6 +19,7 @@ func foo(a int,b int, c int){
 	foo(p,q,d);
 };
 func main(){
+    var xx Vertex;
     var num int;
     if num < 0 {
         num = -num;
