@@ -1,0 +1,2 @@
+In case of multiple returns, do the type and place as array properly, now just doing first 
+index;
