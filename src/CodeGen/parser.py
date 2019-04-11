@@ -34,7 +34,8 @@ globalsymboltable = {}
 globalsymboltable['local_variable_size'] = 0
 globalsymboltable["CS335_name"] = "globalsymboltable"
 globalsymboltable["CS335_type"] = "global_symbol_table"
-
+globalsymboltable['custom_types'] = {}
+globalsymboltable['custom_types']['structures'] = {}
 stack = []
 stack.append(globalsymboltable)
 counter=0
@@ -110,6 +111,9 @@ def get_variable_attribute(variable,attribute):
           local_symbol_table = local_symbol_table['CS335_parent']
 
 def register_variable(variable):
+    if variable in lexer.keywords:
+      print("Error in line "+str(p.lineno(2))+" :tried to declare reserved keyword")
+      exit(1)
     global stack
     symbol_table = stack[-1]
     symbol_table[variable] = {}
@@ -197,8 +201,8 @@ def bfs():
                   symout+=childtable["CS335_name"]+","
               symout+="\n"
             symout+="\n"
-    with open(args['csv'],'wb') as f:
-      f.write(symout)
+    #with open(args['csv'],'wb') as f:
+      #f.write(symout)
     dummy = 0
 
 
@@ -324,6 +328,9 @@ def p_vardecl(p):
             elif(p[2]['type']['val'][0] == '*'):
               increase_local_size(4)
               offset += 4
+            elif p[2]['type']['val'] == 'struct' :
+              increase_local_size(p[2]['type']['size'])
+              offset += p[2]['type']['size']
             else:
               increase_local_size(size[p[2]['type']['val']])
               offset += size[p[2]['type']['val']]
@@ -425,8 +432,21 @@ def p_typedecl(p):
     '''TypeDecl : TypeDeclName NType'''
     p[0] = {}
     p[0]['code'] = p[1]['code'] + p[2]['type']['val']
-#   make_symbol_table(p[1]['variable'],'type')
-#   add_variable_attribute_api(p[1]['variable'],'type',p[2]['type'])
+    global globalsymboltable
+    if 'val' in p[2]['type']:
+      if p[2]['type']['val'] == 'struct':
+        globalsymboltable['custom_types']['structures'][p[1]['variable']] = {}
+        struct_fields = p[2]['type']['struct_fields']
+        globalsymboltable['custom_types']['structures'][p[1]['variable']]['struct_fields'] = struct_fields
+        struct_size = 0
+        global size 
+        print(struct_fields)
+        for fields in struct_fields:
+          for variable in fields:
+            struct_size += size[variable['type']['val']]
+        globalsymboltable['custom_types']['structures'][p[1]['variable']]['size'] = struct_size
+
+
 
 def p_simplestmt(p):
     '''SimpleStmt : Expr
@@ -1071,8 +1091,13 @@ def p_mytype(p):
 def p_dotname(p):
   '''DotName : Name
              | Name DOT IDENTIFIER'''
-
-
+  p[0] = {}
+  p[0]['type'] = {}
+  global globalsymboltable
+  if p[1]['place'] in globalsymboltable['custom_types']['structures'] :
+    p[0]['type']['val'] = 'struct'
+    p[0]['type']['struct_fields'] = globalsymboltable['custom_types']['structures'][p[1]['place']]['struct_fields']
+    p[0]['type']['size'] = globalsymboltable['custom_types']['structures'][p[1]['place']]['size']
 
 def p_ocomma(p):
   '''OComma :
@@ -1406,7 +1431,7 @@ def p_nondeclstmt(p):
             else:
                 p[0]['code'] = string + " " + p[2]['code']
     if(len(p)==4):
-        # what to do
+        # 
         dummy = 0
 
 def p_dotdotdot(p):
@@ -1465,27 +1490,29 @@ def p_pexprnoparen(p):
         p[0]['place'] = p[1]['place']
         if(p[0]['type'] == "functioncall"):
           p[0]['func_responses'] = p[1]['func_responses']
-    if(len(p)==4):
-        # what to do
-        dummy = 0
+    if(len(p)==4 or len(p)==6):
+        # Struct accessing here!!
+        struct_name = p[1]['place']
+        
     if(len(p)==5):
-      label = getlabel()
-      label1 = getlabel()
-      register_variable(str(label))
-      register_variable(str(label1))
-      if(int(p[3]['place']) >= p[1]['type']['arr_length']):
-        print("Error in line "+str(p.lineno(2))+" : Array index out of range")
-        exit(1)
-      p[0]['code'] = p[1]['code']
-      p[0]['code'] += "\n"+p[3]['code']
-      p[0]['place'] = label
-      p[0]['code'] = "\n" + str(label1) + " = BaseAddress(" + p[1]['place'] + ")\n"
-      p[0]['code'] += str(label)+" = "+str(label1)+"["+p[3]['place']+"]"
-      p[0]['value'] = 1
-      p[0]['type'] = p[1]['type']['arr_type']
-    if(len(p)==6):
-        # what to do
+      if str(p[2]) == "[(":
         dummy = 0
+      else:
+        label = getlabel()
+        label1 = getlabel()
+        register_variable(str(label))
+        register_variable(str(label1))
+        if(int(p[3]['place']) >= p[1]['type']['arr_length']):
+          print("Error in line "+str(p.lineno(2))+" : Array index out of range")
+          exit(1)
+        p[0]['code'] = p[1]['code']
+        p[0]['code'] += "\n"+p[3]['code']
+        p[0]['place'] = label
+        p[0]['code'] = "\n" + str(label1) + " = BaseAddress(" + p[1]['place'] + ")\n"
+        p[0]['code'] += str(label)+" = "+str(label1)+"["+p[3]['place']+"]"
+        p[0]['value'] = 1
+        p[0]['type'] = p[1]['type']['arr_type']
+    
     if(len(p)==7):
         # what to do
         dummy = 0
