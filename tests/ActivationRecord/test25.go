@@ -6,7 +6,7 @@ import (
 );
 
 
-func FibonacciRecursion(n int) int {
+func FibonacciRecursion(n int) int{
     if n <= 1 {
         return n;
     };
@@ -14,5 +14,6 @@ func FibonacciRecursion(n int) int {
 };
 
 func main() {
-	FibonacciRecursion(19);
+	var c int;
+	c = FibonacciRecursion(19);
 };

@@ -16,6 +16,8 @@ func Factorial(n int)int {
 
 
 func main() {
-	c := Factorial(12);
+	c := 10;
+	var c int;
+	var a int;
+	a = c * Factorial(10); // not working
 };
-
