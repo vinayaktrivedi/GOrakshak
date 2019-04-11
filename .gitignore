@@ -4,3 +4,5 @@ src/ply/lex.pyc
 *.out
 *parsetab.py*
 *.pyc
+*code*.txt
+*symbol_table*.csv
