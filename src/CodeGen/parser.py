@@ -1492,7 +1492,31 @@ def p_pexprnoparen(p):
           p[0]['func_responses'] = p[1]['func_responses']
     if(len(p)==4 or len(p)==6):
         # Struct accessing here!!
+        p[0] = {}
         struct_name = p[1]['place']
+        if len(p)==4 :
+          field_naame = str(p[3])
+        else:
+          field_naame = p[4]['place']
+        type_var = get_variable_attribute(struct_name,"type")
+        fields = type_var['struct_fields'] 
+        flag = 0
+        for temp in fields:
+          for temp2 in temp:
+            if temp2['name'] == field_naame:
+              flag = 1
+              type_var = temp2['type']['val']
+        if flag == 0:
+          print("Error in line "+str(p.lineno(2))+" : Struct field invalid")
+          exit(1)
+        else:
+          p[0]['type'] = type_var
+              
+        label = getlabel()
+        register_variable(label)
+        p[0]['place']  = label
+        p[0]['value'] = label
+        p[0]['code'] = ""
         
     if(len(p)==5):
       if str(p[2]) == "[(":

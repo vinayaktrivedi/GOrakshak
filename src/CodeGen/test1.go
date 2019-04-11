@@ -22,6 +22,7 @@ func foo(a int,b int, c int){
 
 func main(){
     var xx Vertex;
+    xx.x = 1;
     var num int;
     if num < 0 {
         num = -num;

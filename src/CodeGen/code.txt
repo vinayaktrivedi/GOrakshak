@@ -1,12 +1,7 @@
 package main
 import fmt
-<<<<<<< HEAD
 Vertexstruct
 foo1:	BeginFunc 12;
-=======
-import time
-FibonacciRecursion1:	BeginFunc 8;
->>>>>>> 5bb8bfc0bf310515945e9ecfa67a1ceb69f9b7d6
 push rbp
 mov rbp rsp
 push rbx
@@ -14,28 +9,11 @@ push rbx
  push r14
  push r13
  push r12
-<<<<<<< HEAD
 b = 2
+return b
+return 3
 EndFunc;
 foo2:	BeginFunc 12;
-=======
-CS335_1 = n <= 1
-if CS335_1=0 goto CS335_4
-return n
-CS335_4:
-CS335_5 = n -int 1
-push CS335_5
-call FibonacciRecursion1
-pop CS335_6
-CS335_7 = n -int 2
-push CS335_7
-call FibonacciRecursion1
-pop CS335_8
-CS335_9 = CS335_6 +int CS335_8
-return CS335_9
-EndFunc;
-main1:	BeginFunc 12;
->>>>>>> 5bb8bfc0bf310515945e9ecfa67a1ceb69f9b7d6
 push rbp
 mov rbp rsp
 push rbx
@@ -43,7 +21,6 @@ push rbx
  push r14
  push r13
  push r12
-<<<<<<< HEAD
 EndFunc;
 foo3:	BeginFunc 20;
 push rbp
@@ -66,29 +43,30 @@ push rbx
  push r14
  push r13
  push r12
-CS335_1 = num < 0
-if CS335_1=0 goto CS335_8
-CS335_3 = -num
-num = CS335_3
-goto CS335_9
-CS335_8:
-CS335_4 = num < 10
-else if CS335_4=0 goto CS335_10
-num = num +int 85
-goto CS335_9
-CS335_10:
-else 
-CS335_7 = 90 -int 56
-num = CS335_7
+CS335_1 = 1
+CS335_2 = num < 0
+if CS335_2=0 goto CS335_9
+CS335_4 = -num
+num = CS335_4
+goto CS335_10
 CS335_9:
+CS335_5 = num < 10
+else if CS335_5=0 goto CS335_11
+num = num +int 85
+goto CS335_10
+CS335_11:
+else 
+CS335_8 = 90 -int 56
+num = CS335_8
+CS335_10:
 push k
 push q
 push p
 call foo3
-=======
-push 19
-call FibonacciRecursion1
-pop CS335_10
-c = CS335_10
->>>>>>> 5bb8bfc0bf310515945e9ecfa67a1ceb69f9b7d6
+push 3
+call foo1
+pop CS335_12
+pop CS335_13
+p = CS335_12
+k = CS335_13
 EndFunc;
