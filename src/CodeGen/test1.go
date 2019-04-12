@@ -1,7 +1,7 @@
 package main;
 import "fmt";
 type Vertex struct {
-    x int;
+    xu int;
     Y int;
 };
 var num int;
@@ -22,7 +22,10 @@ func foo(a int,b int, c int){
 
 func main(){
     var xx Vertex;
-    xx.x = 1;
+    xx = Vertex[(Y:1,xu:1)];
+    var tt Vertex;
+    ttt.xu = 10;
+    tt.Y = 1;
     var num int;
     if num < 0 {
         num = -num;

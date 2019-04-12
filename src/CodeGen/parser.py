@@ -378,6 +378,7 @@ def p_constdecl(p):
     p[0] = {}
     p[0]['code'] = ""
     global size
+    global offset
     if(len(p)==3):
         for var in p[1]['variable']:
             add_variable_attribute_api(var,'type',p[2]['type'])
@@ -636,6 +637,12 @@ def p_simplestmt(p):
                               # if(len(p[3]['func_responses']) != 1):
                               #     print("Error in line "+str(p.lineno(2))+" : No of return values can be just 1")
                               #     exit(1)
+                          elif ('val' in p[3]['exprs'][i]['type'] and p[3]['exprs'][i]['type']['val'] == 'struct') :
+                            if p[3]['exprs'][i]['type']['name'] != p[1]['exprs'][i]['type']['name']:
+                              print("Error in line "+str(p.lineno(2))+" : Type mismatch in structure assignment!")
+                              exit(1)
+                            else:
+                              p[0]['code'] = 'todo'
                           else:
                               p3_type = p[3]['exprs'][i]['type']
                               p3_place = p[3]['exprs'][i]['place']
@@ -660,15 +667,29 @@ def p_simplestmt(p):
                               # if(len(p[3]['func_responses']) != 1):
                               #     print("Error in line "+str(p.lineno(2))+" : No of return values can be just 1")
                               #     exit(1)
+                          elif ('val' in p[3]['exprs'][i]['type'] and p[3]['exprs'][i]['type']['val'] == 'struct') :
+                            register_variable(p[1]['exprs'][i]['place'])
+                            global offset
+                            x = {}
+                            x['val'] = 'struct'
+                            x['size'] = p[3]['exprs'][i]['type']['size']
+                            x['name'] = p[3]['exprs'][i]['type']['name']
+                            x['struct_fields'] = p[3]['exprs'][i]['type']['struct_fields']
+                            add_variable_attribute(p[1]['exprs'][i]['place'],'type',x)
+                            add_variable_attribute(p[1]['exprs'][i]['place'],'offset',offset)
+                            p[0]['code'] = 'todo'
+                            offset += x['size']
+                            increase_local_size(x['size'])
                           else:
                               p3_type = p[3]['exprs'][i]['type']
                               p3_place = p[3]['exprs'][i]['place']
                           if(check_if_variable_declared(p3_place) or p[3]['exprs'][i]['value']!=""):
-                            # global offset
+                            global offset
                             p[1]['exprs'][i]['type'] = p3_type
                             register_variable(p[1]['exprs'][i]['place'])
                             add_variable_attribute(p[1]['exprs'][i]['place'],'type',{'val':p3_type})
                             add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
+                            add_variable_attribute(p[1]['exprs'][i]['place'],'offset',offset)
                             p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p3_place
                             offset += size[p3_type]
                             increase_local_size(size[p3_type])
@@ -715,7 +736,13 @@ def p_simplestmt(p):
               for i in range(0,len(p[1]['exprs'])):
                   p[0]['code'] += p[1]['exprs'][i]['code'] + "\n" + p[3]['exprs'][i]['code']
                   if(check_if_variable_declared(p[1]['exprs'][i]['place']) and (check_if_variable_declared(p[3]['exprs'][i]['place']) or p[3]['exprs'][i]['value']!="")):
-                    if(p[1]['exprs'][i]['type']=='float' and p[3]['exprs'][i]['type']=='int'):
+                    if ('val' in p[3]['exprs'][i]['type'] and p[3]['exprs'][i]['type']['val'] == 'struct') :
+                        if p[3]['exprs'][i]['type']['name'] != p[1]['exprs'][i]['type']['name']:
+                          print("Error in line "+str(p.lineno(2))+" : Type mismatch in structure assignment!")
+                          exit(1)
+                        else:
+                          p[0]['code'] = 'todo'
+                    elif(p[1]['exprs'][i]['type']=='float' and p[3]['exprs'][i]['type']=='int'):
                         tmp = getlabel()
                         register_variable(tmp)
                         p[0]['code'] += "\n" + tmp + " = inttofloat " + p[3]['exprs'][i]['place']
@@ -1112,7 +1139,8 @@ def p_labelname(p):
 def p_newname(p):
   '''NewName : IDENTIFIER'''
   p[0] = {}
-  p[0]['names'] = str(p[1])
+  p[0]['names'] = []
+  p[0]['names'].append(str(p[1]))
 
 
 def p_ptrtype(p):
@@ -1151,6 +1179,7 @@ def p_dotname(p):
     p[0]['type']['val'] = 'struct'
     p[0]['type']['struct_fields'] = globalsymboltable['custom_types']['structures'][p[1]['place']]['struct_fields']
     p[0]['type']['size'] = globalsymboltable['custom_types']['structures'][p[1]['place']]['size']
+    p[0]['type']['name'] = p[1]['place']
 
 def p_ocomma(p):
   '''OComma :
@@ -1344,18 +1373,29 @@ def p_newnamelist(p):
     else:
         p[0]['names'] = p[1]['names']
         p[0]['names'].append(p[3]['names'])
-
+    print(p[0]['names'])
 
 def p_keyvallist(p):
   '''KeyvalList : Keyval
                   | BareCompLitExpr
                   | KeyvalList COMMA Keyval
                   | KeyvalList COMMA BareCompLitExpr'''
+  p[0] = {}
+  p[0]['list'] = []
+  if len(p) == 2:
+    p[0]['list'].append(p[1]['list'])
+    #print(p[0]['list'])
+  else:
 
+    p[0]['list'] = p[1]['list']
+    p[0]['list'].append(p[3]['list'])
 
 def p_bracedkeyvallist(p):
   '''BracedKeyvalList :
                         | KeyvalList OComma'''
+  p[0] = {}
+  if len(p) == 3:
+    p[0]['list'] = p[1]['list']
 
 
 def p_declname(p):
@@ -1551,6 +1591,10 @@ def p_pexprnoparen(p):
           field_name = str(p[3])
         else:
           field_name = p[4]['place']
+        if not check_if_variable_declared(struct_name):
+          print("Error in line "+str(p.lineno(2))+" : Variable not declared")
+          exit(1)
+
         type_var = get_variable_attribute(struct_name,"type")
         fields = type_var['struct_fields'] 
         flag = 0
@@ -1573,7 +1617,32 @@ def p_pexprnoparen(p):
 
     if(len(p)==5):
       if str(p[2]) == "[(":
-        dummy = 0
+        struct_name = p[1]['place']
+        global globalsymboltable
+        struct_fields = globalsymboltable['custom_types']['structures'][struct_name]['struct_fields']
+        for dicts in p[3]['list']:
+          key = dicts['key']
+          flag = 0
+          for fields in struct_fields:
+            for variable in fields:  
+              if key == variable['name'] and dicts['type'] == variable['type']['val']:
+                flag = 1
+                break 
+          if flag == 0:
+            print("Error in line "+str(p.lineno(2))+" : Struct Assignment type/field not valid")
+            exit(1)
+        p[0]={}
+        label = getlabel()
+        register_variable(label)
+        p[0]['code'] = 'todo'
+        p[0]['type'] = {}
+        p[0]['type']['val'] = 'struct'
+        p[0]['type']['struct_fields'] = struct_fields
+        p[0]['type']['size'] = globalsymboltable['custom_types']['structures'][struct_name]['size']
+        p[0]['type']['name'] = struct_name
+        p[0]['place'] = label
+        p[0]['value'] = label
+            
       else:
         label = getlabel()
         label1 = getlabel()
@@ -1610,6 +1679,13 @@ def p_comptype(p):
 
 def p_keyval(p):
   '''Keyval : Expr COLON CompLitExpr'''
+  p[0] = {}
+  p[0]['list'] = {}
+  p[0]['list']['key'] = p[1]['place']
+  p[0]['list']['type'] = p[3]['type']
+  p[0]['list']['value'] = p[3]['place']
+  #p[0]['code'] = p[1]['code'] + p[3]['code']
+
 
 def p_barecomplitexpr(p):
   '''BareCompLitExpr : Expr
@@ -1618,6 +1694,12 @@ def p_barecomplitexpr(p):
 def p_complitexpr(p):
   '''CompLitExpr : Expr
                  | LEFT_LEFT BracedKeyvalList RIGHT_RIGHT'''
+  p[0] = {}
+  if len(p) == 2:
+    p[0]['place'] = p[1]['place']
+    p[0]['value'] = p[1]['value']
+    p[0]['code'] = p[1]['code']
+    p[0]['type'] = p[1]['type']
 
 def p_exportype(p):
     '''ExprOrType : Expr
@@ -2193,3 +2275,6 @@ with open(file,'r') as f:
     input_str = f.read()
 
 parser.parse(input_str,debug=0)
+
+
+#TODO - Code insertion for struct left
