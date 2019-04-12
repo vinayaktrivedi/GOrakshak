@@ -1,7 +1,9 @@
+#remove footprints of cheating
+
 import blocks
 import generate
 import generateHelper
-import nextUse
+import infoTable
 from config import *
 import process
 import os
@@ -43,7 +45,7 @@ generateHelper.genGlobals()
 
 #code gen blocks
 for block in blocks:
-    nextUseTable = nextUse.nextUseTable(block)
+    nextUseTable = infoTable.createTable(block)
     generate.genCodeForBlock(block,nextUseTable)
 
 #code gen final

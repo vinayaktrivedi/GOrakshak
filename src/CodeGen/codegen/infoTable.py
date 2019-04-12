@@ -1,7 +1,7 @@
 from config import *
 
 
-def nextUseTable(x):
+def createTable(x):
     start = x[0]
     end = x[1]
     tableToRet = {}
