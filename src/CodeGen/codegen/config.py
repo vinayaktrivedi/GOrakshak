@@ -8,7 +8,7 @@ if E=0 goto label  type 6
 label: type 7
 label: begin func type 8
 pop a type 9
-ret
+ret type 10
 '''
 
 
@@ -30,3 +30,7 @@ type_7=['label']
 type_8=['func']
 type_9=['pop']
 type_10=['ret']
+
+regsList=['rax','rbx','rcx','rdx','rsi','r8','r9','r10','r11','r12','r13','r14','r15']
+regsInfo={'rax': None, 'rbx': None, 'rcx': None, 'rdx': None, 'rsi': None, 'rdi': None,'r8':None,'r9':None,'r10':None,'r11':None,'r12':None,'r13':None,'r14':None,'r15':None}
+AddrDesc={}
