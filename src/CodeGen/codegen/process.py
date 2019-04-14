@@ -14,10 +14,10 @@ def process_string(x):
     return "".join(name),"".join(addr)
 
 def find_type(addr):
-    if(addr[0] == '-' and addr[1] == '1'):
+    if(addr[0] == '-' and addr[1] == '2'):
         return 'global'
     else:
-        if(addr[0] == '-' and addr[1] == '2'):
+        if(addr[0] == '-' and addr[1] == '1'):
             return 'temp'
         else:
             return 'local'
@@ -50,14 +50,16 @@ class IR:
             return
 
         if(instr[1] == ':'):
-            self.type == 'label'
+            self.type = 'label'
             self.src1['name'] = instr[0]
             return
 
         if((set(type_1) & set(instr)) and (set(['=']) & set(instr))):
             # type is type_1
-            
+            dummy = 0
         else:
+            if(not(set(['=']) & set(instr))):
+                return
             self.type = '='
             x = instr[0]
             if(x[0] in ['0','1','2','3','4','5','6','7','8','9']):
@@ -69,13 +71,13 @@ class IR:
             self.dst['addr'] = addr
             if(instr[1] == '='):
                 x = instr[2]
+                name,addr = process_string(x)
                 if(not(x[0] in ['0','1','2','3','4','5','6','7','8','9'])):
-                    name,addr = process_string(x)
                     self.src1['name'] = name
                     self.src1['type'] = find_type(addr)
                     self.src1['addr'] = addr
                 else:
-                    self.src1['name'] = x
+                    self.src1['name'] = name
                     self.src1['type'] = 'constant'
                 name,addr = process_string(x)
                 self.src1['name'] = name
@@ -84,7 +86,7 @@ class IR:
 
                 self.dst['array'] = 'False'
 
-            if(instr[1] == '=' && length == 6):
+            if(instr[1] == '=' and length == 6):
                 # surely src1 is array
                 if(self.src1['name'][0] in ['0','1','2','3','4','5','6','7','8','9']):
                     print("Error : array name can't start with integer")
@@ -99,13 +101,13 @@ class IR:
             self.dst['array'] = 'True'
             self.dst['array_offset'] = instr[2]
             x = instr[5]
+            name,addr = process_string(x)
             if(not(x[0] in ['0','1','2','3','4','5','6','7','8','9'])):
-                name,addr = process_string(x)
                 self.src1['name'] = name
                 self.src1['type'] = find_type(addr)
                 self.src1['addr'] = addr
             else:
-                self.src1['name'] = x
+                self.src1['name'] = name
                 self.src1['type'] = 'constant'
 
             if(length == 6):

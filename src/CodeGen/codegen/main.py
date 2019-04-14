@@ -26,11 +26,11 @@ threeAC=[]
 print(lines)
 for x in lines:
     stripped = x.strip().split(" ")
-    print stripped
+    # print stripped
     for i in range(len(stripped)):
         stripped[i] = stripped[i].replace(" ", ",")
     threeAC.append(stripped)
-print threeAC
+# print threeAC
 # a = threeAC[0].split(',')
 # #taking global symbol table
 # symboltablesfile = open('examplePickle', 'rb')
@@ -38,10 +38,11 @@ print threeAC
 
 #also attach address in stack of variables, assign type based on local, global, temp,constant
 for i in threeAC:
-    if(i[0] == 'package' or i[1] == 'import'):
+    if(i[0] == 'package' or i[0] == 'import'):
         continue
     ir.append(process.IR(i))
     # print i
+print(ir[0].type)
 
 # #finding blocks
 # blocks = blocks.findAllBlocks()
