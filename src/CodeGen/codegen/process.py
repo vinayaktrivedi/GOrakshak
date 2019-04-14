@@ -56,7 +56,58 @@ class IR:
 
         if((set(type_1) & set(instr)) and (set(['=']) & set(instr))):
             # type is type_1
-            dummy = 0
+            dest = 0
+            src1 = 0
+            src2 = 0
+            da = 'False'
+            s1a = 'False'
+            s2a = 'False'
+            if(instr[1] == '='):
+                src1 = 2
+                if(instr[3] == '['):
+                    src2 = 7
+                    s1a = 'True'
+                else:
+                    src2 = 4
+            else:
+                da = 'True'
+                src1 = 5
+                if(instr[6] == '['):
+                    src2 = 10
+                    s1a = 'True'
+                else:
+                    src2 = 7
+            if(length > (src2 + 1)):
+                s2a = 'True'
+            x = instr[dest]
+            name,addr = process_string(x)
+            self.dst['name'] = name
+            self.dst['type'] = find_type(addr)
+            self.dst['addr'] = addr
+
+            self.dst['array'] = da
+            self.src1['array'] = s1a
+            self.src2['array'] = s2a
+
+            x = instr[src1]
+            name,addr = process_string(x)
+            self.src1['name'] = name
+            self.src1['type'] = find_type(addr)
+            self.src1['addr'] = addr
+
+            x = instr[src2]
+            name,addr = process_string(x)
+            self.src2['name'] = name
+            self.src2['type'] = find_type(addr)
+            self.src2['addr'] = addr
+
+            if(s1a == 'True'):
+                self.src1['array_offset'] = instr[src1 + 2]
+            if(s2a == 'True'):
+                self.src2['array_offset'] = instr[src2 + 2]
+            if(da == 'True'):
+                self.dst['array_offset'] = instr[dest + 2]
+            return
         else:
             if(not(set(['=']) & set(instr))):
                 return
