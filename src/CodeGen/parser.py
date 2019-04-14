@@ -1024,7 +1024,7 @@ def p_funcdec1(p):
   p[0] = {}
   global offset
   global func_arg_counter
-  p[0]['code'] = "func "+p[3]['func_name'] + " : BeginFunc "+ str(offset) +"\n" + "push rbp\n"+"mov rbp rsp\n"+"push rbx\npush r15\npush r14\npush r13\npush r12\n"+ p[4]['code'] + "\nEndFunc"
+  p[0]['code'] = "func "+p[3]['func_name'] + " : BeginFunc "+ str(offset) +"\n" + p[4]['code']
   offset = 0
   func_arg_counter = 0
 

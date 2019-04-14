@@ -17,7 +17,7 @@ def findAllBlocks():
 
     for ind, instr in enumerate(ir):
         # print instr.type
-        if instr.type == 'if' or instr.type == 'goto' or instr.type == 'EndFunc' or instr.type == 'call':
+        if instr.type == 'if' or instr.type == 'goto' or instr.type == 'EndFunc' or instr.type == 'call' or instr.type=='return':
             ret.append([st, ind])
             st = ind + 1
 
