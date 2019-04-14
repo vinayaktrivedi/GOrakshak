@@ -1671,7 +1671,7 @@ def p_pexprnoparen(p):
         p[0]['code'] += "\n"+p[3]['code']
         p[0]['place'] = label
         p[0]['code'] = "\n" + str(label1)+"~-1"+ " = BaseAddress( " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " )\n"
-        p[0]['code'] += str(label)+" = "+str(label1)+" [ "+p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset')) +" ]"
+        p[0]['code'] += str(label)+"~-1"+" = "+str(label1)+"~-1"+" [ "+p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset')) +" ]"
         p[0]['value'] = 1
         p[0]['type'] = p[1]['type']['arr_type']
 

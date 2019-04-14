@@ -6,7 +6,7 @@ def freeAllRegs():
     for regname in regsList:
         regsInfo[regname]=None
 
-def get_free_reg(instrcution_number,nextuse):
+def get_free_reg(instrcution_number,nextuse,preserve_reg):
     global AddrDesc
     temp_reg = None
     mini = -1
@@ -14,6 +14,8 @@ def get_free_reg(instrcution_number,nextuse):
         if regsInfo[regname] == None:
             return regname
     for regname in regsList:
+        if regname == preserve_reg:
+            continue
         info = nextuse[instrcution_number][regsInfo[regname]]
         if info == None:
             return regname
@@ -35,11 +37,11 @@ def getReg(instrcution_number,src1,nextuse):
         if nextuse[instrcution_number][src1['name']] == None:
             return reg 
         else:
-            new_reg = get_free_reg(instrcution_number,nextuse)
+            new_reg = get_free_reg(instrcution_number,nextuse,None)
             generateHelper.writeInstr("mov "+new_reg+" "+reg)
             return new_reg
     else:
-        new_reg = get_free_reg(instrcution_number,nextuse)
+        new_reg = get_free_reg(instrcution_number,nextuse,None)
         generateHelper.writeInstr("mov "+new_reg+" -"+AddrDesc[src1['name']]['memory']+"[ebp]")
         return new_reg
 
