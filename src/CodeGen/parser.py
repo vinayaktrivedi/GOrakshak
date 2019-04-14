@@ -466,6 +466,7 @@ def p_simplestmt(p):
            | ExprList COLONEQ ExprList
            | Expr PLUSPLUS
            | Expr MINUSMIN'''
+    global offset
     p[0] = {}
     if(len(p) == 2):
         p[0]['code'] = p[1]['code']
@@ -617,7 +618,7 @@ def p_simplestmt(p):
                           else:
                             p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+" = "+str(exprs['place'])
                     else:
-                        global offset
+                        # global offset
                         p[1]['exprs'][i]['type'] = exprs['type']
                         register_variable(p[1]['exprs'][i]['place'])
                         add_variable_attribute(p[1]['exprs'][i]['place'],'type',{'val':exprs['type']})
@@ -669,7 +670,7 @@ def p_simplestmt(p):
                               #     exit(1)
                           elif ('val' in p[3]['exprs'][i]['type'] and p[3]['exprs'][i]['type']['val'] == 'struct') :
                             register_variable(p[1]['exprs'][i]['place'])
-                            global offset
+                            # global offset
                             x = {}
                             x['val'] = 'struct'
                             x['size'] = p[3]['exprs'][i]['type']['size']
@@ -684,7 +685,7 @@ def p_simplestmt(p):
                               p3_type = p[3]['exprs'][i]['type']
                               p3_place = p[3]['exprs'][i]['place']
                           if(check_if_variable_declared(p3_place) or p[3]['exprs'][i]['value']!=""):
-                            global offset
+                            # global offset
                             p[1]['exprs'][i]['type'] = p3_type
                             register_variable(p[1]['exprs'][i]['place'])
                             add_variable_attribute(p[1]['exprs'][i]['place'],'type',{'val':p3_type})
@@ -1017,7 +1018,7 @@ def p_funcdec1(p):
   '''FuncDecl : FUNCTION  funcmarker FuncDecl_  FuncBody'''
   p[0] = {}
   global offset
-  p[0]['code'] = p[3]['func_name'] + ":\tBeginFunc "+ str(offset) +";\n" + "push rbp\n"+"mov rbp rsp\n"+"push rbx\n push r15\n push r14\n push r13\n push r12\n"+ p[4]['code'] + "\nEndFunc;"
+  p[0]['code'] = p[3]['func_name'] + " : BeginFunc "+ str(offset) +"\n" + "push rbp\n"+"mov rbp rsp\n"+"push rbx\n push r15\n push r14\n push r13\n push r12\n"+ p[4]['code'] + "\nEndFunc"
   offset = 0
 def p_funcmarker(p):
     '''funcmarker :
@@ -1596,7 +1597,7 @@ def p_pexprnoparen(p):
           exit(1)
 
         type_var = get_variable_attribute(struct_name,"type")
-        fields = type_var['struct_fields'] 
+        fields = type_var['struct_fields']
         flag = 0
         for temp in fields:
           for temp2 in temp:
@@ -1608,7 +1609,7 @@ def p_pexprnoparen(p):
           exit(1)
         else:
           p[0]['type'] = type_var
-              
+
         label = getlabel()
         register_variable(label)
         p[0]['place']  = label
@@ -1624,10 +1625,10 @@ def p_pexprnoparen(p):
           key = dicts['key']
           flag = 0
           for fields in struct_fields:
-            for variable in fields:  
+            for variable in fields:
               if key == variable['name'] and dicts['type'] == variable['type']['val']:
                 flag = 1
-                break 
+                break
           if flag == 0:
             print("Error in line "+str(p.lineno(2))+" : Struct Assignment type/field not valid")
             exit(1)
@@ -1642,7 +1643,7 @@ def p_pexprnoparen(p):
         p[0]['type']['name'] = struct_name
         p[0]['place'] = label
         p[0]['value'] = label
-            
+
       else:
         label = getlabel()
         label1 = getlabel()
