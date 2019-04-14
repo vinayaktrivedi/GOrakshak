@@ -855,14 +855,14 @@ def p_forstmt(p):
     exit_label = p[2]['extra']['exit_label']
     update_label =p[2]['extra']['update_label']
     p[0] = {}
-    p[0]['code'] = p[2]['extra']['ForHeader']['initialization']['code'] + "\n" + loop_label+ ":"
+    p[0]['code'] = p[2]['extra']['ForHeader']['initialization']['code'] + "\n" + loop_label+ " :"
     p[0]['code'] += "\n"+ p[2]['extra']['ForHeader']['check']['code']
-    p[0]['code'] += "\n"+ "if "+p[2]['extra']['ForHeader']['check']['place'] + " =0 goto "+exit_label
+    p[0]['code'] += "\n"+ "if "+p[2]['extra']['ForHeader']['check']['place'] + " = 0 goto "+exit_label
     p[0]['code'] += "\n"+ p[2]['extra']['loopbody']['code']
-    p[0]['code'] += "\n"+ update_label +":"
+    p[0]['code'] += "\n"+ update_label +" :"
     p[0]['code'] += "\n"+ p[2]['extra']['ForHeader']['update']['code']
-    p[0]['code'] += "\n goto "+loop_label
-    p[0]['code'] += "\n" + exit_label+":"
+    p[0]['code'] += "\ngoto "+loop_label
+    p[0]['code'] += "\n" + exit_label+" :"
 
 def p_formarker(p):
     '''formarker :
@@ -898,21 +898,21 @@ def p_ifstmt(p):
     exitlabel = getlabel()
     p[0] = {}
     if(len(p[6]['extra']) == 0):
-        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+exitlabel + "\n" + p[4]['code']
+        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +" = 0 goto "+exitlabel + "\n" + p[4]['code']
     else:
-        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+nextlabel + "\n" + p[4]['code'] + "\n" + "goto "+exitlabel
+        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +" = 0 goto "+nextlabel + "\n" + p[4]['code'] + "\n" + "goto "+exitlabel
     for i in range(0,len(p[6]['extra'])):
         if((i+1) == len(p[6]['extra'])):
             if(p[6]['extra'][i]['type']=="elseif"):
-                p[0]['code'] += "\n" + nextlabel+":" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +"=0 goto "+exitlabel + "\n" + p[6]['extra'][i]['body']
+                p[0]['code'] += "\n" + nextlabel+" :" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +"=0 goto "+exitlabel + "\n" + p[6]['extra'][i]['body']
             else:
-                p[0]['code'] += "\n" + nextlabel+":" + "\n" + "else "+ "\n" + p[6]['extra'][i]['body']
+                p[0]['code'] += "\n" + nextlabel+" :" + "\n" + "else "+ "\n" + p[6]['extra'][i]['body']
         else:
             nextlabel2= getlabel()
             if(p[6]['extra'][i]['type']=="elseif"):
-                p[0]['code'] += "\n" + nextlabel+":" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +"=0 goto "+nextlabel2 + "\n" + p[6]['extra'][i]['body'] + "\n" + "goto "+exitlabel
+                p[0]['code'] += "\n" + nextlabel+" :" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +"=0 goto "+nextlabel2 + "\n" + p[6]['extra'][i]['body'] + "\n" + "goto "+exitlabel
             nextlabel = nextlabel2
-    p[0]['code'] += "\n" + exitlabel+":"
+    p[0]['code'] += "\n" + exitlabel+" :"
 
 def p_elseif(p):
     '''ElseIf : ELSE IF IfHeader ifmarker LoopBody revmarker'''
@@ -1653,8 +1653,8 @@ def p_pexprnoparen(p):
         p[0]['code'] = p[1]['code']
         p[0]['code'] += "\n"+p[3]['code']
         p[0]['place'] = label
-        p[0]['code'] = "\n" + str(label1) + " = BaseAddress(" + p[1]['place'] + ")\n"
-        p[0]['code'] += str(label)+" = "+str(label1)+"["+p[3]['place']+"]"
+        p[0]['code'] = "\n" + str(label1) + " = BaseAddress( " + p[1]['place'] + " )\n"
+        p[0]['code'] += str(label)+" = "+str(label1)+" [ "+p[3]['place']+" ]"
         p[0]['value'] = 1
         p[0]['type'] = p[1]['type']['arr_type']
 
@@ -1727,18 +1727,18 @@ def p_switchstmt(p):
         if(p[4][i]["type"] == "notdefault"):
             p[0]['code']+= dummy +"= "+p[2]['place']+"=="+p[4][i]["value"] +"\n"
             if((i+1)==len(p[4])):
-                p[0]['code']+= "if "+dummy +"=0 goto "+exitlabel + "\n" + p[4][i]['code']
+                p[0]['code']+= "if "+dummy +"= 0 goto "+exitlabel + "\n" + p[4][i]['code']
                 break
             else:
-                p[0]['code']+= "if "+dummy +"=0 goto "+nextlabel + "\n" + p[4][i]['code'] + "\n" + "goto "+exitlabel+"\n"
+                p[0]['code']+= "if "+dummy +"= 0 goto "+nextlabel + "\n" + p[4][i]['code'] + "\n" + "goto "+exitlabel+"\n"
 
         else:
             p[0]['code']+= p[4][i]['code']
             break
-        p[0]['code']+= nextlabel+":\n"
+        p[0]['code']+= nextlabel+" :\n"
         nextlabel=getlabel()
 
-    p[0]['code'] += "\n" + exitlabel+":"
+    p[0]['code'] += "\n" + exitlabel+" :"
 
 def p_prec5expr_(p):
     '''Prec5Expr_ : UExpr
