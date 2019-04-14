@@ -31,7 +31,8 @@ func main(){
         num = -num;
         var u int;
     } else if num < 10 {
-        num += 85;
+        num %= 2;
+        num /= 3;
     } else {
         num = 90-56;
     };
