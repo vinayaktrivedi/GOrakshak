@@ -102,7 +102,10 @@ def get_variable_attribute(variable,attribute):
 
         if variable in local_symbol_table:
           if attribute in local_symbol_table[variable]:
-            return local_symbol_table[variable][attribute]
+            if local_symbol_table == globalsymboltable and attribute == 'offset':
+              return -2
+            else:
+              return local_symbol_table[variable][attribute]
           else:
             return -1
         else:
@@ -1021,7 +1024,7 @@ def p_funcdec1(p):
   p[0] = {}
   global offset
   global func_arg_counter
-  p[0]['code'] = p[3]['func_name'] + " : BeginFunc "+ str(offset) +"\n" + "push rbp\n"+"mov rbp rsp\n"+"push rbx\npush r15\npush r14\npush r13\npush r12\n"+ p[4]['code'] + "\nEndFunc"
+  p[0]['code'] = "func "+p[3]['func_name'] + " : BeginFunc "+ str(offset) +"\n" + "push rbp\n"+"mov rbp rsp\n"+"push rbx\npush r15\npush r14\npush r13\npush r12\n"+ p[4]['code'] + "\nEndFunc"
   offset = 0
   func_arg_counter = 0
 
