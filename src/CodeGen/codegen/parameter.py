@@ -18,7 +18,7 @@ global_symbol_table ={}
 # Corresponds to 3 operand instructions
 # x is multiply and * is dereference
 type_3 = ['+int', '-int', '*int', '/int', '%int', '+float', '-float', '*float', '/float', '%float' , '&', '|', '^', '<<', '>>', '==', '<', '>', '!=', '<=', '>=']
-
+op_to_x86_op={}
 # Corresponds to 2 address instructions
 type_2 = ['=']
 

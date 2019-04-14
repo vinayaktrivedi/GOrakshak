@@ -57,25 +57,102 @@ def genCodeForBlock(block, infoTable):
         if ir[i].type in type_1:
             pass
         elif ir[i].type in type_2:
-            if(ir[i].dst['type']=='temp'):
-                if(ir[i].src1['type']=='temp'):
-                
-                elif(ir[i].dst['type']=='local'):
+            if(ir[i].src1['type']!='constant'):
+                L=getReg(ir[i].src1['name'],infoTable,i)
+                removeFromRegs(ir[i].dst['name'])
+                AddrDesc[ir[i].dst['name']]['reg']=L
+                regsInfo[L]=ir[i].dst['name']
+                AddrDesc[ir[i].dst['name']]['dirty']=1
+            else:
+                if(AddrDesc[ir[i].dst['name']]['reg'] == None):
+                    L=getfreereg(None)
+                    generateHelper.writeInstr("mov "+L+", "+ir[i].src1['name'])
+                    AddrDesc[ir[i].dst['name']]['reg']=L
+                    regsInfo[L]=ir[i].dst['name']
+                    AddrDesc[ir[i].dst['name']]['dirty']=1
+                else:
+                    generateHelper.writeInstr("mov "+AddrDesc[ir[i].dst['name']]['reg']+", "+ir[i].src1['name'])
+                    AddrDesc[ir[i].dst['name']]['dirty']=1
 
-                elif(ir[i].dst['type']=='global'):
-
-            elif(ir[i].dst['type']=='local'):
-
-            elif(ir[i].dst['type']=='global'):
-
-
-            pass
         elif ir[i].type in type_3:
-            #getReg()
-            #find address of src1, access address of local and temp variables from AddrDesc, no need for global and constant
-            #find address of src2
-            #writeInstr
-            pass
+            if(ir[i].src1['type']=='constant' and ir[i].src2['type']=='constant'):
+                L=getfreereg(None)
+                generateHelper.writeInstr("mov "+L+", "+ir[i].src1['name'])
+                if(ir[i].type == '+int'):
+                    generateHelper.writeInstr("add "+L+", "+ir[i].src2['name'])
+                elif(ir[i].type == '-int'):
+                    generateHelper.writeInstr("sub "+L+", "+ir[i].src2['name'])
+                elif(ir[i].type == '<='):            
+                    generateHelper.writeInstr("cmp "+L+", "+ir[i].src2['name'])
+                    generateHelper.writeInstr("setle al")
+                    generateHelper.writeInstr("movbzl eax, al")
+                    generateHelper.writeInstr("mov "+ L +", eax")
+                removeFromRegs(ir[i].dst['name'])
+                AddrDesc[ir[i].dst['name']]['reg']=L
+                regsInfo[L]=ir[i].dst['name']
+                AddrDesc[ir[i].dst['name']]['dirty']=1
+                    
+            elif(ir[i].src1['type']=='constant'):
+                L=getfreereg(None)
+                generateHelper.writeInstr("mov "+L+", "+ir[i].src1['name'])
+                if(AddrDesc[ir[i].src2['name']]['reg']==None):
+                    L2=getfreereg(L)
+                    generateHelper.writeInstr("mov "+L2+","+AddrDesc[ir[i].src2['name']]['mem'])
+                    AddrDesc[ir[i].src2['name']]['reg']=L2
+                    regsInfo[L2]=ir[i].src2['name']
+                    AddrDesc[ir[i].src2['name']]['dirty']=0
+                    
+                if(ir[i].type == '+int'):
+                    generateHelper.writeInstr("add "+L+", "+AddrDesc[ir[i].src2['name']]['reg'])
+                elif(ir[i].type == '-int'):
+                    generateHelper.writeInstr("sub "+L+", "+AddrDesc[ir[i].src2['name']]['reg'])
+                elif(ir[i].type == '<='):            
+                    generateHelper.writeInstr("cmp "+L+", "+AddrDesc[ir[i].src2['name']]['reg'])
+                    generateHelper.writeInstr("setle al")
+                    generateHelper.writeInstr("movbzl eax, al")
+                    generateHelper.writeInstr("mov "+ L +", eax")
+                removeFromRegs(ir[i].dst['name'])
+                AddrDesc[ir[i].dst['name']]['reg']=L
+                regsInfo[L]=ir[i].dst['name']
+                AddrDesc[ir[i].dst['name']]['dirty']=1
+
+            elif(ir[i].src2['type']=='constant'):
+                L=getReg(ir[i].src1['name'],infoTable,i)
+                if(ir[i].type == '+int'):
+                    generateHelper.writeInstr("add "+L+", "+ir[i].src2['name'])
+                elif(ir[i].type == '-int'):
+                    generateHelper.writeInstr("sub "+L+", "+ir[i].src2['name'])
+                elif(ir[i].type == '<='):            
+                    generateHelper.writeInstr("cmp "+L+", "+ir[i].src2['name'])
+                    generateHelper.writeInstr("setle al")
+                    generateHelper.writeInstr("movbzl eax, al")
+                    generateHelper.writeInstr("mov "+ L +", eax")
+                removeFromRegs(ir[i].dst['name'])
+                AddrDesc[ir[i].dst['name']]['reg']=L
+                regsInfo[L]=ir[i].dst['name']
+                AddrDesc[ir[i].dst['name']]['dirty']=1
+            else:
+                L=getReg(ir[i].src1['name'],infoTable,i)
+                if(AddrDesc[ir[i].src2['name']]['reg']==None):
+                    L2=getfreereg(L)
+                    generateHelper.writeInstr("mov "+L2+","+AddrDesc[ir[i].src2['name']]['mem'])
+                    AddrDesc[ir[i].src2['name']]['reg']=L2
+                    regsInfo[L2]=ir[i].src2['name']
+                    AddrDesc[ir[i].src2['name']]['dirty']=0
+                if(ir[i].type == '+int'):
+                    generateHelper.writeInstr("add "+L+", "+AddrDesc[ir[i].src2['name']]['reg'])
+                elif(ir[i].type == '-int'):
+                    generateHelper.writeInstr("sub "+L+", "+AddrDesc[ir[i].src2['name']]['reg'])
+                elif(ir[i].type == '<='):            
+                    generateHelper.writeInstr("cmp "+L+", "+AddrDesc[ir[i].src2['name']]['reg'])
+                    generateHelper.writeInstr("setle al")
+                    generateHelper.writeInstr("movbzl eax, al")
+                    generateHelper.writeInstr("mov "+ L +", eax")
+                removeFromRegs(ir[i].dst['name'])
+                AddrDesc[ir[i].dst['name']]['reg']=L
+                regsInfo[L]=ir[i].dst['name']
+                AddrDesc[ir[i].dst['name']]['dirty']=1
+
         elif ir[i].type in type_4:
             pass
         elif ir[i].type in type_5:
