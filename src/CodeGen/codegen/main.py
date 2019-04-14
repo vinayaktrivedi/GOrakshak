@@ -141,6 +141,7 @@ for i in threeAC:
         continue
     ir.append(process.IR(i))
     print ind,
+    print ir[ind].type,
     print i
     ind = ind + 1
 # print(ir[0].type)

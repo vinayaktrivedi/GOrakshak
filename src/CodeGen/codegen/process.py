@@ -55,7 +55,7 @@ class IR:
             self.src1['name'] = name
             self.src1['type'] = find_type(addr)
             return
-            
+
         if(length <= 2):
             return
 
@@ -99,6 +99,28 @@ class IR:
             self.dst['array'] = 'False'
             self.dst['addr'] = addr
 
+            return
+
+        if(set(['BaseAddress(']) & set(instr)):
+            self.type = '='
+            x = instr[0]
+            name,addr = process_string(x)
+            self.dst['name'] = name
+            self.dst['type'] = find_type(addr)
+            self.dst['addr'] = addr
+            src1 = 0
+            if(instr[1] == '['):
+                self.dst['array'] = 'True'
+                self.dst['array_offset'] = instr[2]
+                src1 = 6
+            else:
+                self.dst['array'] = 'False'
+                src1 = 3
+            x = instr[src1]
+            name,addr = process_string(x)
+            self.src1['name'] = name
+            self.src1['type'] = find_type(addr)
+            self.src1['addr'] = addr
             return
 
         if((set(type_3) & set(instr)) and (set(['=']) & set(instr))):
