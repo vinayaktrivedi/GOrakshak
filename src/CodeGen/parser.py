@@ -857,14 +857,14 @@ def p_forstmt(p):
     exit_label = p[2]['extra']['exit_label']
     update_label =p[2]['extra']['update_label']
     p[0] = {}
-    p[0]['code'] = p[2]['extra']['ForHeader']['initialization']['code'] + "\n" + loop_label+ ":"
+    p[0]['code'] = p[2]['extra']['ForHeader']['initialization']['code'] + "\n" + loop_label+ " :"
     p[0]['code'] += "\n"+ p[2]['extra']['ForHeader']['check']['code']
-    p[0]['code'] += "\n"+ "if "+p[2]['extra']['ForHeader']['check']['place'] + " =0 goto "+exit_label
+    p[0]['code'] += "\n"+ "if "+p[2]['extra']['ForHeader']['check']['place'] + " = 0 goto "+exit_label
     p[0]['code'] += "\n"+ p[2]['extra']['loopbody']['code']
-    p[0]['code'] += "\n"+ update_label +":"
+    p[0]['code'] += "\n"+ update_label +" :"
     p[0]['code'] += "\n"+ p[2]['extra']['ForHeader']['update']['code']
-    p[0]['code'] += "\n goto "+loop_label
-    p[0]['code'] += "\n" + exit_label+":"
+    p[0]['code'] += "\ngoto "+loop_label
+    p[0]['code'] += "\n" + exit_label+" :"
 
 def p_formarker(p):
     '''formarker :
@@ -1729,18 +1729,18 @@ def p_switchstmt(p):
         if(p[4][i]["type"] == "notdefault"):
             p[0]['code']+= dummy +"= "+p[2]['place']+"=="+p[4][i]["value"] +"\n"
             if((i+1)==len(p[4])):
-                p[0]['code']+= "if "+dummy +"=0 goto "+exitlabel + "\n" + p[4][i]['code']
+                p[0]['code']+= "if "+dummy +"= 0 goto "+exitlabel + "\n" + p[4][i]['code']
                 break
             else:
-                p[0]['code']+= "if "+dummy +"=0 goto "+nextlabel + "\n" + p[4][i]['code'] + "\n" + "goto "+exitlabel+"\n"
+                p[0]['code']+= "if "+dummy +"= 0 goto "+nextlabel + "\n" + p[4][i]['code'] + "\n" + "goto "+exitlabel+"\n"
 
         else:
             p[0]['code']+= p[4][i]['code']
             break
-        p[0]['code']+= nextlabel+":\n"
+        p[0]['code']+= nextlabel+" :\n"
         nextlabel=getlabel()
 
-    p[0]['code'] += "\n" + exitlabel+":"
+    p[0]['code'] += "\n" + exitlabel+" :"
 
 def p_prec5expr_(p):
     '''Prec5Expr_ : UExpr
