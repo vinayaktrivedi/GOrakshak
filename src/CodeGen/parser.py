@@ -911,13 +911,13 @@ def p_ifstmt(p):
     for i in range(0,len(p[6]['extra'])):
         if((i+1) == len(p[6]['extra'])):
             if(p[6]['extra'][i]['type']=="elseif"):
-                p[0]['code'] += "\n" + nextlabel+" :" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +" = 0 goto "+exitlabel + "\n" + p[6]['extra'][i]['body']
+                p[0]['code'] += "\n" + nextlabel+" :" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "if "+p[6]['extra'][i]['ifheader_place'] +" = 0 goto "+exitlabel + "\n" + p[6]['extra'][i]['body']
             else:
-                p[0]['code'] += "\n" + nextlabel+" :" + "\n" + "else "+ "\n" + p[6]['extra'][i]['body']
+                p[0]['code'] += "\n" + nextlabel+" :" + "\n" + p[6]['extra'][i]['body']
         else:
             nextlabel2= getlabel()
             if(p[6]['extra'][i]['type']=="elseif"):
-                p[0]['code'] += "\n" + nextlabel+" :" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +" = 0 goto "+nextlabel2 + "\n" + p[6]['extra'][i]['body'] + "\n" + "goto "+exitlabel
+                p[0]['code'] += "\n" + nextlabel+" :" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "if "+p[6]['extra'][i]['ifheader_place'] +" = 0 goto "+nextlabel2 + "\n" + p[6]['extra'][i]['body'] + "\n" + "goto "+exitlabel
             nextlabel = nextlabel2
     p[0]['code'] += "\n" + exitlabel+" :"
 
@@ -1742,12 +1742,12 @@ def p_switchstmt(p):
     dummy = getlabel()
     for i in range(0,len(p[4])):
         if(p[4][i]["type"] == "notdefault"):
-            p[0]['code']+= dummy+"~"+str(-1) +"= "+p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset'))+ "=="+p[4][i]["value"] +"\n"
+            p[0]['code']+= dummy+"~"+str(-1) +" = "+p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset'))+ " == "+p[4][i]["value"] +"\n"
             if((i+1)==len(p[4])):
-                p[0]['code']+= "if "+dummy+"~"+str(-1) +"= 0 goto "+exitlabel + "\n" + p[4][i]['code']
+                p[0]['code']+= "if "+dummy+"~"+str(-1) +" = 0 goto "+exitlabel + "\n" + p[4][i]['code']
                 break
             else:
-                p[0]['code']+= "if "+dummy+"~"+str(-1) +"= 0 goto "+nextlabel + "\n" + p[4][i]['code'] + "\n" + "goto "+exitlabel+"\n"
+                p[0]['code']+= "if "+dummy+"~"+str(-1) +" = 0 goto "+nextlabel + "\n" + p[4][i]['code'] + "\n" + "goto "+exitlabel+"\n"
 
         else:
             p[0]['code']+= p[4][i]['code']
