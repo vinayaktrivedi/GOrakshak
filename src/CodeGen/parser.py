@@ -1018,7 +1018,7 @@ def p_funcdec1(p):
   '''FuncDecl : FUNCTION  funcmarker FuncDecl_  FuncBody'''
   p[0] = {}
   global offset
-  p[0]['code'] = p[3]['func_name'] + " : BeginFunc "+ str(offset) +"\n" + "push rbp\n"+"mov rbp rsp\n"+"push rbx\n push r15\n push r14\n push r13\n push r12\n"+ p[4]['code'] + "\nEndFunc"
+  p[0]['code'] = p[3]['func_name'] + " : BeginFunc "+ str(offset) +"\n" + "push rbp\n"+"mov rbp rsp\n"+"push rbx\npush r15\npush r14\npush r13\npush r12\n"+ p[4]['code'] + "\nEndFunc"
   offset = 0
 def p_funcmarker(p):
     '''funcmarker :
