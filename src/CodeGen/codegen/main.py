@@ -24,20 +24,24 @@ lines = tuple(open(str(sys.argv[1]), 'r'))
 
 threeAC=[]
 print(lines)
-# for x in lines:
-#     stripped = x.strip().split(",")
-#     for i in range(len(stripped)):
-#         stripped[i] = stripped[i].replace(" ", "")
-#     threeAC.append(stripped)
-
+for x in lines:
+    stripped = x.strip().split(" ")
+    print stripped
+    for i in range(len(stripped)):
+        stripped[i] = stripped[i].replace(" ", ",")
+    threeAC.append(stripped)
+print threeAC
+# a = threeAC[0].split(',')
 # #taking global symbol table
-# symboltablesfile = open('examplePickle', 'rb')      
-# global_symbol_table = pickle.load(symboltablesfile) 
+# symboltablesfile = open('examplePickle', 'rb')
+# global_symbol_table = pickle.load(symboltablesfile)
 
 #also attach address in stack of variables, assign type based on local, global, temp,constant
-# for i in threeAC:
-#     ir.append(process.IR(i))
-
+for i in threeAC:
+    if(i[0] == 'package' or i[1] == 'import'):
+        continue
+    ir.append(process.IR(i))
+    # print i
 
 # #finding blocks
 # blocks = blocks.findAllBlocks()
