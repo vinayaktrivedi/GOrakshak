@@ -55,7 +55,7 @@ class IR:
         if(instr[0] == 'pop'):
             self.type = 'pop'
             x = instr[1]
-            if(!x.find('~')):
+            if(not(x.find('~'))):
                 self.src1['name'] = x
                 self.src1['type'] = 'constant'
                 return
@@ -66,7 +66,7 @@ class IR:
         if(instr[0] == 'push'):
             self.type = 'push'
             x = instr[1]
-            if(!x.find('~')):
+            if(not(x.find('~'))):
                 self.src1['name'] = x
                 self.src1['type'] = 'constant'
                 return
