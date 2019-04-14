@@ -1,9 +1,8 @@
 #remove footprints of cheating
 
-import break_code
+
 # import generate
 import generateHelper
-import infoTable
 from parameter import *
 import process
 import os

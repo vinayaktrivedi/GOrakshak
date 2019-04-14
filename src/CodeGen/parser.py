@@ -1670,7 +1670,7 @@ def p_pexprnoparen(p):
         p[0]['code'] = p[1]['code']
         p[0]['code'] += "\n"+p[3]['code']
         p[0]['place'] = label
-        p[0]['code'] = "\n" + str(label1) + " = BaseAddress( " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " )\n"
+        p[0]['code'] = "\n" + str(label1)+"~-1"+ " = BaseAddress( " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " )\n"
         p[0]['code'] += str(label)+" = "+str(label1)+" [ "+p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset')) +" ]"
         p[0]['value'] = 1
         p[0]['type'] = p[1]['type']['arr_type']
@@ -2107,7 +2107,7 @@ def p_arrayexp(p):
   label2 = getlabel()
   register_variable(str(array_label))
   register_variable(str(label2))
-  p[0]['code'] = str(label2)+" = BaseAddress("+str(array_label)+"~-1"+")"
+  p[0]['code'] = str(label2)+"~-1"+" = BaseAddress("+str(array_label)+"~-1"+")"
   for objects in p[2]['exprs']:
     if(objects['type']!=c_type):
       print("Error in line "+str(p.lineno(2))+" : Error in array declaration")
@@ -2271,7 +2271,7 @@ def p_pseudocall(p):
         x['type'] = var['val']
         x['value'] = ""
         p[0]['func_responses'].append(x)
-        p[0]['code'] += "\npop "+str(label)
+        p[0]['code'] += "\npop "+str(label)+"~-1"
         p[0]['place'].append(label)
     else:
       p[0]['func_responses'] = 'void'
