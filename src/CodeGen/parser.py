@@ -468,6 +468,7 @@ def p_simplestmt(p):
            | Expr MINUSMIN'''
     global offset
     p[0] = {}
+    global offset
     if(len(p) == 2):
         p[0]['code'] = p[1]['code']
         p[0]['place'] = p[1]['place']
@@ -618,7 +619,6 @@ def p_simplestmt(p):
                           else:
                             p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+" = "+str(exprs['place'])
                     else:
-                        # global offset
                         p[1]['exprs'][i]['type'] = exprs['type']
                         register_variable(p[1]['exprs'][i]['place'])
                         add_variable_attribute(p[1]['exprs'][i]['place'],'type',{'val':exprs['type']})
@@ -670,7 +670,6 @@ def p_simplestmt(p):
                               #     exit(1)
                           elif ('val' in p[3]['exprs'][i]['type'] and p[3]['exprs'][i]['type']['val'] == 'struct') :
                             register_variable(p[1]['exprs'][i]['place'])
-                            # global offset
                             x = {}
                             x['val'] = 'struct'
                             x['size'] = p[3]['exprs'][i]['type']['size']
@@ -685,7 +684,6 @@ def p_simplestmt(p):
                               p3_type = p[3]['exprs'][i]['type']
                               p3_place = p[3]['exprs'][i]['place']
                           if(check_if_variable_declared(p3_place) or p[3]['exprs'][i]['value']!=""):
-                            # global offset
                             p[1]['exprs'][i]['type'] = p3_type
                             register_variable(p[1]['exprs'][i]['place'])
                             add_variable_attribute(p[1]['exprs'][i]['place'],'type',{'val':p3_type})

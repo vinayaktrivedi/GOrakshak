@@ -1,4 +1,4 @@
-from config import *
+from parameter import *
 
 
 # Creates IR table
