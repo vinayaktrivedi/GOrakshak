@@ -14,7 +14,9 @@ func foo(){
 	var c int;
 };
 func foo(a int,b int, c int){
+    a = 1;
 	var d int;
+    d = a+c;
 	var q int;
 	var p int;
 	foo(p,q,d);

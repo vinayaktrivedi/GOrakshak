@@ -23,7 +23,7 @@ if args["csv"] is None:
     args["csv"] = "symbol_table.csv"
 
 file = args["input"]
-
+func_arg_counter = -8
 offset = 0
 # outfile = open(args["output"],"w")
 
@@ -1020,14 +1020,19 @@ def p_funcdec1(p):
   '''FuncDecl : FUNCTION  funcmarker FuncDecl_  FuncBody'''
   p[0] = {}
   global offset
+  global func_arg_counter
   p[0]['code'] = p[3]['func_name'] + " : BeginFunc "+ str(offset) +"\n" + "push rbp\n"+"mov rbp rsp\n"+"push rbx\npush r15\npush r14\npush r13\npush r12\n"+ p[4]['code'] + "\nEndFunc"
   offset = 0
+  func_arg_counter = 0
+
 def p_funcmarker(p):
     '''funcmarker :
               '''
     global offset
+    global func_arg_counter
     make_symbol_table("func_unknown",None)
     offset = 0
+    func_arg_counter = -8
 
 same_func_count={}
 def p_funcdec1_(p):
@@ -1435,6 +1440,7 @@ def p_argtype(p):
                | IDENTIFIER DotDotDot
                | DotDotDot'''
     p[0] = {}
+    global func_arg_counter
     p[0]['args'] = {}
     if(len(p) == 3):
         p[0]['args']['arg_type'] = p[2]['type']
@@ -1442,6 +1448,8 @@ def p_argtype(p):
         register_variable(str(p[1]))
         add_variable_attribute(str(p[1]),'type',p[2]['type'])
         add_variable_attribute(str(p[1]),'real',1)
+        add_variable_attribute(str(p[1]),'offset',func_arg_counter)
+        func_arg_counter -= size[p[2]['type']['val']]
 
 def p_argtypelist(p):
     '''ArgTypeList : ArgType
