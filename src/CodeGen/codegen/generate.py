@@ -6,6 +6,11 @@ def freeAllRegs():
     for regname in regsList:
         regsInfo[regname]=None
 
+def removeFromRegs(var):
+    for regname in regsList:
+        if(regsInfo[regname]==var):
+            regsInfo[regname]=None
+
 def getfreereg(instrcution_number,nextuse,preserve_reg):
     global AddrDesc
     temp_reg = None
