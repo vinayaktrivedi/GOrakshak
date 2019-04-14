@@ -1,4 +1,4 @@
-from config import *
+from parameter import *
 
 fil=open('x86.S','w')
 

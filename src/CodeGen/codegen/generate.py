@@ -1,4 +1,4 @@
-from config import *
+from parameter import *
 import generateHelper
 
 def freeAllRegs():
