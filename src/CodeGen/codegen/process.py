@@ -36,12 +36,16 @@ class IR:
         self.src2 = {}
         self.dst = {}
 
-        if(instr[0] == 'EndFunc' or instr[0] == 'return' or instr[0] == 'call' or instr[0] == 'goto' or instr[0] == 'push'):
+        if(instr[0] == 'EndFunc' or instr[0] == 'return' or instr[0] == 'call' or instr[0] == 'goto'):
             if(length >= 2):
                 self.src1['name'] = instr[1]
             self.type = instr[0]
 
         if(length < 2):
+            return
+        if(instr[0] == 'mov'):
+            self.type = 'mov'
+            self.src1['name'] = instr[0]
             return
 
         if(instr[1] == ':'):
@@ -51,11 +55,26 @@ class IR:
         if(instr[0] == 'pop'):
             self.type = 'pop'
             x = instr[1]
+            if(not(x.find('~'))):
+                self.src1['name'] = x
+                self.src1['type'] = 'constant'
+                return
             name,addr = process_string(x)
             self.src1['name'] = name
             self.src1['type'] = find_type(addr)
             return
-            
+        if(instr[0] == 'push'):
+            self.type = 'push'
+            x = instr[1]
+            if(not(x.find('~'))):
+                self.src1['name'] = x
+                self.src1['type'] = 'constant'
+                return
+            name,addr = process_string(x)
+            self.src1['name'] = name
+            self.src1['type'] = find_type(addr)
+            return
+
         if(length <= 2):
             return
 
@@ -83,22 +102,26 @@ class IR:
 
             return
 
-        if(instr[0] == 'else'):
-            self.type = 'else'
-            x = instr[2]
-            name,addr = process_string(x)
-            self.src1['name'] = name
-            self.src1['type'] = find_type(addr)
-            self.src1['array'] = 'False'
-            self.src1['addr'] = addr
-
-            x = instr[6]
+        if(set(['BaseAddress(']) & set(instr)):
+            self.type = '='
+            x = instr[0]
             name,addr = process_string(x)
             self.dst['name'] = name
             self.dst['type'] = find_type(addr)
-            self.dst['array'] = 'False'
             self.dst['addr'] = addr
-
+            src1 = 0
+            if(instr[1] == '['):
+                self.dst['array'] = 'True'
+                self.dst['array_offset'] = instr[2]
+                src1 = 6
+            else:
+                self.dst['array'] = 'False'
+                src1 = 3
+            x = instr[src1]
+            name,addr = process_string(x)
+            self.src1['name'] = name
+            self.src1['type'] = find_type(addr)
+            self.src1['addr'] = addr
             return
 
         if((set(type_3) & set(instr)) and (set(['=']) & set(instr))):
