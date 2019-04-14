@@ -23,7 +23,7 @@ if args["csv"] is None:
     args["csv"] = "symbol_table.csv"
 
 file = args["input"]
-
+func_arg_counter = -8
 offset = 0
 # outfile = open(args["output"],"w")
 
@@ -346,7 +346,7 @@ def p_vardecl(p):
         add_variable_attribute_api(var,'type',p[3]['type'])
         add_variable_attribute_api(var,'value',p[3]['exprs'][i]['value'])
         add_variable_attribute_api(var,'offset',offset)
-        p[0]['code'] += var+" = "+p[3]['exprs'][i]['place']+"\n"
+        p[0]['code'] += var+"~"+str(offset)+" = "+p[3]['exprs'][i]['place']+"\n"
         increase_local_size(size[p[3]['type']['val']])
         offset += size[p[3]['type']['val']]
         i = i+1
@@ -365,7 +365,7 @@ def p_vardecl(p):
           add_variable_attribute_api(var,'type',p[2]['type'])
           add_variable_attribute_api(var,'value',p[4]['exprs'][i]['value'])
           add_variable_attribute_api(var,'offset',offset)
-          p[0]['code'] += var+" = "+p[4]['exprs'][i]['place']+"\n"
+          p[0]['code'] += var+"~"+str(offset)+ " = "+p[4]['exprs'][i]['place']+"\n"
           increase_local_size(size[p[2]['type']['val']])
           offset += size[p[2]['type']['val']]
           i = i+1
@@ -394,7 +394,7 @@ def p_constdecl(p):
         add_variable_attribute_api(var,'type',p[3]['type'])
         add_variable_attribute_api(var,'value',p[3]['exprs'][i]['value'])
         add_variable_attribute_api(var,'offset',offset)
-        p[0]['code'] += var+" = "+p[3]['exprs'][i]['place']+"\n"
+        p[0]['code'] += var+"~"+str(offset)+" = "+p[3]['exprs'][i]['place']+"\n"
         increase_local_size(size[p[3]['type']['val']])
         offset += size[p[3]['type']['val']]
         i = i+1
@@ -412,7 +412,7 @@ def p_constdecl(p):
           add_variable_attribute_api(var,'type',p[2]['type'])
           add_variable_attribute_api(var,'value',p[4]['exprs'][i]['value'])
           add_variable_attribute_api(var,'offset',offset)
-          p[0]['code'] += var+" = "+p[4]['exprs'][i]['place']+"\n"
+          p[0]['code'] += var+"~"+str(offset)+" = "+p[4]['exprs'][i]['place']+"\n"
           increase_local_size(size[p[2]['type']['val']])
           offset += size[p[2]['type']['val']]
           i = i+1
@@ -476,9 +476,9 @@ def p_simplestmt(p):
         typ = p[1]['type']
         p[0]['code'] = p[1]['code'] + "\n"
         if(str(p[2]) == "++"):
-            p[0]['code'] += (p[1]['place'] + " = " + p[1]['place'] + " +" + typ + " 1")
+            p[0]['code'] += (p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " = " + p[1]['place'] +"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " +" + typ + " 1")
         else:
-            p[0]['code'] += (p[1]['place'] + " = " + p[1]['place'] + " -" + typ + " 1")
+            p[0]['code'] += (p[1]['place'] +"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " = " + p[1]['place'] +"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " -" + typ + " 1")
         p[0]['place'] = p[1]['place']
     if(len(p) == 4):
         p[0]['code'] = ""
@@ -499,14 +499,14 @@ def p_simplestmt(p):
             if(p[1]['exprs'][i]['type']=='float' and exprs['type']=='int'):
               tmp = getlabel()
               register_variable(tmp)
-              p[0]['code'] += "\n" + tmp + " = inttofloat " + str(exprs['place'])
-              p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+" = "+str(exprs['place'])
+              p[0]['code'] += "\n" + tmp+"~"+str(get_variable_attribute(tmp,'offset')) + " = inttofloat " + str(exprs['place'])+"~"+str(get_variable_attribute(str(exprs['place']),offset))
+              p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+"~"+str(get_variable_attribute(str(p[1]['exprs'][i]['place']),'offset'))+" = "+str(exprs['place'])+"~"+str(get_variable_attribute(str(exprs['place']),'offset'))
             else:
               if(exprs['type']!=p[1]['exprs'][i]['type']):
                 print("Error in line "+str(p.lineno(2))+" :type mismatch for function return type")
                 exit(1)
               else:
-                p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+" = "+str(exprs['place'])
+                p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+"~"+str(get_variable_attribute(str(p[1]['exprs'][i]['place']),'offset'))+" = "+str(exprs['place'])+"~"+str(get_variable_attribute(str(exprs['place']),'offset'))
             i = i+1
 
         else:
@@ -605,24 +605,26 @@ def p_simplestmt(p):
                   i=0
                   func_responses = p[3]['exprs'][0]['func_responses']
                   p[0]['code'] += p[3]['exprs'][0]['code']
+
                   for exprs in func_responses :
                     if(check_if_variable_declared(p[1]['exprs'][i]['place'])):
                         if(p[1]['exprs'][i]['type']=='float' and exprs['type']=='int'):
                           tmp = getlabel()
                           register_variable(tmp)
-                          p[0]['code'] += "\n" + tmp + " = inttofloat " + str(exprs['place'])
-                          p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+" = "+str(exprs['place'])
+                          p[0]['code'] += "\n" + tmp +"~"+str(-1)+" = inttofloat " + str(exprs['place'])+"~"+str(get_variable_attribute(str(exprs['place']),'offset'))
+                          p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+"~"+str(get_variable_attribute(str(p[1]['exprs'][i]['place']),'offset')) +" = "+str(exprs['place'])+"~"+str(get_variable_attribute(str(exprs['place']),'offset'))
                         else:
                           if(exprs['type']!=p[1]['exprs'][i]['type']):
                             print("Error in line "+str(p.lineno(2))+" :type mismatch for function return type")
                             exit(1)
                           else:
-                            p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+" = "+str(exprs['place'])
+                            p[0]['code'] += "\n"+str(p[1]['exprs'][i]['place'])+"~"+str(get_variable_attribute(str(p[1]['exprs'][i]['place']),'offset')) +" = "+str(exprs['place'])+"~"+str(get_variable_attribute(str(exprs['place']),'offset'))
                     else:
                         p[1]['exprs'][i]['type'] = exprs['type']
                         register_variable(p[1]['exprs'][i]['place'])
+                        add_variable_attribute(p[1]['exprs'][i]['place'],'real',1)
                         add_variable_attribute(p[1]['exprs'][i]['place'],'type',{'val':exprs['type']})
-                        p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + str(exprs['place'])
+                        p[0]['code'] += "\n" + p[1]['exprs'][i]['place']+"~"+str(get_variable_attribute(str(p[1]['exprs'][i]['place']),'offset')) +" = "+str(exprs['place'])+"~"+str(get_variable_attribute(str(exprs['place']),'offset'))
                         offset += size[exprs['type']]
                         increase_local_size(size[exprs['type']])
                     i = i+1
@@ -651,10 +653,10 @@ def p_simplestmt(p):
                               tmp = getlabel()
                               register_variable(tmp)
                               add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
-                              p[0]['code'] += "\n" + tmp + " = inttofloat " + p3_place
-                              p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + tmp
+                              p[0]['code'] += "\n" + tmp + "~"+str(-1)+" = inttofloat " + p3_place+"~"+str(get_variable_attribute(p3_place,'offset'))
+                              p[0]['code'] += "\n" + p[1]['exprs'][i]['place']+"~"+str(get_variable_attribute(p[1]['exprs'][i]['place'],'offset')) + " = " + tmp+"~"+str(-1)
                           elif(p[1]['exprs'][i]['type'] == p3_type):
-                              p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p3_place
+                              p[0]['code'] += "\n" + p[1]['exprs'][i]['place']+"~"+str(get_variable_attribute(p[1]['exprs'][i]['place'],'offset')) + " = " + p3_place+"~"+str(get_variable_attribute(p3_place,'offset'))
                               add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
                           else:
                               print("Error in line "+str(p.lineno(2))+" : type mismatch")
@@ -676,6 +678,7 @@ def p_simplestmt(p):
                             x['name'] = p[3]['exprs'][i]['type']['name']
                             x['struct_fields'] = p[3]['exprs'][i]['type']['struct_fields']
                             add_variable_attribute(p[1]['exprs'][i]['place'],'type',x)
+                            add_variable_attribute(p[1]['exprs'][i]['place'],'real',1)
                             add_variable_attribute(p[1]['exprs'][i]['place'],'offset',offset)
                             p[0]['code'] = 'todo'
                             offset += x['size']
@@ -689,7 +692,8 @@ def p_simplestmt(p):
                             add_variable_attribute(p[1]['exprs'][i]['place'],'type',{'val':p3_type})
                             add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
                             add_variable_attribute(p[1]['exprs'][i]['place'],'offset',offset)
-                            p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p3_place
+                            add_variable_attribute(p[1]['exprs'][i]['place'],'real',1)
+                            p[0]['code'] += "\n" + p[1]['exprs'][i]['place']+"~"+str(get_variable_attribute(p[1]['exprs'][i]['place'],'offset')) + " = " + p3_place+"~"+str(get_variable_attribute(p3_place,'offset'))
                             offset += size[p3_type]
                             increase_local_size(size[p3_type])
                           else:
@@ -706,22 +710,22 @@ def p_simplestmt(p):
                 if(p[1]['type'] == 'float' and p[3]['type'] == 'int'):
                     tmp = getlabel()
                     register_variable(tmp)
-                    p[0]['code'] += tmp + " = inttofloat " + p[3]['place'] + "\n"
-                    p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + "float " + tmp
+                    p[0]['code'] += tmp +"~"+str(-1)+ " = inttofloat " + p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset')) + "\n"
+                    p[0]['code'] += p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " = " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " " + op + "float " + tmp+"~"+str(-1)
                     p[0]['place'] = p[1]['place']
                 if(p[1]['type'] == p[3]['type']):
                     typ = p[1]['type']
                     if(p[3]['value']!=""):
-                        p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
+                        p[0]['code'] += p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " = " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " " + op + typ + " " + p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset'))
                     else:
-                        p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
+                        p[0]['code'] += p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " = " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " " + op + typ + " " + p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset'))
               else:
                 print("Error in line "+str(p.lineno(2))+" : variable not declared")
                 exit(1)
           if(flag == 1):
             if(check_if_variable_declared(p[1]['place']) and (check_if_variable_declared(p[3]['place']) or p[3]['value']!="")):
               p[0]['code'] += p[1]['code'] + "\n" + p[3]['code'] + "\n"
-              p[0]['code'] += p[1]['place'] + " = " + p[1]['place'] + " " + op + typ + " " + p[3]['place']
+              p[0]['code'] += p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " = " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " " + op + typ + " " + p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset'))
               p[0]['place'] = p[1]['place']
             else:
               print("Error in line "+str(p.lineno(2))+" : variable not declared")
@@ -744,12 +748,12 @@ def p_simplestmt(p):
                     elif(p[1]['exprs'][i]['type']=='float' and p[3]['exprs'][i]['type']=='int'):
                         tmp = getlabel()
                         register_variable(tmp)
-                        p[0]['code'] += "\n" + tmp + " = inttofloat " + p[3]['exprs'][i]['place']
-                        p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + tmp
+                        p[0]['code'] += "\n" + tmp +"~"+str(-1)+ " = inttofloat " + p[3]['exprs'][i]['place']+"~"+str(get_variable_attribute(p[3]['exprs'][i]['place'],'offset'))
+                        p[0]['code'] += "\n" + p[1]['exprs'][i]['place']+"~"+str(get_variable_attribute(p[1]['exprs'][i]['place'],'offset')) + " = " + tmp+"~"+str(-1)
                         add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
 
                     elif(p[1]['exprs'][i]['type'] == p[3]['exprs'][i]['type']):
-                        p[0]['code'] += "\n" + p[1]['exprs'][i]['place'] + " = " + p[3]['exprs'][i]['place']
+                        p[0]['code'] += "\n" + p[1]['exprs'][i]['place']+"~"+str(get_variable_attribute(p[1]['exprs'][i]['place'],'offset')) + " = " + p[3]['exprs'][i]['place']+"~"+str(get_variable_attribute(p[3]['exprs'][i]['place'],'offset'))
                         add_variable_attribute_api(p[1]['exprs'][i]['place'],'value',p[3]['exprs'][i]['value'])
                     else:
                         print("Error in line "+str(p.lineno(2))+" : type mismatch")
@@ -898,9 +902,9 @@ def p_ifstmt(p):
     exitlabel = getlabel()
     p[0] = {}
     if(len(p[6]['extra']) == 0):
-        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +" = 0 goto "+exitlabel + "\n" + p[4]['code']
+        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset')) +" = 0 goto "+exitlabel + "\n" + p[4]['code']
     else:
-        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +" = 0 goto "+nextlabel + "\n" + p[4]['code'] + "\n" + "goto "+exitlabel
+        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset')) +" = 0 goto "+nextlabel + "\n" + p[4]['code'] + "\n" + "goto "+exitlabel
     for i in range(0,len(p[6]['extra'])):
         if((i+1) == len(p[6]['extra'])):
             if(p[6]['extra'][i]['type']=="elseif"):
@@ -1016,14 +1020,19 @@ def p_funcdec1(p):
   '''FuncDecl : FUNCTION  funcmarker FuncDecl_  FuncBody'''
   p[0] = {}
   global offset
+  global func_arg_counter
   p[0]['code'] = p[3]['func_name'] + " : BeginFunc "+ str(offset) +"\n" + "push rbp\n"+"mov rbp rsp\n"+"push rbx\npush r15\npush r14\npush r13\npush r12\n"+ p[4]['code'] + "\nEndFunc"
   offset = 0
+  func_arg_counter = 0
+
 def p_funcmarker(p):
     '''funcmarker :
               '''
     global offset
+    global func_arg_counter
     make_symbol_table("func_unknown",None)
-    offset = 8
+    offset = 0
+    func_arg_counter = -8
 
 same_func_count={}
 def p_funcdec1_(p):
@@ -1400,6 +1409,7 @@ def p_bracedkeyvallist(p):
 def p_declname(p):
     '''DeclName : IDENTIFIER'''
     register_variable(str(p[1]))
+    add_variable_attribute(str(p[1]),'real',1)
     p[0] = {}
     p[0]['variable'] = str(p[1])
 
@@ -1430,12 +1440,16 @@ def p_argtype(p):
                | IDENTIFIER DotDotDot
                | DotDotDot'''
     p[0] = {}
+    global func_arg_counter
     p[0]['args'] = {}
     if(len(p) == 3):
         p[0]['args']['arg_type'] = p[2]['type']
         p[0]['args']['arg_name'] = str(p[1])
         register_variable(str(p[1]))
         add_variable_attribute(str(p[1]),'type',p[2]['type'])
+        add_variable_attribute(str(p[1]),'real',1)
+        add_variable_attribute(str(p[1]),'offset',func_arg_counter)
+        func_arg_counter -= size[p[2]['type']['val']]
 
 def p_argtypelist(p):
     '''ArgTypeList : ArgType
@@ -1512,7 +1526,7 @@ def p_nondeclstmt(p):
                 if(check_if_variable_declared(p[2]['exprs'][i]['place']) == 0 and p[2]['exprs'][i]['value'] == ''):
                   print("Error in line "+str(p.lineno(1))+" : return variable not declared")
                   exit(1)
-                p[0]['code'] += "return " + p[2]['exprs'][i]['place']
+                p[0]['code'] += "return " + p[2]['exprs'][i]['place']+"~"+str(get_variable_attribute(p[2]['exprs'][i]['place'],'offset'))
 
         if(flag == 0):
             current= stack[-1]
@@ -1653,8 +1667,8 @@ def p_pexprnoparen(p):
         p[0]['code'] = p[1]['code']
         p[0]['code'] += "\n"+p[3]['code']
         p[0]['place'] = label
-        p[0]['code'] = "\n" + str(label1) + " = BaseAddress( " + p[1]['place'] + " )\n"
-        p[0]['code'] += str(label)+" = "+str(label1)+" [ "+p[3]['place']+" ]"
+        p[0]['code'] = "\n" + str(label1) + " = BaseAddress( " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " )\n"
+        p[0]['code'] += str(label)+" = "+str(label1)+" [ "+p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset')) +" ]"
         p[0]['value'] = 1
         p[0]['type'] = p[1]['type']['arr_type']
 
@@ -1725,12 +1739,12 @@ def p_switchstmt(p):
     dummy = getlabel()
     for i in range(0,len(p[4])):
         if(p[4][i]["type"] == "notdefault"):
-            p[0]['code']+= dummy +"= "+p[2]['place']+"=="+p[4][i]["value"] +"\n"
+            p[0]['code']+= dummy+"~"+str(-1) +"= "+p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset'))+ "=="+p[4][i]["value"] +"\n"
             if((i+1)==len(p[4])):
-                p[0]['code']+= "if "+dummy +"= 0 goto "+exitlabel + "\n" + p[4][i]['code']
+                p[0]['code']+= "if "+dummy+"~"+str(-1) +"= 0 goto "+exitlabel + "\n" + p[4][i]['code']
                 break
             else:
-                p[0]['code']+= "if "+dummy +"= 0 goto "+nextlabel + "\n" + p[4][i]['code'] + "\n" + "goto "+exitlabel+"\n"
+                p[0]['code']+= "if "+dummy+"~"+str(-1) +"= 0 goto "+nextlabel + "\n" + p[4][i]['code'] + "\n" + "goto "+exitlabel+"\n"
 
         else:
             p[0]['code']+= p[4][i]['code']
@@ -1831,24 +1845,24 @@ def p_prec5expr_(p):
             if(p1_type == 'int' and p3_type == 'float'):
               tmp = getlabel()
               register_variable(tmp)
-              p[0]['code'] += tmp + " = inttofloat " + p1_place + "\n"
-              p[0]['code'] += p[0]['place'] + " = " + tmp + " " + op + "float " + p3_place
+              p[0]['code'] += tmp+"~"+str(-1) + " = inttofloat " + p1_place+"~"+str(get_variable_attribute(p1_place,'offset')) + "\n"
+              p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset')) + " = " + tmp+"~"+str(-1) + " " + op + "float " + p3_place+"~"+str(get_variable_attribute(p1_place,'offset')) 
               p[0]['type'] = 'float'
             if(p1_type == 'float' and p3_type == 'int'):
               tmp = getlabel()
               register_variable(tmp)
-              p[0]['code'] += tmp + " = inttofloat " + p3_place + "\n"
-              p[0]['code'] += p[0]['place'] +  " = " +  p1_place + " " + op + "float " + tmp
+              p[0]['code'] += tmp+"~"+str(-1) + " = inttofloat " + p3_place+"~"+str(get_variable_attribute(p3_place,'offset')) + "\n"
+              p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset')) +  " = " +  p1_place+"~"+str(get_variable_attribute(p1_place,'offset')) + " " + op + "float " + tmp+"~-1"
               p[0]['type'] = 'float'
             if(p1_type == p3_type):
               typ = p1_type
-              p[0]['code'] += p[0]['place'] + " = " + p1_place + " " + op + typ + " " + p3_place
+              p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'] ,'offset')) + " = " + p1_place+"~"+str(get_variable_attribute(p1_place,'offset')) + " " + op + typ + " " + p3_place+"~"+str(get_variable_attribute(p3_place,'offset'))
               p[0]['type'] = p1_type
         if(flag == 1):
             if(p[1]['type'] != 'int' or p[3]['type'] != 'int'):
                 print("Error in line "+str(p.lineno(2))+" : Both expressions should be of type integer")
                 exit(1)
-            p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] + " " + op + " " + p[3]['place']
+            p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'] ,'offset')) + " = " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'] ,'offset')) + " " + op + " " + p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'] ,'offset'))
             p[0]['type'] = 'int'
 
 def p_prec4expr_(p):
@@ -1923,18 +1937,18 @@ def p_prec4expr_(p):
             if(p1_type == 'int' and p3_type == 'float'):
                 tmp = getlabel()
                 register_variable(tmp)
-                p[0]['code'] += tmp + " = inttofloat " + p1_place + "\n"
-                p[0]['code'] += p[0]['place'] + " = " + tmp + " " + op + "float " + p3_place
+                p[0]['code'] += tmp +"~-1"+" = inttofloat " + p1_place+"~"+str(get_variable_attribute(p1_place,'offset')) + "\n"
+                p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'] ,'offset')) + " = " + tmp+"~-1" + " " + op + "float " + p3_place+"~"+str(get_variable_attribute(p3_place,'offset'))
                 p[0]['type'] = 'float'
             if(p1_type == 'float' and p3_type == 'int'):
                 tmp = getlabel()
                 register_variable(tmp)
-                p[0]['code'] += tmp + " = inttofloat " + p3_place + "\n"
-                p[0]['code'] += p[0]['place'] + " = " + p1_place +" "+ op + "float " + tmp
+                p[0]['code'] += tmp+"~-1" + " = inttofloat " + p3_place+"~"+str(get_variable_attribute(p3_place,'offset')) + "\n"
+                p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'] ,'offset')) + " = " + p1_place+"~"+str(get_variable_attribute(p1_place,'offset')) +" "+ op + "float " + tmp+"~-1"
                 p[0]['type'] = 'float'
             if(p1_type == p3_type):
                 typ = p1_type
-                p[0]['code'] += p[0]['place'] + " = " + p1_place + " " + op + typ + " " + p3_place
+                p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'] ,'offset')) + " = " + p1_place +"~"+str(get_variable_attribute(p1_place,'offset'))+ " " + op + typ + " " + p3_place+"~"+str(get_variable_attribute(p3_place,'offset'))
                 p[0]['type'] = p1_type
         else:
             p1_type = ""
@@ -1963,7 +1977,7 @@ def p_prec4expr_(p):
             if(p1_type != 'int' or p3_type != 'int'):
                 print("Error in line "+str(p.lineno(2))+" : Both expressions should be of type integer")
                 exit(1)
-            p[0]['code'] += p[0]['place'] + " = " + p1_place + " " + op + " " + p3_place
+            p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'] ,'offset')) + " = " + p1_place+"~"+str(get_variable_attribute(p1_place,'offset')) + " " + op + " " + p3_place+"~"+str(get_variable_attribute(p3_place,'offset'))
             p[0]['type'] = 'int'
 
 
@@ -2019,7 +2033,7 @@ def p_prec3expr_(p):
                 p[0]['value'] = (p[1]['value'] < p[3]['value'])
         p[0]['place'] = getlabel()
         register_variable(p[0]['place'])
-        p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] + " " + op + " " + p[3]['place']
+        p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset')) + " = " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'] ,'offset')) + " " + op + " " + p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'] ,'offset'))
         p[0]['type'] = 'int'
 
 def p_prec2expr_(p):
@@ -2041,7 +2055,7 @@ def p_prec2expr_(p):
         if(p[1]['type']!='int' or p[3]['type']!='int'):
             print("Error in line "+str(p.lineno(2))+" : Both expressions should be of type integer")
             exit(1)
-        p[0]['code'] += p[0]['place'] + " = " + p[1]['place'] + " && " + p[3]['place']
+        p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset'))  + " = " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset'))  + " && " + p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset')) 
         p[0]['type'] = p[1]['type']
         if(p[1]['value']!="" and p[3]['value']!=""):
             p[0]['value'] = p[1]['value'] and p[3]['value']
@@ -2056,7 +2070,7 @@ def p_expr(p):
     if(len(p)==2):
         z = re.match(r'(((\*)|\ )*true|((\*)|\ )*false|((\*)|\ )*iota)',str(p[1]))
         if(z):
-            p[0]['code'] = str(p[1])
+            p[0]['code'] = str(p[1])+str(get_variable_attribute(str(p[1]),'offset'))
         else:
             p[0]['code'] = p[1]['code']
             p[0]['place'] = p[1]['place']
@@ -2071,7 +2085,7 @@ def p_expr(p):
         if(p[1]['type']!='int' or p[3]['type']!='int'):
             print("Error in line "+str(p.lineno(2))+" : Both expressions should be of type integer")
             exit(1)
-        p[0]['code'] = p[0]['place'] + " = " + p[1]['place'] + " || " + p[3]['place']
+        p[0]['code'] = p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset'))  + " = " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset'))  + " || " + p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset')) 
         p[0]['type'] = p[1]['type']
         if(p[1]['value']!="" and p[3]['value']!=""):
             p[0]['value'] = p[1]['value'] or p[3]['value']
@@ -2090,16 +2104,16 @@ def p_arrayexp(p):
   label2 = getlabel()
   register_variable(str(array_label))
   register_variable(str(label2))
-  p[0]['code'] = str(label2)+" = BaseAddress("+str(array_label)+")"
+  p[0]['code'] = str(label2)+" = BaseAddress("+str(array_label)+"~-1"+")"
   for objects in p[2]['exprs']:
     if(objects['type']!=c_type):
       print("Error in line "+str(p.lineno(2))+" : Error in array declaration")
       exit(1)
     else:
       temp_label = getlabel()
-      p[0]['code'] += "\n" + str(temp_label)+" = "+str(i*size[c_type])
+      p[0]['code'] += "\n" + str(temp_label)+"~-1"+" = "+str(i*size[c_type])
       p[0]['code'] += "\n"+objects['code'] + "\n"
-      p[0]['code'] += str(label2)+"["+str(temp_label)+"] = "+str(objects['place'])
+      p[0]['code'] += str(label2)+"~-1"+"["+str(temp_label)+"~-1"+"] = "+str(objects['place'])
     i = i+1
 
   if(p[1]['type']['arr_length'] != i):
@@ -2132,13 +2146,13 @@ def p_uexpr(p):
             p[0]['type'] = '*'+p[2]['type']
             p[0]['place'] = getlabel()
             register_variable(p[0]['place'])
-            p[0]['code'] += p[0]['place'] + " = " + op + p[2]['place']
+            p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset'))  + " = " + op + p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset')) 
             p[0]['value'] = ""
         if(op == "!"):
             p[0]['type'] = 'int'
             p[0]['place'] = getlabel()
             register_variable(p[0]['place'])
-            p[0]['code'] += p[0]['place'] + " = " + '!' + p[2]['place']
+            p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset'))  + " = " + '!' + p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset')) 
             if(p[2]['value'] != ""):
                 if(p[2]['value']):
                     p[0]['value'] = 0
@@ -2150,7 +2164,7 @@ def p_uexpr(p):
             p[0]['type'] = p[2]['type'][1:]
             p[0]['place'] = getlabel()
             register_variable(p[0]['place'])
-            p[0]['code'] += p[0]['place'] + " = " + op + p[2]['place']
+            p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset'))  + " = " + op + p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset')) 
         if(op == "+"):
             p[0]['type'] = p[2]['type']
             p[0]['place'] = p[2]['place']
@@ -2160,7 +2174,7 @@ def p_uexpr(p):
             p[0]['type'] = p[2]['type']
             p[0]['place'] = getlabel()
             register_variable(p[0]['place'])
-            p[0]['code'] += p[0]['place'] + " = " + op + p[2]['place']
+            p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset')) + " = " + op + p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset')) 
             if(p[2]['value'] != ""):
                 p[0]['value'] = -p[2]['value']
         if(op == "^"):
@@ -2230,7 +2244,7 @@ def p_pseudocall(p):
         x['value'] = ""
 
         p[0]['func_responses'].append(x)
-        p[0]['code'] += "\npop "+str(label)
+        p[0]['code'] += "\npop "+str(label)+"~-1"
         p[0]['place'].append(label)
     else:
       p[0]['func_responses'] = 'void'
@@ -2241,7 +2255,7 @@ def p_pseudocall(p):
     exprs = p[3]['exprs']
     i=0
     for dicts in args:
-      p[0]['code'] += "\npush "+str(exprs[i]['place'])
+      p[0]['code'] += "\npush "+str(exprs[i]['place'])+"~"+str(get_variable_attribute(str(exprs[i]['place']),'offset'))
       i = i+1
 
     p[0]['code'] += "\ncall "+final_func['CS335_show_label']
