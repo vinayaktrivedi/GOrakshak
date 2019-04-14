@@ -102,24 +102,6 @@ class IR:
 
             return
 
-        if(instr[0] == 'else'):
-            self.type = 'else'
-            x = instr[2]
-            name,addr = process_string(x)
-            self.src1['name'] = name
-            self.src1['type'] = find_type(addr)
-            self.src1['array'] = 'False'
-            self.src1['addr'] = addr
-
-            x = instr[6]
-            name,addr = process_string(x)
-            self.dst['name'] = name
-            self.dst['type'] = find_type(addr)
-            self.dst['array'] = 'False'
-            self.dst['addr'] = addr
-
-            return
-
         if(set(['BaseAddress(']) & set(instr)):
             self.type = '='
             x = instr[0]
