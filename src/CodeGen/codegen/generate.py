@@ -6,7 +6,7 @@ def freeAllRegs():
     for regname in regsList:
         regsInfo[regname]=None
 
-def get_free_reg(instrcution_number,nextuse,preserve_reg):
+def getfreereg(instrcution_number,nextuse,preserve_reg):
     global AddrDesc
     temp_reg = None
     mini = -1
@@ -90,14 +90,14 @@ def genCodeForBlock(block, infoTable):
             pass
         elif ir[i].type in type_2:
             if(ir[i].src1['type']!='constant'):
-                L=getReg(ir[i].src1['name'],infoTable,i)
+                L=getReg(i,ir[i].src1['name'],infoTable)
                 removeFromRegs(ir[i].dst['name'])
                 AddrDesc[ir[i].dst['name']]['reg']=L
                 regsInfo[L]=ir[i].dst['name']
                 AddrDesc[ir[i].dst['name']]['dirty']=1
             else:
                 if(AddrDesc[ir[i].dst['name']]['reg'] == None):
-                    L=getfreereg(None)
+                    L=getfreereg(i,infoTable,None)
                     generateHelper.writeInstr("mov "+L+", "+ir[i].src1['name'])
                     AddrDesc[ir[i].dst['name']]['reg']=L
                     regsInfo[L]=ir[i].dst['name']
@@ -125,10 +125,10 @@ def genCodeForBlock(block, infoTable):
                 AddrDesc[ir[i].dst['name']]['dirty']=1
                     
             elif(ir[i].src1['type']=='constant'):
-                L=getfreereg(None)
+                L=getfreereg(i,infoTable,None)
                 generateHelper.writeInstr("mov "+L+", "+ir[i].src1['name'])
                 if(AddrDesc[ir[i].src2['name']]['reg']==None):
-                    L2=getfreereg(L)
+                    L2=getfreereg(i,infoTable,L)
                     generateHelper.writeInstr("mov "+L2+","+AddrDesc[ir[i].src2['name']]['mem'])
                     AddrDesc[ir[i].src2['name']]['reg']=L2
                     regsInfo[L2]=ir[i].src2['name']
@@ -166,7 +166,7 @@ def genCodeForBlock(block, infoTable):
             else:
                 L=getReg(ir[i].src1['name'],infoTable,i)
                 if(AddrDesc[ir[i].src2['name']]['reg']==None):
-                    L2=getfreereg(L)
+                    L2=getfreereg(i,infoTable,L)
                     generateHelper.writeInstr("mov "+L2+","+AddrDesc[ir[i].src2['name']]['mem'])
                     AddrDesc[ir[i].src2['name']]['reg']=L2
                     regsInfo[L2]=ir[i].src2['name']
