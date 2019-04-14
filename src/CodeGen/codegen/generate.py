@@ -57,6 +57,18 @@ def genCodeForBlock(block, infoTable):
         if ir[i].type in type_1:
             pass
         elif ir[i].type in type_2:
+            if(ir[i].dst['type']=='temp'):
+                if(ir[i].src1['type']=='temp'):
+                
+                elif(ir[i].dst['type']=='local'):
+
+                elif(ir[i].dst['type']=='global'):
+
+            elif(ir[i].dst['type']=='local'):
+
+            elif(ir[i].dst['type']=='global'):
+
+
             pass
         elif ir[i].type in type_3:
             #getReg()

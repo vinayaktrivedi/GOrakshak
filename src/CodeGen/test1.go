@@ -14,13 +14,16 @@ func foo(){
 	var c int;
 };
 func foo(a int,b int, c int){
+    a = 1;
 	var d int;
+    d = a+c;
 	var q int;
 	var p int;
 	foo(p,q,d);
 };
 
 func main(){
+    num = 1;
     var xx Vertex;
     xx = Vertex[(Y:1,xu:1)];
     var tt Vertex;
@@ -31,7 +34,8 @@ func main(){
         num = -num;
         var u int;
     } else if num < 10 {
-        num += 85;
+        num %= 2;
+        num /= 3;
     } else {
         num = 90-56;
     };

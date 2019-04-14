@@ -17,10 +17,10 @@ ir=[]
 global_symbol_table ={}
 # Corresponds to 3 operand instructions
 # x is multiply and * is dereference
-type_3 = ['+', '-', '*', '/', '%', '&', '|', '^', '<<', '>>', '==', '<', '>', '!=', '<=', '>=']
+type_3 = ['+int', '-int', '*int', '/int', '%int', '+float', '-float', '*float', '/float', '%float' , '&', '|', '^', '<<', '>>', '==', '<', '>', '!=', '<=', '>=']
 
 # Corresponds to 2 address instructions
-type_2 = ['=', '+=', '-=', '*=', '&=','|=', '^=', '<<=', '>>=']
+type_2 = ['=']
 
 type_1= ['call']
 type_4=['goto']
@@ -29,7 +29,8 @@ type_6=['if']
 type_7=['label']
 type_8=['func']
 type_9=['pop']
-type_10=['ret']
+type_10=['return']
+type_11=['EndFunc']
 
 regsList=['rax','rbx','rcx','rdx','rsi','r8','r9','r10','r11','r12','r13','r14','r15']
 regsInfo={'rax': None, 'rbx': None, 'rcx': None, 'rdx': None, 'rsi': None, 'rdi': None,'r8':None,'r9':None,'r10':None,'r11':None,'r12':None,'r13':None,'r14':None,'r15':None}
