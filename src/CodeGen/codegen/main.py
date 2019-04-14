@@ -1,7 +1,7 @@
 #remove footprints of cheating
 
 import break_code
-import generate
+# import generate
 import generateHelper
 import infoTable
 from parameter import *
@@ -17,7 +17,8 @@ def findAllBlocks():
     st=0
 
     for ind, instr in enumerate(ir):
-        if instr.type == 'goto' or instr.type == 'ret' or instr.type == 'call':
+        # print instr.type
+        if instr.type == 'goto' or instr.type == 'return' or instr.type == 'call':
             ret.append([st, ind])
             st = ind + 1
 
@@ -26,7 +27,7 @@ def findAllBlocks():
             st = ind
 
         elif ind == len(ir)-1:
-            ret.append((st,ind))            
+            ret.append([st,ind])
     return ret
 
 #creating next use table for a block
@@ -40,23 +41,23 @@ def createTable(x):
 
     listOfSymbols = set([])
     for i in range(start, end + 1):
-        if ir[i].type in type_3:  
+        if ir[i].type in type_3:
             listOfSymbols.add(ir[i].dst['name'])
-            if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")): 
+            if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")):
                 listOfSymbols.add(ir[i].src1['name'])
-            if((ir[i].src2.type == "local") or (ir[i].src2['type'] == "temp") or (ir[i].src2['type'] == "global")): 
+            if((ir[i].src2.type == "local") or (ir[i].src2['type'] == "temp") or (ir[i].src2['type'] == "global")):
                 listOfSymbols.add(ir[i].src2['name'])
 
         elif ir[i].type in type_2:
             listOfSymbols.add(ir[i].dst['name'])
-            if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")): 
+            if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")):
                 listOfSymbols.add(ir[i].src1['name'])
-        
+
         elif((ir[i].type in type_5) or (ir[i].type in type_9) or (ir[i].type in type_6)):
-            if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")): 
+            if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")):
                 listOfSymbols.add(ir[i].src1['name'])
-        
-        
+
+
 
     for i in range(start, end + 1):
         for j in listOfSymbols:
@@ -76,7 +77,7 @@ def createTable(x):
             (ret[i])[ir[i].dst['name']]["live"] = False
             (ret[i])[ir[i].dst['name']]["nextUse"] = None
 
-            if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")): 
+            if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")):
                 (ret[i])[ir[i].src1['name']]["live"] = True
                 (ret[i])[ir[i].src1['name']]["nextUse"] = i
 
@@ -87,20 +88,20 @@ def createTable(x):
         elif ir[i].type in type_2:
             (ret[i])[ir[i].dst['name']]["live"] = False
             (ret[i])[ir[i].dst['name']]["nextUse"] = None
-            if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")): 
+            if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")):
                 (ret[i])[ir[i].src1['name']]["live"] = True
                 (ret[i])[ir[i].src1['name']]["nextUse"] = i
 
         elif ir[i].type in type_5 or ir[i].type in type_6:
-            if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")): 
+            if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")):
                 (ret[i])[ir[i].src1['name']]["live"] = True
                 (ret[i])[ir[i].src1['name']]["nextUse"] = i
 
         elif ir[i].type in type_9:
-            if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")): 
+            if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")):
                 (ret[i])[ir[i].src1['name']]["live"] = False
                 (ret[i])[ir[i].src1['name']]["nextUse"] = None
-        
+
 
     for i in range(start, end):
         ret[i] = ret[i + 1]
@@ -124,7 +125,7 @@ if (not os.path.isfile(str(sys.argv[1]))):
 lines = tuple(open(str(sys.argv[1]), 'r'))
 
 threeAC=[]
-print(lines)
+# print(lines)
 for x in lines:
     stripped = x.strip().split(" ")
     # print stripped
@@ -139,22 +140,22 @@ for x in lines:
 
 #also attach address in stack of variables, assign type based on local, global, temp,constant
 for i in threeAC:
-    if(i[0] == 'package' or i[0] == 'import'):
+    if(i[0] == 'package' or i[0] == 'import' or i[0] == 'mov'):
         continue
     ir.append(process.IR(i))
     # print i
-print(ir[0].type)
+# print(ir[0].type)
 
 #finding blocks
 blocks = findAllBlocks()
-
+print blocks
 #code gen globals, use global_symbol_table
-generateHelper.genGlobals()
-
-#code gen blocks
-for block in blocks:
-    nextUseTable = createTable(block)
-    generate.genCodeForBlock(block,nextUseTable)
-
-#code gen final
-generateHelper.close()
+# generateHelper.genGlobals()
+#
+# #code gen blocks
+# for block in blocks:
+#     nextUseTable = createTable(block)
+#     generate.genCodeForBlock(block,nextUseTable)
+#
+# #code gen final
+# generateHelper.close()
