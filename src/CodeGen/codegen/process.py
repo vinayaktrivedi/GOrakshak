@@ -55,6 +55,10 @@ class IR:
         if(instr[0] == 'pop'):
             self.type = 'pop'
             x = instr[1]
+            if(!x.find('~')):
+                self.src1['name'] = x
+                self.src1['type'] = 'constant'
+                return
             name,addr = process_string(x)
             self.src1['name'] = name
             self.src1['type'] = find_type(addr)
@@ -62,6 +66,10 @@ class IR:
         if(instr[0] == 'push'):
             self.type = 'push'
             x = instr[1]
+            if(!x.find('~')):
+                self.src1['name'] = x
+                self.src1['type'] = 'constant'
+                return
             name,addr = process_string(x)
             self.src1['name'] = name
             self.src1['type'] = find_type(addr)
