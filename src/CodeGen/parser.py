@@ -911,13 +911,13 @@ def p_ifstmt(p):
     for i in range(0,len(p[6]['extra'])):
         if((i+1) == len(p[6]['extra'])):
             if(p[6]['extra'][i]['type']=="elseif"):
-                p[0]['code'] += "\n" + nextlabel+" :" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +"=0 goto "+exitlabel + "\n" + p[6]['extra'][i]['body']
+                p[0]['code'] += "\n" + nextlabel+" :" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +" = 0 goto "+exitlabel + "\n" + p[6]['extra'][i]['body']
             else:
                 p[0]['code'] += "\n" + nextlabel+" :" + "\n" + "else "+ "\n" + p[6]['extra'][i]['body']
         else:
             nextlabel2= getlabel()
             if(p[6]['extra'][i]['type']=="elseif"):
-                p[0]['code'] += "\n" + nextlabel+" :" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +"=0 goto "+nextlabel2 + "\n" + p[6]['extra'][i]['body'] + "\n" + "goto "+exitlabel
+                p[0]['code'] += "\n" + nextlabel+" :" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +" = 0 goto "+nextlabel2 + "\n" + p[6]['extra'][i]['body'] + "\n" + "goto "+exitlabel
             nextlabel = nextlabel2
     p[0]['code'] += "\n" + exitlabel+" :"
 
@@ -1670,8 +1670,8 @@ def p_pexprnoparen(p):
         p[0]['code'] = p[1]['code']
         p[0]['code'] += "\n"+p[3]['code']
         p[0]['place'] = label
-        p[0]['code'] = "\n" + str(label1) + " = BaseAddress( " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " )\n"
-        p[0]['code'] += str(label)+" = "+str(label1)+" [ "+p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset')) +" ]"
+        p[0]['code'] = "\n" + str(label1)+"~-1"+ " = BaseAddress( " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " )\n"
+        p[0]['code'] += str(label)+"~-1"+" = "+str(label1)+"~-1"+" [ "+p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset')) +" ]"
         p[0]['value'] = 1
         p[0]['type'] = p[1]['type']['arr_type']
 
@@ -1849,7 +1849,7 @@ def p_prec5expr_(p):
               tmp = getlabel()
               register_variable(tmp)
               p[0]['code'] += tmp+"~"+str(-1) + " = inttofloat " + p1_place+"~"+str(get_variable_attribute(p1_place,'offset')) + "\n"
-              p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset')) + " = " + tmp+"~"+str(-1) + " " + op + "float " + p3_place+"~"+str(get_variable_attribute(p1_place,'offset')) 
+              p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset')) + " = " + tmp+"~"+str(-1) + " " + op + "float " + p3_place+"~"+str(get_variable_attribute(p1_place,'offset'))
               p[0]['type'] = 'float'
             if(p1_type == 'float' and p3_type == 'int'):
               tmp = getlabel()
@@ -2058,7 +2058,7 @@ def p_prec2expr_(p):
         if(p[1]['type']!='int' or p[3]['type']!='int'):
             print("Error in line "+str(p.lineno(2))+" : Both expressions should be of type integer")
             exit(1)
-        p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset'))  + " = " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset'))  + " && " + p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset')) 
+        p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset'))  + " = " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset'))  + " && " + p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset'))
         p[0]['type'] = p[1]['type']
         if(p[1]['value']!="" and p[3]['value']!=""):
             p[0]['value'] = p[1]['value'] and p[3]['value']
@@ -2088,7 +2088,7 @@ def p_expr(p):
         if(p[1]['type']!='int' or p[3]['type']!='int'):
             print("Error in line "+str(p.lineno(2))+" : Both expressions should be of type integer")
             exit(1)
-        p[0]['code'] = p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset'))  + " = " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset'))  + " || " + p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset')) 
+        p[0]['code'] = p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset'))  + " = " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset'))  + " || " + p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset'))
         p[0]['type'] = p[1]['type']
         if(p[1]['value']!="" and p[3]['value']!=""):
             p[0]['value'] = p[1]['value'] or p[3]['value']
@@ -2107,7 +2107,7 @@ def p_arrayexp(p):
   label2 = getlabel()
   register_variable(str(array_label))
   register_variable(str(label2))
-  p[0]['code'] = str(label2)+" = BaseAddress("+str(array_label)+"~-1"+")"
+  p[0]['code'] = str(label2)+"~-1"+" = BaseAddress("+str(array_label)+"~-1"+")"
   for objects in p[2]['exprs']:
     if(objects['type']!=c_type):
       print("Error in line "+str(p.lineno(2))+" : Error in array declaration")
@@ -2149,13 +2149,13 @@ def p_uexpr(p):
             p[0]['type'] = '*'+p[2]['type']
             p[0]['place'] = getlabel()
             register_variable(p[0]['place'])
-            p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset'))  + " = " + op + p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset')) 
+            p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset'))  + " = " + op + p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset'))
             p[0]['value'] = ""
         if(op == "!"):
             p[0]['type'] = 'int'
             p[0]['place'] = getlabel()
             register_variable(p[0]['place'])
-            p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset'))  + " = " + '!' + p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset')) 
+            p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset'))  + " = " + '!' + p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset'))
             if(p[2]['value'] != ""):
                 if(p[2]['value']):
                     p[0]['value'] = 0
@@ -2167,7 +2167,7 @@ def p_uexpr(p):
             p[0]['type'] = p[2]['type'][1:]
             p[0]['place'] = getlabel()
             register_variable(p[0]['place'])
-            p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset'))  + " = " + op + p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset')) 
+            p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset'))  + " = " + op + p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset'))
         if(op == "+"):
             p[0]['type'] = p[2]['type']
             p[0]['place'] = p[2]['place']
@@ -2177,7 +2177,7 @@ def p_uexpr(p):
             p[0]['type'] = p[2]['type']
             p[0]['place'] = getlabel()
             register_variable(p[0]['place'])
-            p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset')) + " = " + op + p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset')) 
+            p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset')) + " = " + op + p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset'))
             if(p[2]['value'] != ""):
                 p[0]['value'] = -p[2]['value']
         if(op == "^"):
@@ -2271,7 +2271,7 @@ def p_pseudocall(p):
         x['type'] = var['val']
         x['value'] = ""
         p[0]['func_responses'].append(x)
-        p[0]['code'] += "\npop "+str(label)
+        p[0]['code'] += "\npop "+str(label)+"~-1"
         p[0]['place'].append(label)
     else:
       p[0]['func_responses'] = 'void'

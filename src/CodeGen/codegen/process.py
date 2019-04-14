@@ -24,22 +24,38 @@ def find_type(addr):
 
 class IR:
     def __init__(self, instr):
-        print instr
+        # print instr
         # type
         # src1  # name, type (local, global , temp, constant) , addr, array, array_offset
         # src2
         # dst
         length = len(instr)
-        print length
+        # print length
 
         self.src1 = {}
         self.src2 = {}
         self.dst = {}
 
-        if(instr[0] == 'EndFunc' or instr[0] == 'return' or instr[0] == 'call' or instr[0] == 'goto' or instr[0] == 'push' or instr[0] == 'pop'):
+        if(instr[0] == 'EndFunc' or instr[0] == 'return' or instr[0] == 'call' or instr[0] == 'goto' or instr[0] == 'push'):
             if(length >= 2):
                 self.src1['name'] = instr[1]
             self.type = instr[0]
+
+        if(length < 2):
+            return
+
+        if(instr[1] == ':'):
+            self.type = 'label'
+            self.src1['name'] = instr[0]
+            return
+        if(instr[0] == 'pop'):
+            self.type = 'pop'
+            x = instr[1]
+            name,addr = process_string(x)
+            self.src1['name'] = name
+            self.src1['type'] = find_type(addr)
+            return
+            
         if(length <= 2):
             return
 
@@ -49,12 +65,43 @@ class IR:
             self.src2['name'] = instr[4]
             return
 
-        if(instr[1] == ':'):
-            self.type = 'label'
-            self.src1['name'] = instr[0]
+        if(instr[0] == 'if'):
+            self.type = 'if'
+            x = instr[1]
+            name,addr = process_string(x)
+            self.src1['name'] = name
+            self.src1['type'] = find_type(addr)
+            self.src1['array'] = 'False'
+            self.src1['addr'] = addr
+
+            x = instr[5]
+            name,addr = process_string(x)
+            self.dst['name'] = name
+            self.dst['type'] = find_type(addr)
+            self.dst['array'] = 'False'
+            self.dst['addr'] = addr
+
             return
 
-        if((set(type_1) & set(instr)) and (set(['=']) & set(instr))):
+        if(instr[0] == 'else'):
+            self.type = 'else'
+            x = instr[2]
+            name,addr = process_string(x)
+            self.src1['name'] = name
+            self.src1['type'] = find_type(addr)
+            self.src1['array'] = 'False'
+            self.src1['addr'] = addr
+
+            x = instr[6]
+            name,addr = process_string(x)
+            self.dst['name'] = name
+            self.dst['type'] = find_type(addr)
+            self.dst['array'] = 'False'
+            self.dst['addr'] = addr
+
+            return
+
+        if((set(type_3) & set(instr)) and (set(['=']) & set(instr))):
             # type is type_1
             dest = 0
             src1 = 0
@@ -65,17 +112,21 @@ class IR:
             if(instr[1] == '='):
                 src1 = 2
                 if(instr[3] == '['):
+                    self.type = instr[6]
                     src2 = 7
                     s1a = 'True'
                 else:
+                    self.type = instr[3]
                     src2 = 4
             else:
                 da = 'True'
                 src1 = 5
                 if(instr[6] == '['):
+                    self.type = instr[9]
                     src2 = 10
                     s1a = 'True'
                 else:
+                    self.type = instr[6]
                     src2 = 7
             if(length > (src2 + 1)):
                 s2a = 'True'
@@ -110,6 +161,7 @@ class IR:
             return
         else:
             if(not(set(['=']) & set(instr))):
+                print "hi"
                 return
             self.type = '='
             x = instr[0]
@@ -122,24 +174,26 @@ class IR:
             self.dst['addr'] = addr
             if(instr[1] == '='):
                 x = instr[2]
+                # print x
                 name,addr = process_string(x)
                 if(not(x[0] in ['0','1','2','3','4','5','6','7','8','9'])):
-                    self.src1['name'] = name
+                    # self.src1['name'] = name
                     self.src1['type'] = find_type(addr)
                     self.src1['addr'] = addr
                 else:
-                    self.src1['name'] = name
+                    # self.src1['name'] = name
                     self.src1['type'] = 'constant'
-                name,addr = process_string(x)
                 self.src1['name'] = name
                 self.src1['type'] = find_type(addr)
                 self.src1['addr'] = addr
 
                 self.dst['array'] = 'False'
 
-            if(instr[1] == '=' and length == 6):
+            if((instr[1] == '=') and (length == 6)):
                 # surely src1 is array
-                if(self.src1['name'][0] in ['0','1','2','3','4','5','6','7','8','9']):
+                u = self.src1['name']
+                # print u
+                if(u[0] in ['0','1','2','3','4','5','6','7','8','9']):
                     print("Error : array name can't start with integer")
                     exit(1)
                 self.src1['array'] = 'True'
