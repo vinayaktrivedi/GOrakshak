@@ -898,21 +898,21 @@ def p_ifstmt(p):
     exitlabel = getlabel()
     p[0] = {}
     if(len(p[6]['extra']) == 0):
-        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+exitlabel + "\n" + p[4]['code']
+        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +" = 0 goto "+exitlabel + "\n" + p[4]['code']
     else:
-        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +"=0 goto "+nextlabel + "\n" + p[4]['code'] + "\n" + "goto "+exitlabel
+        p[0]['code'] = p[2]['code'] + "\n" + "if "+p[2]['place'] +" = 0 goto "+nextlabel + "\n" + p[4]['code'] + "\n" + "goto "+exitlabel
     for i in range(0,len(p[6]['extra'])):
         if((i+1) == len(p[6]['extra'])):
             if(p[6]['extra'][i]['type']=="elseif"):
-                p[0]['code'] += "\n" + nextlabel+":" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +"=0 goto "+exitlabel + "\n" + p[6]['extra'][i]['body']
+                p[0]['code'] += "\n" + nextlabel+" :" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +"=0 goto "+exitlabel + "\n" + p[6]['extra'][i]['body']
             else:
-                p[0]['code'] += "\n" + nextlabel+":" + "\n" + "else "+ "\n" + p[6]['extra'][i]['body']
+                p[0]['code'] += "\n" + nextlabel+" :" + "\n" + "else "+ "\n" + p[6]['extra'][i]['body']
         else:
             nextlabel2= getlabel()
             if(p[6]['extra'][i]['type']=="elseif"):
-                p[0]['code'] += "\n" + nextlabel+":" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +"=0 goto "+nextlabel2 + "\n" + p[6]['extra'][i]['body'] + "\n" + "goto "+exitlabel
+                p[0]['code'] += "\n" + nextlabel+" :" + "\n" + p[6]['extra'][i]['ifheader_code'] + "\n" + "else if "+p[6]['extra'][i]['ifheader_place'] +"=0 goto "+nextlabel2 + "\n" + p[6]['extra'][i]['body'] + "\n" + "goto "+exitlabel
             nextlabel = nextlabel2
-    p[0]['code'] += "\n" + exitlabel+":"
+    p[0]['code'] += "\n" + exitlabel+" :"
 
 def p_elseif(p):
     '''ElseIf : ELSE IF IfHeader ifmarker LoopBody revmarker'''
