@@ -1,9 +1,8 @@
 #remove footprints of cheating
 
-import break_code
+
 # import generate
 import generateHelper
-import infoTable
 from parameter import *
 import process
 import os
@@ -128,13 +127,10 @@ threeAC=[]
 # print(lines)
 for x in lines:
     stripped = x.strip().split(" ")
-    # print stripped
     for i in range(len(stripped)):
         stripped[i] = stripped[i].replace(" ", ",")
     threeAC.append(stripped)
-# print threeAC
-# a = threeAC[0].split(',')
-# #taking global symbol table
+
 # symboltablesfile = open('examplePickle', 'rb')
 # global_symbol_table = pickle.load(symboltablesfile)
 
