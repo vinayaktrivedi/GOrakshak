@@ -8,9 +8,9 @@ var num int;
 func foo(a int) int, int{
     var b int;
     b = 2;
-    return b,3;
+    return b,3.0;
 };
-func foo(){
+func foo() int {
 	var c int;
 };
 func foo(a int,b int, c int){
