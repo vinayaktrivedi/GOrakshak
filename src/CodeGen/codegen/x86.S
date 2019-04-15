@@ -28,4 +28,5 @@ mov -4[ebp],rbx
 mov -8[ebp],rcx
 call f1
 mov rbx, eax
-mov rcx -4[ebp]
+mov rcx, rbx
+mov -4[ebp],rcx
