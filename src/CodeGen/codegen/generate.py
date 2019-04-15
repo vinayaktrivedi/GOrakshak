@@ -61,7 +61,8 @@ def getReg(instrcution_number,src1,nextuse):
         print("hello")
         new_reg = getfreereg(instrcution_number,nextuse,None)
         print(src1)
-        generateHelper.writeInstr("mov "+new_reg+", -"+AddrDesc[src1]['memory']+"[ebp]")
+        if(AddrDesc[src1]['memory']):
+            generateHelper.writeInstr("mov "+new_reg+", -"+AddrDesc[src1]['memory']+"[ebp]")
         return new_reg
 
 
