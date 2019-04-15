@@ -45,7 +45,7 @@ def createTable(x):
             listOfSymbols.add(ir[i].dst['name'])
             if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")):
                 listOfSymbols.add(ir[i].src1['name'])
-            if((ir[i].src2.type == "local") or (ir[i].src2['type'] == "temp") or (ir[i].src2['type'] == "global")):
+            if((ir[i].src2['type'] == "local") or (ir[i].src2['type'] == "temp") or (ir[i].src2['type'] == "global")):
                 listOfSymbols.add(ir[i].src2['name'])
 
         elif ir[i].type in type_2:
