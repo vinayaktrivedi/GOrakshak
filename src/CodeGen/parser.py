@@ -648,7 +648,9 @@ def p_simplestmt(p):
                               print("Error in line "+str(p.lineno(2))+" : Type mismatch in structure assignment!")
                               exit(1)
                             else:
-                              p[0]['code'] = 'todo'
+                              base = get_variable_attribute(p[1]['exprs'][i]['place'],'offset')
+                              for tempv in p[3]['exprs'][i]['type']['assign']:
+                                p[0]['code'] += '\n'+tempv+"~"+str(get_variable_attribute(tempv,'offset')+base)+" = "+str(get_variable_attribute(tempv,'value'))
                           else:
                               p3_type = p[3]['exprs'][i]['type']
                               p3_place = p[3]['exprs'][i]['place']
@@ -683,7 +685,9 @@ def p_simplestmt(p):
                             add_variable_attribute(p[1]['exprs'][i]['place'],'type',x)
                             add_variable_attribute(p[1]['exprs'][i]['place'],'real',1)
                             add_variable_attribute(p[1]['exprs'][i]['place'],'offset',offset)
-                            p[0]['code'] = 'todo'
+                            base = get_variable_attribute(p[1]['exprs'][i]['place'],'offset')
+                            for tempv in p[3]['exprs'][i]['type']['assign']:
+                              p[0]['code'] += '\n'+tempv+"~"+str(get_variable_attribute(tempv,'offset')+base)+" = "+str(get_variable_attribute(tempv,'value'))
                             offset += x['size']
                             increase_local_size(x['size'])
                           else:
@@ -747,7 +751,9 @@ def p_simplestmt(p):
                           print("Error in line "+str(p.lineno(2))+" : Type mismatch in structure assignment!")
                           exit(1)
                         else:
-                          p[0]['code'] = 'todo'
+                          base = get_variable_attribute(p[1]['exprs'][i]['place'],'offset')
+                          for tempv in p[3]['exprs'][i]['type']['assign']:
+                            p[0]['code'] += '\n'+tempv+"~"+str(get_variable_attribute(tempv,'offset')+base)+" = "+str(get_variable_attribute(tempv,'value'))
                     elif(p[1]['exprs'][i]['type']=='float' and p[3]['exprs'][i]['type']=='int'):
                         tmp = getlabel()
                         register_variable(tmp)
@@ -1618,6 +1624,7 @@ def p_pexprnoparen(p):
           exit(1)
 
         type_var = get_variable_attribute(struct_name,"type")
+        struct_offset = get_variable_attribute(struct_name,'offset')
         fields = type_var['struct_fields']
         flag = 0
         for temp in fields:
@@ -1625,39 +1632,59 @@ def p_pexprnoparen(p):
             if temp2['name'] == field_name:
               flag = 1
               type_var = temp2['type']['val']
+            else:
+              struct_offset += size[temp2['type']['val']]
+            if flag == 1:
+              break
+          if flag == 1:
+            break
         if flag == 0:
           print("Error in line "+str(p.lineno(2))+" : Struct field invalid")
           exit(1)
         else:
+          label = getlabel()
+          register_variable(label)
+          add_variable_attribute(label,'offset',struct_offset)
+          p[0]['place'] = label
           p[0]['type'] = type_var
+          p[0]['value'] = label
+          p[0]['code'] = ""
 
-        label = getlabel()
-        register_variable(label)
-        p[0]['place']  = label
-        p[0]['value'] = label
-        p[0]['code'] = ""
 
     if(len(p)==5):
       if str(p[2]) == "[(":
+        p[0]={}
+        p[0]['type'] = {}
+        p[0]['type']['assign'] = []
         struct_name = p[1]['place']
         global globalsymboltable
         struct_fields = globalsymboltable['custom_types']['structures'][struct_name]['struct_fields']
+
         for dicts in p[3]['list']:
           key = dicts['key']
           flag = 0
+          temp = 0
           for fields in struct_fields:
             for variable in fields:
               if key == variable['name'] and dicts['type'] == variable['type']['val']:
                 flag = 1
+                label = getlabel()
+                register_variable(label)
+                add_variable_attribute(label,'offset',temp)
+                add_variable_attribute(label,'value',dicts['value'])
+                p[0]['type']['assign'].append(label)
                 break
+              else:
+                temp += size[variable['type']['val']]
+            if flag == 1:
+              break
           if flag == 0:
             print("Error in line "+str(p.lineno(2))+" : Struct Assignment type/field not valid")
             exit(1)
-        p[0]={}
+        
         label = getlabel()
         register_variable(label)
-        p[0]['code'] = 'todo'
-        p[0]['type'] = {}
+        p[0]['code'] = ''
         p[0]['type']['val'] = 'struct'
         p[0]['type']['struct_fields'] = struct_fields
         p[0]['type']['size'] = globalsymboltable['custom_types']['structures'][struct_name]['size']
