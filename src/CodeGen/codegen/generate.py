@@ -11,6 +11,11 @@ def removeFromRegs(var):
     for regname in regsList:
         if(regsInfo[regname]==var):
             regsInfo[regname]=None
+def saveDirtyAndClean():
+    for i in AddrDesc.items():
+        if(AddrDesc[i]['dirty']==1 and AddrDesc[i]['real']==1 and AddrDesc[i]['reg']!=None):
+            generateHelper.writeInstr("mov "+AddrDesc[i]['mem']+","AddrDesc[i]['reg'])
+
 
 def getfreereg(instrcution_number,nextuse,preserve_reg):
     global AddrDesc
@@ -91,7 +96,8 @@ def genCodeForBlock(block, infoTable):
     setupAddrDesc(st,end)
 
 
-    for i in range(st,end):
+    for i in range(st,end+1):
+
         if ir[i].type in type_2:
             if(ir[i].src1['type']!='constant'):
                 L=getReg(i,ir[i].src1['name'],infoTable)
@@ -231,5 +237,35 @@ def genCodeForBlock(block, infoTable):
                 else:
                     generateHelper.writeInstr("pop "+AddrDesc[ir[i].src1['name']]['reg'])
                     AddrDesc[ir[i].src1['name']]['dirty']=1    
+
+        #handle last one separately
+        if(i==end):
+            if ir[i].type in type_1:
+                saveDirtyAndClean()
+                generateHelper.writeInstr("call "+ir[i].src1['name'])
+            elif ir[i].type in type_4:
+                saveDirtyAndClean()
+                generateHelper.writeInstr(ir[i].src1['name']+":")
+            elif ir[i].type in type_6:
+                if(AddrDesc[ir[i].src1['name']]['reg']==None):
+                    generateHelper.writeInstr("mov eax,"+AddrDesc[ir[i].src1['name']]['mem'])
+                else:
+                    generateHelper.writeInstr("mov eax,"+AddrDesc[ir[i].src1['name']]['reg'])
+                
+                saveDirtyAndClean() #clean everything except eax
+                generateHelper.writeInstr("cmp 0, eax")
+                generateHelper.writeInstr("je "+ir[i].dst['name'])
+                
+            elif ir[i].type in type_10:
+                if(ir[i].src1['type']=='constant'):
+                    generateHelper.writeInstr("mov eax, "+ir[i].src1['name'])
+                else:
+                    if(AddrDesc[ir[i].src1['name']]['reg']==None):
+                        generateHelper.writeInstr("mov eax,"+AddrDesc[ir[i].src1['name']]['mem'])
+                    else:
+                        generateHelper.writeInstr("mov eax,"+AddrDesc[ir[i].src1['name']]['reg'])
+                saveDirtyAndClean() #clean everything except eax
+                generateHelper.writeInstr("ret")
+                
+                    
     
-    #handle last one separately

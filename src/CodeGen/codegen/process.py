@@ -36,10 +36,12 @@ class IR:
         self.src2 = {}
         self.dst = {}
 
-        if(instr[0] == 'EndFunc' or instr[0] == 'return' or instr[0] == 'call' or instr[0] == 'goto'):
+        if(instr[0] == 'EndFunc'  or instr[0] == 'call' or instr[0] == 'goto'):
             if(length >= 2):
                 self.src1['name'] = instr[1]
             self.type = instr[0]
+            if(length == 1 and instr[0]=='return'):
+                self.type = 'return'
 
         if(length < 2):
             return
@@ -65,6 +67,18 @@ class IR:
             return
         if(instr[0] == 'push'):
             self.type = 'push'
+            x = instr[1]
+            if(not(x.find('~'))):
+                self.src1['name'] = x
+                self.src1['type'] = 'constant'
+                return
+            name,addr = process_string(x)
+            self.src1['name'] = name
+            self.src1['type'] = find_type(addr)
+            return
+
+        if(instr[0] == 'return'):
+            self.type = 'return'
             x = instr[1]
             if(not(x.find('~'))):
                 self.src1['name'] = x
