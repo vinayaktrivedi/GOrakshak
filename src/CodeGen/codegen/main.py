@@ -7,6 +7,7 @@ from parameter import *
 import process
 import os
 import sys
+import generate
 import pickle
 
 
@@ -148,14 +149,14 @@ for i in threeAC:
 
 #finding blocks
 blocks = findAllBlocks()
-# print blocks
-#code gen globals, use global_symbol_table
-# generateHelper.genGlobals()
-#
-# #code gen blocks
-# for block in blocks:
-#     nextUseTable = createTable(block)
-#     generate.genCodeForBlock(block,nextUseTable)
-#
-# #code gen final
-# generateHelper.close()
+#print blocks
+#ode gen globals, use global_symbol_table
+generateHelper.genGlobals()
+
+#code gen blocks
+for block in blocks:
+    nextUseTable = createTable(block)
+    generate.genCodeForBlock(block,nextUseTable)
+
+#code gen final
+generateHelper.close()

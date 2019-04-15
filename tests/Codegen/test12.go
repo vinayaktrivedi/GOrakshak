@@ -3,7 +3,8 @@ import "fmt";
 func f(a int,b int) int {
 	var t int;
 	var y int;
-	return 3;
+	y = 3;
+	return y;
 };
 func main(){
 	var a int;

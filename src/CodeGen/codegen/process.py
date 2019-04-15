@@ -31,7 +31,7 @@ class IR:
         # dst
         length = len(instr)
         # print length
-
+        self.instruction = instr
         self.src1 = {}
         self.src2 = {}
         self.dst = {}
@@ -64,6 +64,7 @@ class IR:
             name,addr = process_string(x)
             self.src1['name'] = name
             self.src1['type'] = find_type(addr)
+            self.src1['addr'] = addr
             return
         if(instr[0] == 'push'):
             self.type = 'push'
@@ -75,6 +76,7 @@ class IR:
             name,addr = process_string(x)
             self.src1['name'] = name
             self.src1['type'] = find_type(addr)
+            self.src1['addr'] = addr
             return
 
         if(instr[0] == 'return'):
@@ -87,6 +89,7 @@ class IR:
             name,addr = process_string(x)
             self.src1['name'] = name
             self.src1['type'] = find_type(addr)
+            self.src1['addr'] = addr
             return
 
         if(length <= 2):
