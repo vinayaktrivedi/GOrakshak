@@ -17,7 +17,7 @@ def findAllBlocks():
 
     for ind, instr in enumerate(ir):
         # print instr.type
-        if instr.type == 'if' or instr.type == 'goto' or instr.type == 'EndFunc' or instr.type == 'call':
+        if instr.type == 'if' or instr.type == 'goto' or instr.type == 'EndFunc' or instr.type == 'call' or instr.type=='return':
             ret.append([st, ind])
             st = ind + 1
 
@@ -137,17 +137,18 @@ for x in lines:
 #also attach address in stack of variables, assign type based on local, global, temp,constant
 ind = 0
 for i in threeAC:
-    if(i[0] == 'package' or i[0] == 'import' or i[0] == 'mov'):
+    if(i[0] == 'package' or i[0] == 'import'):
         continue
     ir.append(process.IR(i))
-    print ind,
-    print i
+    # print ind,
+    # print ir[ind].type,
+    # print i
     ind = ind + 1
 # print(ir[0].type)
 
 #finding blocks
 blocks = findAllBlocks()
-print blocks
+# print blocks
 #code gen globals, use global_symbol_table
 # generateHelper.genGlobals()
 #

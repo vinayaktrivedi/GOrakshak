@@ -2,9 +2,15 @@ from parameter import *
 import generateHelper
 code = ""
 AddrDesc = {}
+func_offset=-1
 def freeAllRegs():
     for regname in regsList:
         regsInfo[regname]=None
+
+def removeFromRegs(var):
+    for regname in regsList:
+        if(regsInfo[regname]==var):
+            regsInfo[regname]=None
 
 def getfreereg(instrcution_number,nextuse,preserve_reg):
     global AddrDesc
@@ -195,20 +201,48 @@ def genCodeForBlock(block, infoTable):
                 AddrDesc[ir[i].dst['name']]['reg']=L
                 regsInfo[L]=ir[i].dst['name']
                 AddrDesc[ir[i].dst['name']]['dirty']=1
-
-        elif ir[i].type in type_4:
-            pass
+            
         elif ir[i].type in type_5:
-            pass
-        elif ir[i].type in type_6:
-            pass
+            if(ir[i].src1['type']=='constant'):   #push registers
+                generateHelper.writeInstr("push "+ir[i].src1['name'])
+            else:
+                if(AddrDesc[ir[i].src1['name']]['reg']==None):
+                    L2=getfreereg(i,infoTable,None)
+                    generateHelper.writeInstr("mov "+L2+","+AddrDesc[ir[i].src1['name']]['mem'])
+                    AddrDesc[ir[i].src1['name']]['reg']=L2
+                    regsInfo[L2]=ir[i].src1['name']
+                    AddrDesc[ir[i].src1['name']]['dirty']=0
+                    generateHelper.writeInstr("push "+L2)
+                else:
+                    generateHelper.writeInstr("push "+AddrDesc[ir[i].src1['name']]['reg'])
+
         elif ir[i].type in type_7:
-            pass
+            generateHelper.writeInstr(ir[i].src1['name']+ ":")
         elif ir[i].type in type_8:
-            pass
+            generateHelper.writeInstr(ir[i].src1['name']+ ":")
+            generateHelper.writeInstr("push rbp")
+            generateHelper.writeInstr("mov rbp, rsp")
+            generateHelper.writeInstr("push eax")
+            generateHelper.writeInstr("push ebx")
+            generateHelper.writeInstr("push esi")
+            generateHelper.writeInstr("push edi")
+            generateHelper.writeInstr("push edx")
+            global func_offset
+            func_offset=int(ir[i].src2['name'])
         elif ir[i].type in type_9:
-            pass
-        elif ir[i].type in type_10:
-            pass
+            if(ir[i].src1['type']=='constant'):   #pop registers
+                generateHelper.writeInstr("pop "+ir[i].src1['name'])
+            else:
+                if(AddrDesc[ir[i].src1['name']]['reg']==None):
+                    L2=getfreereg(i,infoTable,None)
+                    generateHelper.writeInstr("mov "+L2+","+AddrDesc[ir[i].src1['name']]['mem'])
+                    AddrDesc[ir[i].src1['name']]['reg']=L2
+                    regsInfo[L2]=ir[i].src1['name']
+                    AddrDesc[ir[i].src1['name']]['dirty']=0
+                    generateHelper.writeInstr("pop "+L2)
+                    AddrDesc[ir[i].src1['name']]['dirty']=1
+                else:
+                    generateHelper.writeInstr("pop "+AddrDesc[ir[i].src1['name']]['reg'])
+                    AddrDesc[ir[i].src1['name']]['dirty']=1    
     
     #handle last one separately
