@@ -444,7 +444,7 @@ def p_typedecl(p):
         globalsymboltable['custom_types']['structures'][p[1]['variable']]['struct_fields'] = struct_fields
         struct_size = 0
         global size
-        print(struct_fields)
+        #print(struct_fields)
         for fields in struct_fields:
           for variable in fields:
             struct_size += size[variable['type']['val']]
@@ -1024,7 +1024,7 @@ def p_funcdec1(p):
   p[0] = {}
   global offset
   global func_arg_counter
-  p[0]['code'] = "func "+p[3]['func_name'] + " : BeginFunc "+ str(offset) +"\n" + "push rbp\n"+"mov rbp rsp\n"+"push rbx\npush r15\npush r14\npush r13\npush r12\n"+ p[4]['code'] + "\nEndFunc"
+  p[0]['code'] = "func "+p[3]['func_name'] + " : BeginFunc "+ str(offset-4)+" "+str(p[3]['response_length'])+"\n" + "push rbp\n"+"mov rbp rsp\n"+"push rbx\npush r15\npush r14\npush r13\npush r12\n"+ p[4]['code'] + "\nEndFunc"
   offset = 0
   func_arg_counter = 0
 
@@ -1034,7 +1034,7 @@ def p_funcmarker(p):
     global offset
     global func_arg_counter
     make_symbol_table("func_unknown",None)
-    offset = 0
+    offset = 4
     func_arg_counter = -8
 
 same_func_count={}
@@ -1056,6 +1056,10 @@ def p_funcdec1_(p):
           same_func_count[str(p[1])]=1
 
         p[0]['func_name'] = str(p[1])+str(same_func_count[str(p[1])])
+        if p[3]['response'] == 'void':
+          p[0]['response_length'] = 0
+        else:
+          p[0]['response_length'] = len(p[3]['response'])
         current['CS335_args'] = p[2]['argList']
         current['CS335_response'] = p[3]['response']
         current['CS335_name']= str(p[1])          #replaces func_unknown by actual func name
@@ -1384,7 +1388,7 @@ def p_newnamelist(p):
     else:
         p[0]['names'] = p[1]['names']
         p[0]['names'].append(p[3]['names'])
-    print(p[0]['names'])
+    #print(p[0]['names'])
 
 def p_keyvallist(p):
   '''KeyvalList : Keyval

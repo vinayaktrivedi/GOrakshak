@@ -63,6 +63,7 @@ class IR:
             self.type = 'func'
             self.src1['name'] = instr[1]
             self.src2['name'] = instr[4]
+            self.res_length = instr[5]
             return
 
         if(instr[0] == 'if'):
