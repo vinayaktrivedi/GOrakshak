@@ -211,7 +211,7 @@ class IR:
             return
         else:
             if(not(set(['=']) & set(instr))):
-                print "hi"
+                #print "hi"
                 return
             self.type = '='
             x = instr[0]
