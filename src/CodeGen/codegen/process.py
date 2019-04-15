@@ -4,6 +4,10 @@ from parameter import *
 # Creates IR table
 
 def process_string(x):
+    if(x.find('~') == -1):
+        print("hi")
+        print(x,"-1")
+        return x,"-1"
     ind = x.find('~')
     name = []
     addr = []
@@ -57,7 +61,7 @@ class IR:
         if(instr[0] == 'pop'):
             self.type = 'pop'
             x = instr[1]
-            if(not(x.find('~'))):
+            if(x.find('~') == -1):
                 self.src1['name'] = x
                 self.src1['type'] = 'constant'
                 return
@@ -69,7 +73,7 @@ class IR:
         if(instr[0] == 'push'):
             self.type = 'push'
             x = instr[1]
-            if(not(x.find('~'))):
+            if(x.find('~') == -1):
                 self.src1['name'] = x
                 self.src1['type'] = 'constant'
                 return
@@ -82,7 +86,7 @@ class IR:
         if(instr[0] == 'return'):
             self.type = 'return'
             x = instr[1]
-            if(not(x.find('~'))):
+            if(x.find('~') == -1):
                 self.src1['name'] = x
                 self.src1['type'] = 'constant'
                 return
@@ -215,8 +219,9 @@ class IR:
             self.dst['addr'] = addr
             if(instr[1] == '='):
                 x = instr[2]
-                # print x
+                print x
                 name,addr = process_string(x)
+                print(name,addr)
                 if(not(x[0] in ['0','1','2','3','4','5','6','7','8','9'])):
                     # self.src1['name'] = name
                     self.src1['type'] = find_type(addr)
@@ -225,7 +230,7 @@ class IR:
                     # self.src1['name'] = name
                     self.src1['type'] = 'constant'
                 self.src1['name'] = name
-                self.src1['type'] = find_type(addr)
+                # self.src1['type'] = find_type(addr)
                 self.src1['addr'] = addr
 
                 self.dst['array'] = 'False'

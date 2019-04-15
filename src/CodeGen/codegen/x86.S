@@ -8,9 +8,9 @@ push ebx
 push esi
 push edi
 push edx
-mov rbx -8[ebp]
+mov rbx, 3
 mov eax,rbx
-mov 8,rbx
+mov -8[ebp],rbx
 ret
 main1:
 push rbp
@@ -20,8 +20,12 @@ push ebx
 push esi
 push edi
 push edx
-mov rbx,4
+mov rbx, 10
+mov rcx, 19
 push rbx
-mov rcx,8
 push rcx
+mov -4[ebp],rbx
+mov -8[ebp],rcx
 call f1
+mov rbx, eax
+mov rcx -4[ebp]

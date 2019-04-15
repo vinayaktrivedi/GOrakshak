@@ -14,7 +14,7 @@ def removeFromRegs(var):
 def saveDirtyAndClean():
     for i in AddrDesc.keys():
         if(AddrDesc[i]['dirty']==1 and AddrDesc[i]['real']==1 and AddrDesc[i]['reg']!=None):
-            generateHelper.writeInstr("mov "+AddrDesc[i]['memory']+","+AddrDesc[i]['reg'])
+            generateHelper.writeInstr("mov -"+AddrDesc[i]['memory']+"[ebp],"+AddrDesc[i]['reg'])
 
 
 def getfreereg(instrcution_number,nextuse,preserve_reg):
@@ -115,6 +115,7 @@ def genCodeForBlock(block, infoTable):
         if ir[i].type in type_2:
             name = ir[i].dst['name']
             if(ir[i].src1['type']!='constant'):
+                #generateHelper.writeInstr("hi "+ir[i].src1['type'])
                 L=getReg(i,name,infoTable)
                 removeFromRegs(name)
                 AddrDesc[name]['reg']=L
@@ -123,6 +124,7 @@ def genCodeForBlock(block, infoTable):
             else:
                 if(AddrDesc[name]['reg'] == None):
                     L=getfreereg(i,infoTable,None)
+                   
                     generateHelper.writeInstr("mov "+L+", "+ir[i].src1['name'])
                     AddrDesc[name]['reg']=L
                     regsInfo[L]=name
@@ -239,20 +241,15 @@ def genCodeForBlock(block, infoTable):
             global func_offset
             func_offset=int(ir[i].src2['name'])
         elif ir[i].type in type_9:
-            if(ir[i].src1['type']=='constant'):   #pop registers
-                generateHelper.writeInstr("pop "+ir[i].src1['name'])
-            else:
                 if(AddrDesc[ir[i].src1['name']]['reg']==None):
                     L2=getfreereg(i,infoTable,None)
-                    print(ir[i].instruction)
-                    generateHelper.writeInstr("mov "+L2+","+AddrDesc[ir[i].src1['name']]['memory'])
+                    generateHelper.writeInstr("mov "+L2+", eax")
                     AddrDesc[ir[i].src1['name']]['reg']=L2
                     regsInfo[L2]=ir[i].src1['name']
-                    AddrDesc[ir[i].src1['name']]['dirty']=0
-                    generateHelper.writeInstr("pop "+L2)
-                    AddrDesc[ir[i].src1['name']]['dirty']=1
+                    if(ir[i].src1['type']=="global" or  ir[i].src1['type']=="local"):
+                        AddrDesc[ir[i].src1['name']]['dirty']=1
                 else:
-                    generateHelper.writeInstr("pop "+AddrDesc[ir[i].src1['name']]['reg'])
+                    generateHelper.writeInstr("mov "+AddrDesc[ir[i].src1['name']]['reg']+", eax")
                     AddrDesc[ir[i].src1['name']]['dirty']=1    
 
         #handle last one separately

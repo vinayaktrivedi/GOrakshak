@@ -149,6 +149,7 @@ for i in threeAC:
 
 #finding blocks
 blocks = findAllBlocks()
+print(blocks)
 #print blocks
 #ode gen globals, use global_symbol_table
 generateHelper.genGlobals()
