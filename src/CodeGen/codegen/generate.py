@@ -60,7 +60,7 @@ def getReg(instrcution_number,src1,nextuse):
     else:
         print("hello")
         new_reg = getfreereg(instrcution_number,nextuse,None)
-
+        print(src1)
         generateHelper.writeInstr("mov "+new_reg+", -"+AddrDesc[src1]['memory']+"[ebp]")
         return new_reg
 
@@ -197,6 +197,7 @@ def genCodeForBlock(block, infoTable):
                 L=getReg(i,ir[i].src1['name'],infoTable)
                 if(AddrDesc[ir[i].src2['name']]['reg']==None):
                     L2=getfreereg(i,infoTable,L)
+                    print i, ir[i].src2['name'], ir[i].src2['type'], ir[i].type
                     generateHelper.writeInstr("mov "+L2+","+AddrDesc[ir[i].src2['name']]['memory'])
                     AddrDesc[ir[i].src2['name']]['reg']=L2
                     regsInfo[L2]=ir[i].src2['name']

@@ -5,8 +5,9 @@ from parameter import *
 
 def process_string(x):
     if(x.find('~') == -1):
-        print("hi")
-        print(x,"-1")
+        # print("hi")
+        # print x
+        # print(x,"-1")
         return x,"-1"
     ind = x.find('~')
     name = []
@@ -15,14 +16,18 @@ def process_string(x):
         name.append(x[i])
     for i in range(ind + 1,len(x)):
         addr.append(x[i])
+    # print "".join(name),"".join(addr)
     return "".join(name),"".join(addr)
 
-def find_type(addr):
+def find_type(addr,x):
     if(addr[0] == '-' and addr[1] == '2'):
         return 'global'
     else:
         if(addr[0] == '-' and addr[1] == '1'):
-            return 'temp'
+            if(x[0] in ['0','1','2','3','4','5','6','7','8','9']):
+                return 'constant'
+            else:
+                return 'temp'
         else:
             return 'local'
 
@@ -67,7 +72,7 @@ class IR:
                 return
             name,addr = process_string(x)
             self.src1['name'] = name
-            self.src1['type'] = find_type(addr)
+            self.src1['type'] = find_type(addr,x)
             self.src1['addr'] = addr
             return
         if(instr[0] == 'push'):
@@ -79,7 +84,7 @@ class IR:
                 return
             name,addr = process_string(x)
             self.src1['name'] = name
-            self.src1['type'] = find_type(addr)
+            self.src1['type'] = find_type(addr,x)
             self.src1['addr'] = addr
             return
 
@@ -92,7 +97,7 @@ class IR:
                 return
             name,addr = process_string(x)
             self.src1['name'] = name
-            self.src1['type'] = find_type(addr)
+            self.src1['type'] = find_type(addr,x)
             self.src1['addr'] = addr
             return
 
@@ -111,14 +116,14 @@ class IR:
             x = instr[1]
             name,addr = process_string(x)
             self.src1['name'] = name
-            self.src1['type'] = find_type(addr)
+            self.src1['type'] = find_type(addr,x)
             self.src1['array'] = 'False'
             self.src1['addr'] = addr
 
             x = instr[5]
             name,addr = process_string(x)
             self.dst['name'] = name
-            self.dst['type'] = find_type(addr)
+            self.dst['type'] = find_type(addr,x)
             self.dst['array'] = 'False'
             self.dst['addr'] = addr
 
@@ -129,7 +134,7 @@ class IR:
             x = instr[0]
             name,addr = process_string(x)
             self.dst['name'] = name
-            self.dst['type'] = find_type(addr)
+            self.dst['type'] = find_type(addr,x)
             self.dst['addr'] = addr
             src1 = 0
             if(instr[1] == '['):
@@ -142,7 +147,7 @@ class IR:
             x = instr[src1]
             name,addr = process_string(x)
             self.src1['name'] = name
-            self.src1['type'] = find_type(addr)
+            self.src1['type'] = find_type(addr,x)
             self.src1['addr'] = addr
             return
 
@@ -178,7 +183,7 @@ class IR:
             x = instr[dest]
             name,addr = process_string(x)
             self.dst['name'] = name
-            self.dst['type'] = find_type(addr)
+            self.dst['type'] = find_type(addr,x)
             self.dst['addr'] = addr
 
             self.dst['array'] = da
@@ -188,13 +193,13 @@ class IR:
             x = instr[src1]
             name,addr = process_string(x)
             self.src1['name'] = name
-            self.src1['type'] = find_type(addr)
+            self.src1['type'] = find_type(addr,x)
             self.src1['addr'] = addr
 
             x = instr[src2]
             name,addr = process_string(x)
             self.src2['name'] = name
-            self.src2['type'] = find_type(addr)
+            self.src2['type'] = find_type(addr,x)
             self.src2['addr'] = addr
 
             if(s1a == 'True'):
@@ -215,7 +220,7 @@ class IR:
                 exit(1)
             name,addr = process_string(x)
             self.dst['name'] = name
-            self.dst['type'] = find_type(addr)
+            self.dst['type'] = find_type(addr,x)
             self.dst['addr'] = addr
             if(instr[1] == '='):
                 x = instr[2]
@@ -224,13 +229,13 @@ class IR:
                 print(name,addr)
                 if(not(x[0] in ['0','1','2','3','4','5','6','7','8','9'])):
                     # self.src1['name'] = name
-                    self.src1['type'] = find_type(addr)
+                    self.src1['type'] = find_type(addr,x)
                     self.src1['addr'] = addr
                 else:
                     # self.src1['name'] = name
                     self.src1['type'] = 'constant'
                 self.src1['name'] = name
-                # self.src1['type'] = find_type(addr)
+                # self.src1['type'] = find_type(addr,x)
                 self.src1['addr'] = addr
 
                 self.dst['array'] = 'False'
@@ -255,7 +260,7 @@ class IR:
             name,addr = process_string(x)
             if(not(x[0] in ['0','1','2','3','4','5','6','7','8','9'])):
                 self.src1['name'] = name
-                self.src1['type'] = find_type(addr)
+                self.src1['type'] = find_type(addr,x)
                 self.src1['addr'] = addr
             else:
                 self.src1['name'] = name
