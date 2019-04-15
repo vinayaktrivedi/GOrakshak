@@ -289,5 +289,27 @@ def genCodeForBlock(block, infoTable):
                         generateHelper.writeInstr("mov eax,"+AddrDesc[ir[i].src1['name']]['reg'])
                 saveDirtyAndClean() #clean everything except eax
                 generateHelper.writeInstr("ret")
+            
+            elif ir[i].type in type_11: #printf assuming arg1 consist of format string global var name, arg2 consist of var,const to be printed
+                if(ir[i].arg2['type']=='constant'):
+                    generateHelper.writeInstr("mov eax, "+ir[i].arg2['name'])
+                else:
+                    if(AddrDesc[ir[i].arg2['name']]['reg']==None):
+                        generateHelper.writeInstr("mov eax,"+AddrDesc[ir[i].arg2['name']]['memory'])
+                    else:
+                        generateHelper.writeInstr("mov eax,"+AddrDesc[ir[i].arg2['name']]['reg'])
+                saveDirtyAndClean() #clean everything except eax
+                generateHelper.writeInstr("mov edi,"+AddrDesc[ir[i].arg1['name']]['memory'])  # this will be global variable format
+                generateHelper.writeInstr("mov esi, eax")
+                generateHelper.writeInstr("call printf")             
+                
+            elif ir[i].type in type_12: #scanf    
+                if (ir[i].arg2['type'] == "local"):
+                    saveDirtyAndClean() #clean everything except eax
+                    generateHelper.writeInstr("mov edi, "+AddrDesc[ir[i].arg1['name']]['memory'])  # this will be global variable format
+                    generateHelper.writeInstr("lea esi, "+AddrDesc[ir[i].arg2['name']]['memory'])
+                    generateHelper.writeInstr("call scanf")    
+                else:
+                    generateHelper.writeInstr("scanf should be not in local var!")    
             else:
                 saveDirtyAndClean()
