@@ -49,6 +49,7 @@ def getfreereg(instrcution_number,nextuse,preserve_reg):
 def getReg(instrcution_number,src1,nextuse):
 
     global AddrDesc
+    global func_offset
     reg = AddrDesc[src1]['reg']
     if reg != None:
         if nextuse[instrcution_number][src1] == None:
@@ -61,7 +62,11 @@ def getReg(instrcution_number,src1,nextuse):
         print("hello")
         new_reg = getfreereg(instrcution_number,nextuse,None)
         print(src1)
-        if(AddrDesc[src1]['memory']):
+        if AddrDesc[src1]['memory'] == None:
+            func_offset += 4
+            AddrDesc[src1]['memory'] = func_offset
+            generateHelper.writeInstr("push "+new_reg)
+        else:
             generateHelper.writeInstr("mov "+new_reg+", -"+AddrDesc[src1]['memory']+"[ebp]")
         return new_reg
 
