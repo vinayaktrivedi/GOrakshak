@@ -312,7 +312,7 @@ def genCodeForBlock(block, infoTable):
                 if (ir[i].arg2['type'] == "local"):
                     saveDirtyAndClean() #clean everything except eax
                     generateHelper.writeInstr("mov $CS335_format, %rdi")  # this will be global variable format
-                    generateHelper.writeInstr("lea "+AddrDesc[ir[i].arg2['name']]['memory']+" , %rsi")
+                    generateHelper.writeInstr("lea -"+AddrDesc[ir[i].arg2['name']]['memory']+"(%rbp) , %rsi")
                     generateHelper.writeInstr("call scanf")
                 else:
                     generateHelper.writeInstr("scanf should be not in local var!")
