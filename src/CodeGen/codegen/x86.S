@@ -22,58 +22,60 @@ mov $10,%r15
 mov %r15 , -104(%rbp)
 mov %rbx, %r15
 add %rcx, %r15
-push %r15
-mov %r15, %r15
-add %rdx, %r15
-push %r15
-mov %r15, %r15
-add %rsi, %r15
-push %r15
-mov %r15, %r15
-add %r8, %r15
-push %r15
-mov %r15, %r15
-add %r9, %r15
-push %r15
-mov %r15, %r15
-add %r10, %r15
-push %r15
-mov %r15, %r15
-add %r11, %r15
-push %r15
-mov %r15, %r15
-add %r12, %r15
-push %r15
-mov %r15, %r15
-add %r13, %r15
-push %r15
-mov %r15, %r15
-add %r14, %r15
-push %r15
-mov %r15, %r15
-mov %r15 , -192(%rbp)
-mov -96(%rbp), %r15
-add %r15, %r15
-push %r15
-mov %r15, %r15
-mov %r15 , -200(%rbp)
-mov -104(%rbp), %r15
-add %r15, %r15
-push %r15
-mov %r15, %r15
-mov %r15, %rax
-mov %r14, -88(%rbp) 
-mov %r13, -80(%rbp) 
-mov %rbx, -8(%rbp) 
+mov %r14 , -88(%rbp)
+mov %r15, %r14
+add %rdx, %r14
+mov %r13 , -80(%rbp)
+mov %r14, %r13
+add %rsi, %r13
+mov %r12 , -72(%rbp)
+mov %r13, %r12
+add %r8, %r12
+mov %r11 , -64(%rbp)
+mov %r12, %r11
+add %r9, %r11
+mov %rbx , -8(%rbp)
+mov %r11, %rbx
+add %r10, %rbx
+mov %rcx , -16(%rbp)
+mov %rbx, %rcx
+push %rbx
+mov -64(%rbp), %rbx
+add %rbx, %rcx
+mov %rbx , -64(%rbp)
+mov %rcx, %rbx
+push %rcx
+mov -72(%rbp), %rcx
+add %rcx, %rbx
+mov %rcx , -72(%rbp)
+mov %rbx, %rcx
+push %rbx
+mov -80(%rbp), %rbx
+add %rbx, %rcx
+mov %rbx , -80(%rbp)
+mov %rcx, %rbx
+push %rcx
+mov -88(%rbp), %rcx
+add %rcx, %rbx
+mov %rcx , -88(%rbp)
+mov %rbx, %rcx
+push %rbx
+mov -96(%rbp), %rbx
+add %rbx, %rcx
+mov %rbx , -96(%rbp)
+mov %rcx, %rbx
+push %rcx
+mov -104(%rbp), %rcx
+add %rcx, %rbx
+mov %rcx , -104(%rbp)
+mov %rbx, %rcx
+mov %rcx, %rax
 mov %rdx, -24(%rbp) 
-mov %rcx, -16(%rbp) 
 mov %r8, -40(%rbp) 
 mov %rsi, -32(%rbp) 
 mov %r10, -56(%rbp) 
 mov %r9, -48(%rbp) 
-mov %r12, -72(%rbp) 
-mov %r11, -64(%rbp) 
-mov %r15, -112(%rbp) 
+mov %rcx, -112(%rbp) 
 mov $CS335_format, %rdi
 mov %rax, %rsi
 mov $0, %rax
