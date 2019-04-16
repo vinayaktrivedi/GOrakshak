@@ -214,7 +214,7 @@ def genCodeForBlock(block, infoTable):
                 elif(ir[i].type == '<='):
                     generateHelper.writeInstr("cmp $"+ir[i].src2['name']+", "+L)
                     generateHelper.writeInstr("setle %al")
-                    generateHelper.writeInstr("movbzl %al, %rax")
+                    generateHelper.writeInstr("movbz %al, %rax")
                     generateHelper.writeInstr("mov %rax, "+ L)
                 removeFromRegs(ir[i].dst['name'])
                 AddrDesc[ir[i].dst['name']]['reg']=L

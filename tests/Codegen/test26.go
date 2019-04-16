@@ -7,7 +7,7 @@ import (
 
 
 func FibonacciRecursion(n int) int{
-    if n <= 1 {
+    if n == 1 {
         return n;
     };
     return FibonacciRecursion(n-1) + FibonacciRecursion(n-2);
@@ -18,6 +18,7 @@ func foo(n int) int, int {
 };
 func main() {
 	var c int;
-	c := FibonacciRecursion(19);
+	c := FibonacciRecursion(5);
+	printf("%d",c);
   v,m := foo(10);
 };
