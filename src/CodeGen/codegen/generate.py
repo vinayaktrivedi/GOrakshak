@@ -31,7 +31,7 @@ def getfreereg(instrcution_number,nextuse,preserve_reg):
             return regname
 
     for regname in regsList:
-        if regname in preserve_reg:
+        if preserve_reg!=None and  regname in preserve_reg:
             continue
         info = nextuse[instrcution_number][regsInfo[regname]]
         if info == None:
