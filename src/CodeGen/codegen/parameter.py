@@ -33,6 +33,6 @@ type_10=['return']
 type_11=['print']
 type_12=['scanf']
 
-regsList=['ebx','ecx','edx','esi','r8','r9','r10','r11','r12','r13','r14','r15'] #should not contain eax
-regsInfo={ 'ebx': None, 'ecx': None, 'edx': None, 'esi': None, 'edi': None,'r8':None,'r9':None,'r10':None,'r11':None,'r12':None,'r13':None,'r14':None,'r15':None}
+regsList=['%rbx','%rcx','%rdx','%rsi','%r8','%r9','%r10','%r11','%r12','%r13','%r14','%r15'] #should not contain eax
+regsInfo={ '%rbx': None, '%rcx': None, '%rdx': None, '%rsi': None, '%rdi': None,'%r8':None,'%r9':None,'%r10':None,'%r11':None,'%r12':None,'%r13':None,'%r14':None,'%r15':None}
 AddrDesc={}

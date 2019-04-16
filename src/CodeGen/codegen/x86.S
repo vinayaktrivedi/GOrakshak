@@ -2,43 +2,43 @@
 .global main1
 CS335_format: .string "%d\n"
 f1:
-push rbp
-mov rbp, rsp
-sub rsp, 5
-mov eax,4
-mov rsp, rbp
-pop rbp
+push %rbp
+mov %rsp, %rsp
+sub $5, %rsp
+mov 4, %rax
+mov %rbp, %rsp
+pop %rbp
 ret
 main1:
-push rbp
-mov rbp, rsp
-sub rsp, 112
-mov ebx,4
+push %rbp
+mov %rsp, %rsp
+sub $112, %rsp
+mov 4, ebx
 push ebx
-mov ecx,8
+mov 8, ecx
 push ecx
 call f1
-mov ebx, eax
-mov ecx, ebx
-mov edx, -20[ebp]
-mov esi, edx
-mov esi, 1
-mov r8, -32[ebp]
-mov r9, r8
-mov r9, 0
-mov r10, -32[ebp]
-mov r11, r10
-mov r11, 90
-mov r12, -32[ebp]
-mov r13, r12
-mov r13, 845
-mov r14, 2
-mov r15, -8[ebp]
+mov %rax, ebx
+mov ebx, ecx
+mov  -20(%rbp) , edx
+mov edx, esi
+mov 1, esi
+mov  -32(%rbp) , r8
+mov r8, r9
+mov 0, r9
+mov  -32(%rbp) , r10
+mov r10, r11
+mov 90, r11
+mov  -32(%rbp) , r12
+mov r12, r13
+mov 845, r13
+mov 2,r14
+mov  -8(%rbp) , r15
 push r15
 mov r15, r15
-mov eax,4
-mov -12(ebp),ecx
-mov -112(ebp),r15
-mov edi, $CS335_format
-mov %esi, eax
+mov 4 ,%rax
+mov ecx, -12(%rbp)
+mov r15, -112(%rbp)
+mov $CS335_format, %rdi
+mov %rax, %rsi
 call printf
