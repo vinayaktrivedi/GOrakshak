@@ -1,44 +1,63 @@
 .section .rodata
 .global main
 CS335_format: .string "%d\n"
-f1:
+FibonacciRecursion1:
 push %rbp
 mov %rsp, %rsp
-sub $5, %rsp
+sub $0, %rsp
+mov  --8(%rbp) , %rbx
+cmp $1, %rbx
+setle %al
+movbzl %al, %rax
+mov %rax, %rbx
+mov %rbx, %rax
+cmp %rax, $0
+je CS335_4
+mov -8, %rax
+leave
+ret
+CS335_4:
+mov  --8(%rbp) , %rbx
+sub $1, %rbx
+push %rbx
+call FibonacciRecursion1
+mov %rax, %rbx
+mov  --8(%rbp) , %rcx
+sub $2, %rcx
+push %rcx
+call FibonacciRecursion1
+mov %rax, %rbx
+push %rcx
+add %rbx, %rcx
+mov %rcx, %rax
+leave
+ret
+foo1:
+push %rbp
+mov %rsp, %rsp
+sub $4, %rsp
+mov  --8(%rbp) , %rbx
+sub $1, %rbx
+mov %rbx, %rcx
+mov -8, %rax
+mov %rcx, -4(%rbp)
+leave
+ret
 mov 4, %rax
-mov %rbp, %rsp
-pop %rbp
+leave
 ret
 main:
 push %rbp
 mov %rsp, %rsp
-sub $112, %rsp
-mov 4, %rbx
-push %rbx
-mov 8, %rcx
-push %rcx
-call f1
+sub $12, %rsp
+push $19
+call FibonacciRecursion1
 mov %rax, %rbx
 mov %rbx, %rcx
-mov  -20(%rbp) , %rdx
-mov %rdx, %rsi
-mov $1, %rsi
-mov  -32(%rbp) , %r8
-mov %r8, %r9
-mov $0, %r9
-mov  -32(%rbp) , %r10
-mov %r10, %r11
-mov $90, %r11
-mov  -32(%rbp) , %r12
-mov %r12, %r13
-mov $845, %r13
-mov $2,%r14
-mov  -8(%rbp) , %r15
-push %r15
-mov %r15, %r15
-mov 4 ,%rax
-mov %rcx, -12(%rbp)
-mov %r15, -112(%rbp)
-mov $CS335_format, %rdi
-mov %rax, %rsi
-call printf
+push $10
+mov %rcx, -4(%rbp)
+call foo1
+mov %rax, %rbx
+mov %rax, %rcx
+mov %rbx, %rdx
+mov %rcx, %rsi

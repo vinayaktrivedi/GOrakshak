@@ -22,16 +22,20 @@ type Vertex struct {
 // 	foo(p,q,d);
 // };
 
-func main(){
+func main() int{
     //num = 1;
-    var xx Vertex;
-    xx = Vertex[(Y:100,xu:1)];
-    var tt Vertex;
-    tt.xu = 10;
-    tt.Y = 1;
-    a := tt.Y;
-    printf("%d",a);
-    scanf("%d",a);
+    // var xx Vertex;
+    // xx = Vertex[(Y:100,xu:1)];
+    // var tt Vertex;
+    // tt.xu = 10;
+    // tt.Y = 1;
+    // a := tt.Y;
+    // printf("%d",a);
+    // scanf("%d",a);
+    a := 19;
+    b := 14;
+    c := a + b + 18;
+    printf("%d",c);
     // var num int;
     // if num < 0 {
     //     num = -num;
@@ -47,4 +51,5 @@ func main(){
     // var p int;
     // foo(k,q,p);
     // p, k = foo(3);
+    return 0;
 };
