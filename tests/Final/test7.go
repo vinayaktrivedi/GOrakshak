@@ -11,24 +11,44 @@ import (
 //     age  int;
 // };
 
-func f(a int,b int) int {
-	var a int;
-	var b bool;
-	return 1;
-};
+// func f(a int,b int) int {
+// 	var a int;
+// 	var b bool;
+// 	return a;
+// };
 
-func main(){
-	var a int;
-	var b int;
-	var c int;
-	var d int;
-	c = f(a,b);
-	var e [3]int;
-	e[1] = 0;
-	// e[2] = e[7];
+func main() int{
+	// var a int;
+	// var b int;
+	// var c int;
+  // a = 90;
+  // b = 9;
+  // c = a + b;
+  // printf("%d",c);
+  // printf("%d",c);
+  var u int;
+  // scanf("%d",u);
+  u = 17;
+  printf("%d",u);
 
-	var g [20]int;
-	g[10] = 0;
-	g[9],g[1] := 90,845;
-  g[19] = g[1] - g[9];
+	// var d int;
+	// c = f(a,b);
+	// var e [3]int;
+	// e[2] = 1;
+	// // a = e[5];
+  //
+	// var g [20]int;
+	// g[10] = 0;
+	// g[9],g[1] := 90,845;
+  // 	xy := 2;
+  // 	xy = b*c;
+  //   printf("%d",a);
+  //   // scanf("%d",a);
+  // 	// xy = gg;
+
+
+  // var g int;
+  // printf("%d",g);
+  // scanf("%d",g);
+  return 0;
 };

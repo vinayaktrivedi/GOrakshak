@@ -1,22 +1,33 @@
 package main;
 import "fmt";
+func main() int {
+	// var a int;
+	// var b int;
+	// var c int;
+	// a = 90;
+	// b = 9;
+	// c = a + b;
+	// printf("%d",c);
+	// printf("%d",c);
+	var a int = 10;
+	var b int = 10;
+	var c int = 10;
+	var d int = 10;
+	var e int = 10;
+	var f int = 10;
+	var g int = 10;
+	var h int = 10;
+	var i int = 10;
+	var ff int = 10;
+	var gg int = 10;
+	var hh int = 10;
+	var aaa int = 10;
+	// var ii int = 10;
+	// var j int = 10;
+	k := a + b + c + d + e + f + g + h + i +  ff + gg + hh+aaa;
+	// var j int;
+	// j = c+a+b;
+	printf("%d", k);
 
-func main(){
-	var num int;
-	num = 89*7-67+99;
-	num -= 45;
-	num *= 89+1;
-	if num < 0 {
-        num = -num;
-        var u int;
-        u = 7*num;
-    } else if num < 10 {
-        num += 85;
-        num++;
-        u = 0;
-    } else {
-        num = 90-56;
-        num = 2*num - 67;
-    };
-    u = 89-90;	
+	return 0;
 };

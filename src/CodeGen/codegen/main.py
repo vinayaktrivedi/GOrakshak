@@ -163,10 +163,15 @@ for i in threeAC:
     if(i[0] == 'package' or i[0] == 'import'):
         continue
     ir.append(process.IR(i))
+<<<<<<< HEAD
     #print ind,
     #print ir[ind].type,
+=======
+    # print ind,
+    # print ir[ind].type,
+>>>>>>> vibhorispapa
     # print ir[ind].dst
-    print i
+    # print i
     ind = ind + 1
 # print(ir[0].type)
 
