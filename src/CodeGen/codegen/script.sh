@@ -2,7 +2,7 @@
 cd ..
 ./script.sh
 cd codegen
-for i in {1..26}
+for i in {1..20}
 do
 	python main.py ../code$i.txt
 	# cat code.txt > "code$i.txt"

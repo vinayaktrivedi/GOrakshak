@@ -282,7 +282,7 @@ def p_importstmt(p):
     p[0]['code'] = 'import '+str(p[2])
 
     register_variable(str(p[2]))
-    print(str(p[2]))
+    # print(str(p[2]))
     add_variable_attribute(str(p[2]),"import",1)
     register_variable("Println")
     # symbol_table = stack[-1]
@@ -450,7 +450,7 @@ def p_typedeclname(p):
 def p_typedecl(p):
     '''TypeDecl : TypeDeclName NType'''
     p[0] = {}
-    p[0]['code'] = p[1]['code'] + p[2]['type']['val']
+    p[0]['code'] = ""
     global globalsymboltable
     if 'val' in p[2]['type']:
       if p[2]['type']['val'] == 'struct':
@@ -2398,7 +2398,7 @@ def p_pseudocall(p):
     exprs = p[3]['exprs']
     i=0
     for dicts in args:
-      p[0]['code'] += "\npush "+str(exprs[i]['place'])+"~"+str(get_variable_attribute(str(exprs[i]['place']),'offset'))
+      p[0]['code'] += "\npush "+str(exprs[len(args) - 1 - i]['place'])+"~"+str(get_variable_attribute(str(exprs[len(args) - 1 - i]['place']),'offset'))
       i = i+1
 
     p[0]['code'] += "\ncall "+final_func['CS335_show_label']

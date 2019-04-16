@@ -1,21 +1,54 @@
 package main;
-import "fmt";
-func hello() int {
-	return 2;
-};
-func main(){
-	var g [20]int;
-	g[10] = 0;
-	g[9],g[1] := 90,845;
-	g[1] = hello();
+import "df";
+import (
+    "fmt";
+    "strings";
+    "adfdf";
+);
 
-	var sum int = 0;
-	var i int;
-	for i = 0; i < 10; i++ {
-		var k int;
-		k = 3*i;
-		sum += k;
-	};
-	sum -= k;
-	sum  := 10;
+// type person struct {
+//     name string;
+//     age  int;
+// };
+
+// func f(a int,b int) int {
+// 	var a int;
+// 	var b bool;
+// 	return a;
+// };
+
+func main() int{
+	// var a int;
+	// var b int;
+	// var c int;
+  // a = 90;
+  // b = 9;
+  // c = a + b;
+  // printf("%d",c);
+  // printf("%d",c);
+  var u int;
+  // scanf("%d",u);
+  u = 17;
+  printf("%d",u);
+
+	// var d int;
+	// c = f(a,b);
+	// var e [3]int;
+	// e[2] = 1;
+	// // a = e[5];
+  //
+	// var g [20]int;
+	// g[10] = 0;
+	// g[9],g[1] := 90,845;
+  // 	xy := 2;
+  // 	xy = b*c;
+  //   printf("%d",a);
+  //   // scanf("%d",a);
+  // 	// xy = gg;
+
+
+  // var g int;
+  // printf("%d",g);
+  // scanf("%d",g);
+  return 0;
 };

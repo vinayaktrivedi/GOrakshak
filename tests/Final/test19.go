@@ -1,17 +1,54 @@
 package main;
-import "fmt";
-func f(a int,b int) int {
-	var t int;
-	var y int;
-	return 2;
-};
-func main(){
-	var a int;
-	var b int;
-	var c float;
-	var d float;
-	c = f(a,b);
-	c = c*d - 78 + 56.9;
-	// c = 89/(56-78+78-56);
-	c /= 89*89/89 - 89;
+import "df";
+import (
+    "fmt";
+    "strings";
+    "adfdf";
+);
+
+// type person struct {
+//     name string;
+//     age  int;
+// };
+
+// func f(a int,b int) int {
+// 	var a int;
+// 	var b bool;
+// 	return a;
+// };
+
+func main() int{
+	// var a int;
+	// var b int;
+	// var c int;
+  // a = 90;
+  // b = 9;
+  // c = a + b;
+  // printf("%d",c);
+  // printf("%d",c);
+  var u int;
+  // scanf("%d",u);
+  u = 17;
+  printf("%d",u);
+
+	// var d int;
+	// c = f(a,b);
+	// var e [3]int;
+	// e[2] = 1;
+	// // a = e[5];
+  //
+	// var g [20]int;
+	// g[10] = 0;
+	// g[9],g[1] := 90,845;
+  // 	xy := 2;
+  // 	xy = b*c;
+  //   printf("%d",a);
+  //   // scanf("%d",a);
+  // 	// xy = gg;
+
+
+  // var g int;
+  // printf("%d",g);
+  // scanf("%d",g);
+  return 0;
 };

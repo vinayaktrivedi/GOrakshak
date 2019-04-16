@@ -1,19 +1,33 @@
 package main;
-import "fmt";
-func f(a int,b int) int {
-	var t int;
-	var y int;
-	return 2;
+
+import (
+	"fmt";
+	"time";
+);
+
+
+func FibonacciRecursion(n int) int{
+    if n <= 1 {
+        return n;
+    };
+		var a int;
+		a = FibonacciRecursion(n-1);
+		var b int;
+		b = FibonacciRecursion(n-2);
+		printf("%d",a);
+		var c int;
+		// printf("%d",b);
+		c = a + b;
+    return c;
 };
-func main(){
-	var n int;
-	n = +(90+67-90);
-	var k int;
-	k = 90*8;
-	var u **int;
-	var b,g int;
-	b = f(45,67);
-	u = &(&k);
-	n = **u;
-	n = !90;
+// func foo(n int) int, int {
+//   c := n - 1;
+//   return n,c;
+// };
+func main() int{
+	var c int;
+	c = FibonacciRecursion(9);
+  // v,m := foo(10);
+	printf("%d",c);
+	return 0;
 };
