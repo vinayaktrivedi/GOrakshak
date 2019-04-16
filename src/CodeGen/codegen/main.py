@@ -56,6 +56,14 @@ def createTable(x):
         elif((ir[i].type in type_5) or (ir[i].type in type_9) or (ir[i].type in type_6)):
             if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")):
                 listOfSymbols.add(ir[i].src1['name'])
+        elif((ir[i].type in type_11) or (ir[i].type in type_12)):
+            if((ir[i].arg2['type'] == "local") or (ir[i].arg2['type'] == "temp") or (ir[i].arg2['type'] == "global")):
+                listOfSymbols.add(ir[i].arg2['name'])
+        elif((ir[i].type in type_10)):
+            if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")):
+                listOfSymbols.add(ir[i].src1['name'])
+                
+
 
 
 
@@ -101,6 +109,19 @@ def createTable(x):
             if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")):
                 (ret[i])[ir[i].src1['name']]["live"] = False
                 (ret[i])[ir[i].src1['name']]["nextUse"] = None
+        
+        elif ir[i].type in type_10:
+            if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")):
+                (ret[i])[ir[i].src1['name']]["live"] = True
+                (ret[i])[ir[i].src1['name']]["nextUse"] = i
+        elif ir[i].type in type_11:
+            if((ir[i].arg2['type'] == "local") or (ir[i].arg2['type'] == "temp") or (ir[i].arg2['type'] == "global")):
+                (ret[i])[ir[i].arg2['name']]["live"] = True
+                (ret[i])[ir[i].arg2['name']]["nextUse"] = i
+        elif ir[i].type in type_12:
+            if((ir[i].arg2['type'] == "local") or (ir[i].arg2['type'] == "temp") or (ir[i].arg2['type'] == "global")):
+                (ret[i])[ir[i].arg2['name']]["live"] = False
+                (ret[i])[ir[i].arg2['name']]["nextUse"] = None
 
 
     for i in range(start, end):
