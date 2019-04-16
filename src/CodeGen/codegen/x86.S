@@ -1,24 +1,18 @@
 .section .rodata
-.global hello
-hello: .string hello world
+.global main1
+CS335_format: .string "%d\n"
 f1:
 push rbp
 mov rbp, rsp
-push eax
-push ebx
-push esi
-push edi
-push edx
+sub rsp, 5
 mov eax,4
+mov rsp, rbp
+pop rbp
 ret
 main1:
 push rbp
 mov rbp, rsp
-push eax
-push ebx
-push esi
-push edi
-push edx
+sub rsp, 112
 mov ebx,4
 push ebx
 mov ecx,8
@@ -42,3 +36,9 @@ mov r14, 2
 mov r15, -8[ebp]
 push r15
 mov r15, r15
+mov eax,4
+mov -12(ebp),ecx
+mov -112(ebp),r15
+mov edi, $CS335_format
+mov %esi, eax
+call printf
