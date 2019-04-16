@@ -14,7 +14,7 @@ def removeFromRegs(var):
 def saveDirtyAndClean():
     for i in AddrDesc.keys():
         if(AddrDesc[i]['dirty']==1 and AddrDesc[i]['real']==1 and AddrDesc[i]['reg']!=None):
-            generateHelper.writeInstr("mov "+AddrDesc[i]['reg']+", -"+AddrDesc[i]['memory']+"(%rbp) "+i)
+            generateHelper.writeInstr("mov "+AddrDesc[i]['reg']+", "+AddrDesc[i]['memory']+"(%rbp) ")
 
 
 def getfreereg(instrcution_number,nextuse,preserve_reg):
@@ -69,7 +69,7 @@ def getReg(instrcution_number,src1,nextuse):
             AddrDesc[src1]['memory'] = func_offset
             generateHelper.writeInstr("push "+new_reg)
         else:
-            generateHelper.writeInstr("mov  -"+AddrDesc[src1]['memory']+"(%rbp) , " + new_reg)
+            generateHelper.writeInstr("mov  "+AddrDesc[src1]['memory']+"(%rbp) , " + new_reg)
         return new_reg
 
 
@@ -112,6 +112,7 @@ def setupAddrDesc(st,end):
                 AddrDesc[value] = {}
                 a = int(variable['addr'])
                 a = a*-1
+                a = a*2
                 # AddrDesc[value]['memory'] = variable['addr']
                 AddrDesc[value]['memory'] = str(a)
                 AddrDesc[value]['reg'] = None
@@ -239,7 +240,7 @@ def genCodeForBlock(block, infoTable):
             else:
                 if(AddrDesc[ir[i].src1['name']]['reg']==None):
                     L2=getfreereg(i,infoTable,None)
-                    generateHelper.writeInstr("mov "+AddrDesc[ir[i].src1['name']]['memory']+", "+L2)
+                    generateHelper.writeInstr("mov "+AddrDesc[ir[i].src1['name']]['memory']+"(%rbp), "+L2)
                     AddrDesc[ir[i].src1['name']]['reg']=L2
                     regsInfo[L2]=ir[i].src1['name']
                     AddrDesc[ir[i].src1['name']]['dirty']=0
@@ -255,7 +256,9 @@ def genCodeForBlock(block, infoTable):
             generateHelper.writeInstr(ir[i].src1['name']+ ":")
             generateHelper.writeInstr("push %rbp")
             generateHelper.writeInstr("mov %rsp, %rbp")
-            generateHelper.writeInstr("sub $"+ir[i].src2['name']+ ", %rsp")
+            subt = int(ir[i].src2['name'])
+            subt = subt*2
+            generateHelper.writeInstr("sub $"+str(subt)+ ", %rsp")
             global func_offset
             func_offset=int(ir[i].src2['name'])
         elif ir[i].type in type_9:
@@ -308,7 +311,7 @@ def genCodeForBlock(block, infoTable):
                     generateHelper.writeInstr("mov "+ir[i].arg2['name']+", %rax")
                 else:
                     if(AddrDesc[ir[i].arg2['name']]['reg']==None):
-                        generateHelper.writeInstr("mov -"+AddrDesc[ir[i].arg2['name']]['memory']+"(%rbp) ,%rax")
+                        generateHelper.writeInstr("mov "+AddrDesc[ir[i].arg2['name']]['memory']+"(%rbp) ,%rax")
                     else:
                         generateHelper.writeInstr("mov "+AddrDesc[ir[i].arg2['name']]['reg']+", %rax")
                 saveDirtyAndClean() #clean everything except eax
@@ -321,7 +324,7 @@ def genCodeForBlock(block, infoTable):
                 if (ir[i].arg2['type'] == "local"):
                     saveDirtyAndClean() #clean everything except eax
                     generateHelper.writeInstr("mov $CS335_format, %rdi")  # this will be global variable format
-                    generateHelper.writeInstr("lea -"+AddrDesc[ir[i].arg2['name']]['memory']+"(%rbp) , %rsi")
+                    generateHelper.writeInstr("lea "+AddrDesc[ir[i].arg2['name']]['memory']+"(%rbp) , %rsi")
                     generateHelper.writeInstr("mov $0, %rax")
                     generateHelper.writeInstr("call scanf")
                 else:

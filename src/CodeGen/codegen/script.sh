@@ -1,4 +1,7 @@
 #!/bin/bash
+cd ..
+./script.sh
+cd codegen
 for i in {1..26}
 do
 	python main.py ../code$i.txt
