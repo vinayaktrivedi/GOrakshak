@@ -224,9 +224,9 @@ class IR:
             self.dst['addr'] = addr
             if(instr[1] == '='):
                 x = instr[2]
-                print x
+                # print x
                 name,addr = process_string(x)
-                print(name,addr)
+                # print(name,addr)
                 if(not(x[0] in ['0','1','2','3','4','5','6','7','8','9'])):
                     # self.src1['name'] = name
                     self.src1['type'] = find_type(addr,x)

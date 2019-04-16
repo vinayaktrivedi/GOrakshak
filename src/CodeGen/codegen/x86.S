@@ -9,30 +9,30 @@ push ebx
 push esi
 push edi
 push edx
-mov rbx, --8[ebp]
-cmp rbx, 1
+mov ebx, --8[ebp]
+cmp ebx, 1
 setle al
 movbzl eax, al
-mov rbx, eax
-mov eax,rbx
+mov ebx, eax
+mov eax,ebx
 cmp 0, eax
 je CS335_4
 mov eax,-8
 ret
 CS335_4:
-mov rbx, --8[ebp]
-sub rbx, 1
-push rbx
+mov ebx, --8[ebp]
+sub ebx, 1
+push ebx
 call FibonacciRecursion1
-mov rbx, eax
-mov rcx, --8[ebp]
-sub rcx, 2
-push rcx
+mov ebx, eax
+mov ecx, --8[ebp]
+sub ecx, 2
+push ecx
 call FibonacciRecursion1
-mov rbx, eax
-push rcx
-add rcx, rbx
-mov eax,rcx
+mov ebx, eax
+push ecx
+add ecx, ebx
+mov eax,ecx
 ret
 foo1:
 push rbp
@@ -42,11 +42,11 @@ push ebx
 push esi
 push edi
 push edx
-mov rbx, --8[ebp]
-sub rbx, 1
-mov rcx, rbx
+mov ebx, --8[ebp]
+sub ebx, 1
+mov ecx, ebx
 mov eax,-8
-mov -4[ebp],rcx
+mov -4[ebp],ecx
 ret
 mov eax,4
 ret
@@ -60,12 +60,12 @@ push edi
 push edx
 push 19
 call FibonacciRecursion1
-mov rbx, eax
-mov rcx, rbx
+mov ebx, eax
+mov ecx, ebx
 push 10
-mov -4[ebp],rcx
+mov -4[ebp],ecx
 call foo1
-mov rbx, eax
-mov rcx, eax
-mov rdx, rbx
-mov rsi, rcx
+mov ebx, eax
+mov ecx, eax
+mov edx, ebx
+mov esi, ecx

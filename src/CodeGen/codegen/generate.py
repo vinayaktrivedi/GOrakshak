@@ -59,9 +59,9 @@ def getReg(instrcution_number,src1,nextuse):
             generateHelper.writeInstr("mov "+new_reg+", "+reg)
             return new_reg
     else:
-        print("hello")
+        # print("hello")
         new_reg = getfreereg(instrcution_number,nextuse,None)
-        print(src1)
+        # print(src1)
         if AddrDesc[src1]['memory'] == None:
             func_offset += 4
             AddrDesc[src1]['memory'] = func_offset
@@ -85,7 +85,7 @@ def setupAddrDesc(st,end):
             operands = [ir[i].src1]
         else:
             continue
-        print(operands)
+        # print(operands)
         for variable in operands:
 
             if variable['type']=="temp":
@@ -199,11 +199,11 @@ def genCodeForBlock(block, infoTable):
                 regsInfo[L]=ir[i].dst['name']
                 AddrDesc[ir[i].dst['name']]['dirty']=1
             else:
-                print(ir[i].src1['name'],"hi")
+                # print(ir[i].src1['name'],"hi")
                 L=getReg(i,ir[i].src1['name'],infoTable)
                 if(AddrDesc[ir[i].src2['name']]['reg']==None):
                     L2=getfreereg(i,infoTable,L)
-                    print i, ir[i].src2['name'], ir[i].src2['type'], ir[i].type
+                    # print i, ir[i].src2['name'], ir[i].src2['type'], ir[i].type
                     generateHelper.writeInstr("mov "+L2+","+AddrDesc[ir[i].src2['name']]['memory'])
                     AddrDesc[ir[i].src2['name']]['reg']=L2
                     regsInfo[L2]=ir[i].src2['name']
@@ -289,8 +289,9 @@ def genCodeForBlock(block, infoTable):
                         generateHelper.writeInstr("mov eax,"+AddrDesc[ir[i].src1['name']]['reg'])
                 saveDirtyAndClean() #clean everything except eax
                 generateHelper.writeInstr("ret")
-            
+
             elif ir[i].type in type_11: #printf assuming arg1 consist of format string global var name, arg2 consist of var,const to be printed
+                # arg to be printed can also be a function
                 if(ir[i].arg2['type']=='constant'):
                     generateHelper.writeInstr("mov eax, "+ir[i].arg2['name'])
                 else:
@@ -301,15 +302,15 @@ def genCodeForBlock(block, infoTable):
                 saveDirtyAndClean() #clean everything except eax
                 generateHelper.writeInstr("mov edi,"+AddrDesc[ir[i].arg1['name']]['memory'])  # this will be global variable format
                 generateHelper.writeInstr("mov esi, eax")
-                generateHelper.writeInstr("call printf")             
-                
-            elif ir[i].type in type_12: #scanf    
+                generateHelper.writeInstr("call printf")
+
+            elif ir[i].type in type_12: #scanf
                 if (ir[i].arg2['type'] == "local"):
                     saveDirtyAndClean() #clean everything except eax
                     generateHelper.writeInstr("mov edi, "+AddrDesc[ir[i].arg1['name']]['memory'])  # this will be global variable format
                     generateHelper.writeInstr("lea esi, "+AddrDesc[ir[i].arg2['name']]['memory'])
-                    generateHelper.writeInstr("call scanf")    
+                    generateHelper.writeInstr("call scanf")
                 else:
-                    generateHelper.writeInstr("scanf should be not in local var!")    
+                    generateHelper.writeInstr("scanf should be not in local var!")
             else:
                 saveDirtyAndClean()
