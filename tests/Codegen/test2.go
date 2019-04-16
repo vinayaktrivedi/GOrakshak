@@ -1,14 +1,16 @@
 package main;
 import "fmt";
 func f(a int,b int) int {
-	var t int;
-	var y int;
-	return 2;
+	return a+b;
 };
-func main(){
-	var a int ;
+func main() int{
+	var a int;
 	var b int;
+	a = 10;
+	b = 90;
 	var c int;
-	var d int;
+	// var d int;
 	c = f(a,b);
+	printf("%d",c);
+	return 0;
 };

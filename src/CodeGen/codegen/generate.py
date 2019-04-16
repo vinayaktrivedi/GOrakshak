@@ -14,7 +14,7 @@ def removeFromRegs(var):
 def saveDirtyAndClean():
     for i in AddrDesc.keys():
         if(AddrDesc[i]['dirty']==1 and AddrDesc[i]['real']==1 and AddrDesc[i]['reg']!=None):
-            generateHelper.writeInstr("mov "+AddrDesc[i]['reg']+", -"+AddrDesc[i]['memory']+"(%rbp)")
+            generateHelper.writeInstr("mov "+AddrDesc[i]['reg']+", -"+AddrDesc[i]['memory']+"(%rbp) "+i)
 
 
 def getfreereg(instrcution_number,nextuse,preserve_reg):
@@ -24,6 +24,8 @@ def getfreereg(instrcution_number,nextuse,preserve_reg):
     mini = -1
     for regname in regsList:
         if regsInfo[regname] == None:
+            if regname == preserve_reg:
+                continue
             return regname
     for regname in regsList:
         if regname == preserve_reg:
@@ -108,7 +110,10 @@ def setupAddrDesc(st,end):
             else:
                 value = variable['name']
                 AddrDesc[value] = {}
-                AddrDesc[value]['memory'] = variable['addr']
+                a = int(variable['addr'])
+                a = a*-1
+                # AddrDesc[value]['memory'] = variable['addr']
+                AddrDesc[value]['memory'] = str(a)
                 AddrDesc[value]['reg'] = None
                 AddrDesc[value]['dirty'] = 0
                 AddrDesc[value]['real'] = 1
@@ -203,10 +208,14 @@ def genCodeForBlock(block, infoTable):
             else:
                 # print(ir[i].src1['name'],"hi")
                 L=getReg(i,ir[i].src1['name'],infoTable)
+                print(L)
                 if(AddrDesc[ir[i].src2['name']]['reg']==None):
                     L2=getfreereg(i,infoTable,L)
                     # print i, ir[i].src2['name'], ir[i].src2['type'], ir[i].type
-                    generateHelper.writeInstr("mov "+AddrDesc[ir[i].src2['name']]['memory']+", "+L2)
+                    print(L2)
+                    print(ir[i].src2['name'])
+                    print(ir[i].src2)
+                    generateHelper.writeInstr("mov "+AddrDesc[ir[i].src2['name']]['memory']+"(%rbp), "+L2)
                     AddrDesc[ir[i].src2['name']]['reg']=L2
                     regsInfo[L2]=ir[i].src2['name']
                     AddrDesc[ir[i].src2['name']]['dirty']=0

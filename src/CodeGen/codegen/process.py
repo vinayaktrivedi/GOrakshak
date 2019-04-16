@@ -20,13 +20,13 @@ def process_string(x):
     return "".join(name),"".join(addr)
 
 def find_type(addr,x):
+    if(x[0] in ['0','1','2','3','4','5','6','7','8','9']):
+        return 'constant'
     if(addr[0] == '-' and addr[1] == '2' and not(x[0] in ['0','1','2','3','4','5','6','7','8','9'])):
         return 'global'
     else:
-        if(addr[0] == '-' and addr[1] == '1'):
-            if(x[0] in ['0','1','2','3','4','5','6','7','8','9']):
-                return 'constant'
-            else:
+        if(addr[0] == '-' and addr[1] == '1' and len(addr)==2):
+            if(addr[1] == '1'):
                 return 'temp'
         else:
             return 'local'

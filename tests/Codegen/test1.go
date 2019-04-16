@@ -17,10 +17,14 @@ import (
 // 	return a;
 // };
 
-func main(){
-	// var a int;
-	// var b int;
-	// var c int;
+func main() int{
+	var a int;
+	var b int;
+	var c int;
+  a = 90;
+  b = 9;
+  c = a + b;
+  printf("%d",c);
 	// var d int;
 	// c = f(a,b);
 	// var e [3]int;
@@ -37,7 +41,8 @@ func main(){
   // 	// xy = gg;
 
 
-  var g int;
-  scanf("%d",g);
-  printf("%d",g);
+  // var g int;
+  // printf("%d",g);
+  // scanf("%d",g);
+  return 0;
 };

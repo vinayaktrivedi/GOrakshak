@@ -62,7 +62,7 @@ def createTable(x):
         elif((ir[i].type in type_10)):
             if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")):
                 listOfSymbols.add(ir[i].src1['name'])
-                
+
 
 
 
@@ -109,7 +109,7 @@ def createTable(x):
             if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")):
                 (ret[i])[ir[i].src1['name']]["live"] = False
                 (ret[i])[ir[i].src1['name']]["nextUse"] = None
-        
+
         elif ir[i].type in type_10:
             if((ir[i].src1['type'] == "local") or (ir[i].src1['type'] == "temp") or (ir[i].src1['type'] == "global")):
                 (ret[i])[ir[i].src1['name']]["live"] = True
@@ -162,9 +162,10 @@ for i in threeAC:
     if(i[0] == 'package' or i[0] == 'import'):
         continue
     ir.append(process.IR(i))
-    # print ind,
-    # print ir[ind].type,
-    # print i
+    print ind,
+    print ir[ind].type,
+    print ir[ind].dst
+    print i
     ind = ind + 1
 # print(ir[0].type)
 
