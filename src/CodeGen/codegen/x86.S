@@ -1,7 +1,7 @@
 .section .rodata
 .global hello
 hello: .string hello world
-FibonacciRecursion1:
+f1:
 push rbp
 mov rbp, rsp
 push eax
@@ -9,45 +9,6 @@ push ebx
 push esi
 push edi
 push edx
-mov ebx, --8[ebp]
-cmp ebx, 1
-setle al
-movbzl eax, al
-mov ebx, eax
-mov eax,ebx
-cmp 0, eax
-je CS335_4
-mov eax,-8
-ret
-CS335_4:
-mov ebx, --8[ebp]
-sub ebx, 1
-push ebx
-call FibonacciRecursion1
-mov ebx, eax
-mov ecx, --8[ebp]
-sub ecx, 2
-push ecx
-call FibonacciRecursion1
-mov ebx, eax
-push ecx
-add ecx, ebx
-mov eax,ecx
-ret
-foo1:
-push rbp
-mov rbp, rsp
-push eax
-push ebx
-push esi
-push edi
-push edx
-mov ebx, --8[ebp]
-sub ebx, 1
-mov ecx, ebx
-mov eax,-8
-mov -4[ebp],ecx
-ret
 mov eax,4
 ret
 main1:
@@ -58,14 +19,26 @@ push ebx
 push esi
 push edi
 push edx
-push 19
-call FibonacciRecursion1
+mov ebx,4
+push ebx
+mov ecx,8
+push ecx
+call f1
 mov ebx, eax
 mov ecx, ebx
-push 10
-mov -4[ebp],ecx
-call foo1
-mov ebx, eax
-mov ecx, eax
-mov edx, ebx
-mov esi, ecx
+mov edx, -20[ebp]
+mov esi, edx
+mov esi, 1
+mov r8, -32[ebp]
+mov r9, r8
+mov r9, 0
+mov r10, -32[ebp]
+mov r11, r10
+mov r11, 90
+mov r12, -32[ebp]
+mov r13, r12
+mov r13, 845
+mov r14, 2
+mov r15, -8[ebp]
+push r15
+mov r15, r15

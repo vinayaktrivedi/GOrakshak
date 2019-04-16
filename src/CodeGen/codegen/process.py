@@ -20,7 +20,7 @@ def process_string(x):
     return "".join(name),"".join(addr)
 
 def find_type(addr,x):
-    if(addr[0] == '-' and addr[1] == '2'):
+    if(addr[0] == '-' and addr[1] == '2' and not(x[0] in ['0','1','2','3','4','5','6','7','8','9'])):
         return 'global'
     else:
         if(addr[0] == '-' and addr[1] == '1'):
@@ -44,7 +44,16 @@ class IR:
         self.src1 = {}
         self.src2 = {}
         self.dst = {}
+        self.arg2 = {}
 
+        if(instr[0] == 'print' or instr[0] == 'scanf'):
+            x = instr[2]
+            name, addr = process_string(x)
+            self.type = instr[0]
+            self.arg2['type'] = find_type(addr,x)
+            self.arg2['name'] = name
+            self.arg2['addr'] = addr
+            return
         if(instr[0] == 'EndFunc'  or instr[0] == 'call' or instr[0] == 'goto'):
             if(length >= 2):
                 self.src1['name'] = instr[1]

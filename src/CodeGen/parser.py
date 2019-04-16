@@ -268,10 +268,25 @@ def p_import(p):
 
 def p_importstmt(p):
     '''ImportStmt : ImportHere STRING'''
+    # global stack
     p[0] = {}
+    x = []
+    # for i in range(1,len(str(p[2])) - 1):
+    #     x.append(str(p[2])[i])
+    # p[0]['code'] = 'import '+"".join(x)
+    #
+    # register_variable("".join(x))
+    # print("".join(x))
+    # add_variable_attribute("".join(x),"import",1)
+    # register_variable("Println")
     p[0]['code'] = 'import '+str(p[2])
+
     register_variable(str(p[2]))
+    print(str(p[2]))
     add_variable_attribute(str(p[2]),"import",1)
+    register_variable("Println")
+    # symbol_table = stack[-1]
+    # print(symbol_table["Println"]['exists'])
 
 def p_importstmtlist(p):
     '''ImportStmtList : ImportStmt
@@ -1442,7 +1457,7 @@ def p_name(p):
     else:
         x = get_variable_attribute(str(p[1]),"type")
         p[0]['value'] = get_variable_attribute(str(p[1]),'value')
-
+    # print(x)
     if(x['val'] == 'array' or x['val'] == 'struct'):
       p[0]['type'] = x
     else:
@@ -1621,6 +1636,7 @@ def p_pexprnoparen(p):
         else:
           field_name = p[4]['place']
         if not check_if_variable_declared(struct_name):
+          print(globalsymboltable["fmt"]['exists'])
           print("Error in line "+str(p.lineno(2))+" : Variable not declared")
           exit(1)
 
@@ -1682,7 +1698,7 @@ def p_pexprnoparen(p):
           if flag == 0:
             print("Error in line "+str(p.lineno(2))+" : Struct Assignment type/field not valid")
             exit(1)
-        
+
         label = getlabel()
         register_variable(label)
         p[0]['code'] = ''
@@ -2262,8 +2278,8 @@ def p_pseudocall(p):
         print("Error in line "+str(p.lineno(2))+" : type mismatch(or variable not declared) in printf, danger!")
         exit(1)
       else:
-        p[0]['code'] += i['place']+" "
-      count += 1        
+        p[0]['code'] += i['place']+"~"+str(get_variable_attribute(i['place'],'offset'))
+      count += 1
 
     p[0]['value'] = ""
     p[0]['place'] = "print"
@@ -2306,8 +2322,8 @@ def p_pseudocall(p):
         print("Error in line "+str(p.lineno(2))+" : type mismatch(or variable not declared) in scanf, danger!")
         exit(1)
       else:
-        p[0]['code'] += i['place']+" "
-      count += 1        
+        p[0]['code'] += i['place']+"~"+str(get_variable_attribute(i['place'],'offset'))
+      count += 1
 
     p[0]['value'] = ""
     p[0]['place'] = "scanf"
@@ -2413,7 +2429,7 @@ parser = yacc.yacc()            # Build the parser
 with open(file,'r') as f:
     input_str = f.read()
 
-parser.parse(input_str,debug=0)
+parser.parse(input_str,debug=1)
 
 
 #TODO - Code insertion for struct left

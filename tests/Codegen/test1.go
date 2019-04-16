@@ -32,5 +32,7 @@ func main(){
 	g[9],g[1] := 90,845;
   	xy := 2;
   	xy = b*c;
+    printf("%d",a);
+    // scanf("%d",a);
   	// xy = gg;
 };

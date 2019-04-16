@@ -30,7 +30,7 @@ type_7=['label']
 type_8=['func']
 type_9=['pop']
 type_10=['return']
-type_11=['printf']
+type_11=['print']
 type_12=['scanf']
 
 regsList=['ebx','ecx','edx','esi','r8','r9','r10','r11','r12','r13','r14','r15'] #should not contain eax
