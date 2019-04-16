@@ -20,6 +20,8 @@ def saveDirtyAndClean():
 def getfreereg(instrcution_number,nextuse,preserve_reg):
     global AddrDesc
     global func_offset
+    print("input=", preserve_reg)
+
     temp_reg = None
     mini = -1
     for regname in regsList:
@@ -27,6 +29,7 @@ def getfreereg(instrcution_number,nextuse,preserve_reg):
             if regname == preserve_reg:
                 continue
             return regname
+
     for regname in regsList:
         if regname in preserve_reg:
             continue
@@ -38,7 +41,8 @@ def getfreereg(instrcution_number,nextuse,preserve_reg):
             mini = info
             temp_reg = regname
 
-    variable_name = regsInfo[temp_reg]
+    regname = temp_reg
+    variable_name = regsInfo[regname]
     if AddrDesc[variable_name]['memory'] == None:
         # yha change kiya
         # func_offset += 4
@@ -60,6 +64,7 @@ def getfreereg(instrcution_number,nextuse,preserve_reg):
         generateHelper.writeInstr("mov "+temp_reg+" , "+AddrDesc[variable_name]['memory']+"(%rbp)")
     AddrDesc[variable_name]['reg'] = None
     AddrDesc[variable_name]['dirty'] = 0
+    print("ouptut=", regname)
     return regname
 
 def getReg(instrcution_number,src1,nextuse):
@@ -252,7 +257,7 @@ def genCodeForBlock(block, infoTable):
                     AddrDesc[ir[i].src2['name']]['reg']=L2
                     regsInfo[L2]=ir[i].src2['name']
                     AddrDesc[ir[i].src2['name']]['dirty']=0
-                    print L2,"hello",regsInfo
+                    print L,L2,"hello",regsInfo
                 if(ir[i].type == '+int'):
                     # print(L)
                     # print(AddrDesc[ir[i].src2['name']]['reg'])
