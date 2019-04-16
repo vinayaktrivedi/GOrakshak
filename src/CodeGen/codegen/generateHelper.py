@@ -5,7 +5,7 @@ fil=open('x86.S','w+')
 
 def genGlobals():
     writeInstr(".section .rodata")
-    writeInstr(".global main1")
+    writeInstr(".global main")
     writeInstr("CS335_format: .string "+"\"%d\\n\"")
     # writeInstr("section	.data")
     # for key, var in global_symbol_table.items():

@@ -134,12 +134,12 @@ def genCodeForBlock(block, infoTable):
                 if(AddrDesc[name]['reg'] == None):
                     L=getfreereg(i,infoTable,None)
 
-                    generateHelper.writeInstr("mov "+ir[i].src1['name']+","+L)
+                    generateHelper.writeInstr("mov $"+ir[i].src1['name']+","+L)
                     AddrDesc[name]['reg']=L
                     regsInfo[L]=name
                     AddrDesc[name]['dirty']=1
                 else:
-                    generateHelper.writeInstr("mov "+ir[i].src1['name']+", "+AddrDesc[name]['reg'])
+                    generateHelper.writeInstr("mov $"+ir[i].src1['name']+", "+AddrDesc[name]['reg'])
                     AddrDesc[ir[i].dst['name']]['dirty']=1
 
         elif ir[i].type in type_3:
@@ -241,6 +241,8 @@ def genCodeForBlock(block, infoTable):
         elif ir[i].type in type_7:
             generateHelper.writeInstr(ir[i].src1['name']+ ":")
         elif ir[i].type in type_8:
+            if(ir[i].src1['name'] == "main1"):
+                ir[i].src1['name']="main"
             generateHelper.writeInstr(ir[i].src1['name']+ ":")
             generateHelper.writeInstr("push %rbp")
             generateHelper.writeInstr("mov %rsp, %rsp")
@@ -277,7 +279,7 @@ def genCodeForBlock(block, infoTable):
                 generateHelper.writeInstr("cmp %rax, $0")
                 generateHelper.writeInstr("je "+ir[i].dst['name'])
 
-            elif ir[i].type in type_10:
+            elif ir[i].type in type_10: #return
                 if(ir[i].src1['type']=='constant'):
                     generateHelper.writeInstr("mov "+ir[i].src1['name']+", %rax")
                 else:
@@ -286,8 +288,9 @@ def genCodeForBlock(block, infoTable):
                     else:
                         generateHelper.writeInstr("mov "+AddrDesc[ir[i].src1['name']]['reg']+", %rax")
                 saveDirtyAndClean() #clean everything except eax
-                generateHelper.writeInstr("mov %rbp, %rsp")
-                generateHelper.writeInstr("pop %rbp")
+                # generateHelper.writeInstr("mov %rbp, %rsp")
+                # generateHelper.writeInstr("pop %rbp")
+                generateHelper.writeInstr("leave")
                 generateHelper.writeInstr("ret")
 
             elif ir[i].type in type_11: #printf assuming arg1 consist of format string global var name, arg2 consist of var,const to be printed
@@ -302,6 +305,7 @@ def genCodeForBlock(block, infoTable):
                 saveDirtyAndClean() #clean everything except eax
                 generateHelper.writeInstr("mov $CS335_format, %rdi")  # this will be global variable format
                 generateHelper.writeInstr("mov %rax, %rsi")
+                generateHelper.writeInstr("mov $0, %rax")
                 generateHelper.writeInstr("call printf")
 
             elif ir[i].type in type_12: #scanf
