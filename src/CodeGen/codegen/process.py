@@ -1,5 +1,6 @@
 from parameter import *
 rep = []
+opposite = []
 
 # Creates IR table
 
@@ -284,9 +285,11 @@ class IR:
                     exit(1)
                 self.src1['array'] = 'True'
                 name_temp,addr_t = process_string(instr[0])
+                opp_temp,addr_te = process_string(instr[2])
                 #print(name_temp)
                 # self.src1['array_offset'] = instr[4]
                 rep.append(name_temp)
+                opposite.append(opp_temp)
                 name, addr = process_string(instr[4])
                 self.src1['array_offset']['val'] = name
                 self.src1['array_offset']['addr'] = addr
