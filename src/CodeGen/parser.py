@@ -1625,6 +1625,7 @@ def p_pexprnoparen(p):
         p[0]['value'] = p[1]['value']
         p[0]['type'] = p[1]['type']
         p[0]['place'] = p[1]['place']
+        global globalsymboltable
         if(p[0]['type'] == "functioncall"):
           p[0]['func_responses'] = p[1]['func_responses']
     if(len(p)==4 or len(p)==6):
@@ -1674,7 +1675,7 @@ def p_pexprnoparen(p):
         p[0]['type'] = {}
         p[0]['type']['assign'] = []
         struct_name = p[1]['place']
-        global globalsymboltable
+        # global globalsymboltable
         struct_fields = globalsymboltable['custom_types']['structures'][struct_name]['struct_fields']
 
         for dicts in p[3]['list']:
@@ -2429,7 +2430,7 @@ parser = yacc.yacc()            # Build the parser
 with open(file,'r') as f:
     input_str = f.read()
 
-parser.parse(input_str,debug=1)
+parser.parse(input_str,debug=0)
 
 
 #TODO - Code insertion for struct left
