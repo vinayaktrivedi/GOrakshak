@@ -23,23 +23,47 @@
 #    ret
 
 
+#.global main
+#CS335_format: .string "%d\n"
+#format:  .string "%d"
+#main:
+#push %rbp
+#mov %rsp, %rbp
+#sub $12, %rsp
+#mov $10,%rbx
+#mov $13,%rcx
+#mov %rbx, %rdx
+#add %rcx, %rdx
+#mov %rdx, %rsi
+#mov %rsi, %rax
+#mov %rbx, -4(%rbp)
+#mov %rcx, -8(%rbp)
+#mov %rsi, -12(%rbp)
+#mov $CS335_format, %rdi
+#mov %rax, %rsi
+#mov $0, %rax
+#call printf
+#mov $0, %rax
+#leave
+#ret
+
+.section .rodata
 .global main
-#CS335format: .string "%d\n"
-format:  .string "%d"
+CS335_format: .string "%d\n"
 main:
 push %rbp
 mov %rsp, %rbp
 sub $12, %rsp
-mov $10,%rbx
-mov $13,%rcx
+mov $19,%rbx
+mov $14,%rcx
 mov %rbx, %rdx
 add %rcx, %rdx
 mov %rdx, %rsi
 mov %rsi, %rax
-mov %rbx, -0x4(%rbp)
-mov %rcx, -0x8(%rbp)
-mov %rsi, -0xc(%rbp)
-mov $format, %rdi
+mov %rbx, -4(%rbp)
+mov %rsi, -12(%rbp)
+mov %rcx, -8(%rbp)
+mov $CS335_format, %rdi
 mov %rax, %rsi
 mov $0, %rax
 call printf

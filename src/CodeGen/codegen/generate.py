@@ -245,7 +245,7 @@ def genCodeForBlock(block, infoTable):
                 ir[i].src1['name']="main"
             generateHelper.writeInstr(ir[i].src1['name']+ ":")
             generateHelper.writeInstr("push %rbp")
-            generateHelper.writeInstr("mov %rsp, %rsp")
+            generateHelper.writeInstr("mov %rsp, %rbp")
             generateHelper.writeInstr("sub $"+ir[i].src2['name']+ ", %rsp")
             global func_offset
             func_offset=int(ir[i].src2['name'])
