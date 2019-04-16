@@ -281,7 +281,7 @@ def genCodeForBlock(block, infoTable):
 
             elif ir[i].type in type_10: #return
                 if(ir[i].src1['type']=='constant'):
-                    generateHelper.writeInstr("mov "+ir[i].src1['name']+", %rax")
+                    generateHelper.writeInstr("mov $"+ir[i].src1['name']+", %rax")
                 else:
                     if(AddrDesc[ir[i].src1['name']]['reg']==None):
                         generateHelper.writeInstr("mov "+AddrDesc[ir[i].src1['name']]['memory']+", %rax")
