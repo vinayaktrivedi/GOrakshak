@@ -32,12 +32,14 @@ func main() int{
     // a := tt.Y;
     // printf("%d",a);
     // scanf("%d",a);
-    var a int;
-    b := 14;
-    c := a + b + 1;
-    printf("%d",c);
+    // var a int;
     var x [22]int;
-    x[b] = x[b]+x[xx.Y];
+    //b := 14;
+    // c := a + b + 1;
+    // printf("%d",c);
+    x[1] = 100;
+    t := x[1];
+    printf("%d",t);
     // var num int;
     // if num < 0 {
     //     num = -num;

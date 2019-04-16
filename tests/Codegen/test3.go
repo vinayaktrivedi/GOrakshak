@@ -22,6 +22,8 @@ func main() int {
 	var gg int = 10;
 	var hh int = 10;
 	var aaa int = 10;
+	var arr [10]int;
+	//arr[1] = 50;
 	// var ii int = 10;
 	// var j int = 10;
 	k := a + b + c + d + e + f + g + h + i +  ff + gg + hh+aaa;

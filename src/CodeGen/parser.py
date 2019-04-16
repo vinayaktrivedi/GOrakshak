@@ -450,7 +450,8 @@ def p_typedeclname(p):
 def p_typedecl(p):
     '''TypeDecl : TypeDeclName NType'''
     p[0] = {}
-    p[0]['code'] = p[1]['code'] + p[2]['type']['val']
+    p[0]['code'] = ""
+    #print(p[0]['code'])
     global globalsymboltable
     if 'val' in p[2]['type']:
       if p[2]['type']['val'] == 'struct':
@@ -1717,6 +1718,7 @@ def p_pexprnoparen(p):
         register_variable(str(label1))
         add_variable_attribute(str(label1),'offset',str(get_variable_attribute(p[1]['place'],'offset')))
         if type(p[3]['value']) == int:
+          print(p[1]['type'])
           if(int(p[3]['value']) >= p[1]['type']['arr_length']):
             print("Error in line "+str(p.lineno(2))+" : Array index out of range")
             exit(1)

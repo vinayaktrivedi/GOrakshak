@@ -1,5 +1,5 @@
 from parameter import *
-
+rep = []
 
 # Creates IR table
 
@@ -155,6 +155,8 @@ class IR:
                 name, addr = process_string(instr[2])
                 self.dst['array_offset']['val'] = name
                 self.dst['array_offset']['addr'] = addr
+                if(name[0] in ['0','1','2','3','4','5','6','7','8','9']):
+                    self.dst['array_offset']['addr'] = int(name)
                 
                 src1 = 6
             else:
@@ -222,18 +224,24 @@ class IR:
                 name, addr = process_string(instr[src1 + 2])
                 self.src1['array_offset']['val'] = name
                 self.src1['array_offset']['addr'] = addr
+                if(name[0] in ['0','1','2','3','4','5','6','7','8','9']):
+                    self.dst['array_offset']['addr'] = int(name)
                 
             if(s2a == 'True'):
                 # self.src2['array_offset'] = instr[src2 + 2]
                 name, addr = process_string(instr[src2 + 2])
                 self.src2['array_offset']['val'] = name
                 self.src2['array_offset']['addr'] = addr
+                if(name[0] in ['0','1','2','3','4','5','6','7','8','9']):
+                    self.dst['array_offset']['addr'] = int(name)
                
             if(da == 'True'):
                 # self.dst['array_offset'] = instr[dest + 2]
                 name, addr = process_string(instr[dst + 2])
                 self.dst['array_offset']['val'] = name
                 self.dst['array_offset']['addr'] = addr
+                if(name[0] in ['0','1','2','3','4','5','6','7','8','9']):
+                    self.dst['array_offset']['addr'] = int(name)
                 
             return
         else:
@@ -275,10 +283,15 @@ class IR:
                     print("Error : array name can't start with integer")
                     exit(1)
                 self.src1['array'] = 'True'
+                name_temp,addr_t = process_string(instr[0])
+                #print(name_temp)
                 # self.src1['array_offset'] = instr[4]
+                rep.append(name_temp)
                 name, addr = process_string(instr[4])
                 self.src1['array_offset']['val'] = name
                 self.src1['array_offset']['addr'] = addr
+                if(name[0] in ['0','1','2','3','4','5','6','7','8','9']):
+                    self.dst['array_offset']['addr'] = int(name)
                 
                 return
             if(instr[1] == '='):
@@ -290,6 +303,8 @@ class IR:
             name, addr = process_string(instr[2])
             self.dst['array_offset']['val'] = name
             self.dst['array_offset']['addr'] = addr
+            if(name[0] in ['0','1','2','3','4','5','6','7','8','9']):
+                    self.dst['array_offset']['addr'] = int(name)
             
             x = instr[5]
             name,addr = process_string(x)
@@ -314,5 +329,7 @@ class IR:
                 name, addr = process_string(instr[7])
                 self.src1['array_offset']['val'] = name
                 self.src1['array_offset']['addr'] = addr
+                if(name[0] in ['0','1','2','3','4','5','6','7','8','9']):
+                    self.dst['array_offset']['addr'] = int(name)
                 
                 return

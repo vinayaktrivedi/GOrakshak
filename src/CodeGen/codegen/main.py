@@ -18,6 +18,7 @@ def findAllBlocks():
 
     for ind, instr in enumerate(ir):
         # print instr.type
+        print(ind)
         if instr.type == 'if' or instr.type == 'goto' or instr.type == 'EndFunc' or instr.type == 'call' or instr.type=='return'  or instr.type=='print'  or instr.type=='scanf':
             ret.append([st, ind])
             st = ind + 1
@@ -162,8 +163,8 @@ for i in threeAC:
     if(i[0] == 'package' or i[0] == 'import'):
         continue
     ir.append(process.IR(i))
-    print ind,
-    print ir[ind].type,
+    #print ind,
+    #print ir[ind].type,
     # print ir[ind].dst
     print i
     ind = ind + 1
