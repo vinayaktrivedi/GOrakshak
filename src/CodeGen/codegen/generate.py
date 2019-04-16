@@ -43,7 +43,7 @@ def getfreereg(instrcution_number,nextuse,preserve_reg):
         AddrDesc[variable_name]['memory'] = func_offset
         generateHelper.writeInstr("push "+regname)
     else:
-        generateHelper.writeInstr("mov "+regname+" , -"+AddrDesc[variable_name]['memory']+"(%rbp)")
+        generateHelper.writeInstr("mov "+regname+" , "+AddrDesc[variable_name]['memory']+"(%rbp)")
     AddrDesc[variable_name]['reg'] = None
     AddrDesc[variable_name]['dirty'] = 0
     return regname
