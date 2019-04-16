@@ -212,11 +212,22 @@ class IR:
             self.src2['addr'] = addr
 
             if(s1a == 'True'):
-                self.src1['array_offset'] = instr[src1 + 2]
+                name, addr = process_string(instr[src1 + 2])
+                self.src1['array_offset']['val'] = name
+                self.src1['array_offset']['addr'] = addr
+                self.src1['array_offset']['type'] = find_type(addr)
             if(s2a == 'True'):
-                self.src2['array_offset'] = instr[src2 + 2]
+                # self.src2['array_offset'] = instr[src2 + 2]
+                name, addr = process_string(instr[src2 + 2])
+                self.src2['array_offset']['val'] = name
+                self.src2['array_offset']['addr'] = addr
+                self.src2['array_offset']['type'] = find_type(addr)
             if(da == 'True'):
-                self.dst['array_offset'] = instr[dest + 2]
+                # self.dst['array_offset'] = instr[dest + 2]
+                name, addr = process_string(instr[dst + 2])
+                self.dst['array_offset']['val'] = name
+                self.dst['array_offset']['addr'] = addr
+                self.dst['array_offset']['type'] = find_type(addr)
             return
         else:
             if(not(set(['=']) & set(instr))):
@@ -257,7 +268,11 @@ class IR:
                     print("Error : array name can't start with integer")
                     exit(1)
                 self.src1['array'] = 'True'
-                self.src1['array_offset'] = instr[4]
+                # self.src1['array_offset'] = instr[4]
+                name, addr = process_string(instr[4])
+                self.src1['array_offset']['val'] = name
+                self.src1['array_offset']['addr'] = addr
+                self.src1['array_offset']['type'] = find_type(addr)
                 return
             if(instr[1] == '='):
                 self.src1['array'] = 'False'
@@ -284,5 +299,9 @@ class IR:
                     print("Error : array name can't start with integer")
                     exit(1)
                 self.src1['array'] = 'True'
-                self.src1['array_offset'] = instr[7]
+                # self.src1['array_offset'] = instr[7]
+                name, addr = process_string(instr[7])
+                self.src1['array_offset']['val'] = name
+                self.src1['array_offset']['addr'] = addr
+                self.src1['array_offset']['type'] = find_type(addr)
                 return
