@@ -24,7 +24,7 @@ type Vertex struct {
 
 func main() int{
     //num = 1;
-    // var xx Vertex;
+    var xx Vertex;
     // xx = Vertex[(Y:100,xu:1)];
     // var tt Vertex;
     // tt.xu = 10;
@@ -32,10 +32,12 @@ func main() int{
     // a := tt.Y;
     // printf("%d",a);
     // scanf("%d",a);
-    a := 19;
+    var a int;
     b := 14;
-    c := a + b + 18;
+    c := a + b + 1;
     printf("%d",c);
+    var x [22]int;
+    x[b] = x[b]+x[xx.Y];
     // var num int;
     // if num < 0 {
     //     num = -num;
