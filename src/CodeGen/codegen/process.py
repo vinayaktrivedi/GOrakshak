@@ -20,6 +20,7 @@ def process_string(x):
     return "".join(name),"".join(addr)
 
 def find_type(addr,x):
+
     if(x[0] in ['0','1','2','3','4','5','6','7','8','9']):
         return 'constant'
     if(addr[0] == '-' and addr[1] == '2' and not(x[0] in ['0','1','2','3','4','5','6','7','8','9'])):
@@ -45,8 +46,9 @@ class IR:
         self.src2 = {}
         self.dst = {}
         self.arg2 = {}
-        self.array_offset = {}
-
+        self.src1['array_offset'] = {}
+        self.dst['array_offset'] = {}
+        self.src2['array_offset'] = {}
         if(instr[0] == 'print' or instr[0] == 'scanf'):
             x = instr[2]
             name, addr = process_string(x)
@@ -153,7 +155,7 @@ class IR:
                 name, addr = process_string(instr[2])
                 self.dst['array_offset']['val'] = name
                 self.dst['array_offset']['addr'] = addr
-                self.dst['array_offset']['type'] = find_type(addr)
+                
                 src1 = 6
             else:
                 self.dst['array'] = 'False'
@@ -220,19 +222,19 @@ class IR:
                 name, addr = process_string(instr[src1 + 2])
                 self.src1['array_offset']['val'] = name
                 self.src1['array_offset']['addr'] = addr
-                self.src1['array_offset']['type'] = find_type(addr)
+                
             if(s2a == 'True'):
                 # self.src2['array_offset'] = instr[src2 + 2]
                 name, addr = process_string(instr[src2 + 2])
                 self.src2['array_offset']['val'] = name
                 self.src2['array_offset']['addr'] = addr
-                self.src2['array_offset']['type'] = find_type(addr)
+               
             if(da == 'True'):
                 # self.dst['array_offset'] = instr[dest + 2]
                 name, addr = process_string(instr[dst + 2])
                 self.dst['array_offset']['val'] = name
                 self.dst['array_offset']['addr'] = addr
-                self.dst['array_offset']['type'] = find_type(addr)
+                
             return
         else:
             if(not(set(['=']) & set(instr))):
@@ -277,7 +279,7 @@ class IR:
                 name, addr = process_string(instr[4])
                 self.src1['array_offset']['val'] = name
                 self.src1['array_offset']['addr'] = addr
-                self.src1['array_offset']['type'] = find_type(addr)
+                
                 return
             if(instr[1] == '='):
                 self.src1['array'] = 'False'
@@ -288,7 +290,7 @@ class IR:
             name, addr = process_string(instr[2])
             self.dst['array_offset']['val'] = name
             self.dst['array_offset']['addr'] = addr
-            self.dst['array_offset']['type'] = find_type(addr)
+            
             x = instr[5]
             name,addr = process_string(x)
             if(not(x[0] in ['0','1','2','3','4','5','6','7','8','9'])):
@@ -312,5 +314,5 @@ class IR:
                 name, addr = process_string(instr[7])
                 self.src1['array_offset']['val'] = name
                 self.src1['array_offset']['addr'] = addr
-                self.src1['array_offset']['type'] = find_type(addr)
+                
                 return

@@ -36,7 +36,7 @@ mov  16(%rbp) , %rbx
 sub $1, %rbx
 mov %rbx, %rcx
 mov 16, %rax
-mov %rcx, -8(%rbp) 
+mov %rcx, -8(%rbp)
 leave
 ret
 mov -8, %rax
@@ -51,12 +51,29 @@ call FibonacciRecursion1
 mov %rax, %rbx
 mov %rbx, %rcx
 mov %rcx, %rax
-mov %rcx, -8(%rbp) 
+mov %rcx, -8(%rbp)
 mov $CS335_format, %rdi
 mov %rax, %rsi
 mov $0, %rax
 call printf
+<<<<<<< HEAD
 push $10
+=======
+mov $0, %rax
+>>>>>>> e0d84456528e4b416ab855885d576d96a499baea
+leave
+ret
+main:
+push %rbp
+mov %rsp, %rbp
+sub $24, %rsp
+push $19
+call FibonacciRecursion1
+mov %rax, %rbx
+mov %rbx, %rcx
+push $10
+mov %rcx, -8(%rbp)
+>>>>>>> bc2856f1906af36e5c7abd27fca9c92987b7152b
 call foo1
 mov %rax, %rbx
 mov %rax, %rcx

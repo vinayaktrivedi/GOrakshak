@@ -1715,14 +1715,16 @@ def p_pexprnoparen(p):
         label1 = getlabel()
         register_variable(str(label))
         register_variable(str(label1))
-        if(int(p[3]['place']) >= p[1]['type']['arr_length']):
-          print("Error in line "+str(p.lineno(2))+" : Array index out of range")
-          exit(1)
+        add_variable_attribute(str(label1),'offset',str(get_variable_attribute(p[1]['place'],'offset')))
+        if type(p[3]['value']) == int:
+          if(int(p[3]['value']) >= p[1]['type']['arr_length']):
+            print("Error in line "+str(p.lineno(2))+" : Array index out of range")
+            exit(1)
         p[0]['code'] = p[1]['code']
         p[0]['code'] += "\n"+p[3]['code']
         p[0]['place'] = label
-        p[0]['code'] = "\n" + str(label1)+"~-1"+ " = BaseAddress( " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " )\n"
-        p[0]['code'] += str(label)+"~-1"+" = "+str(label1)+"~-1"+" [ "+p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset')) +" ]"
+        p[0]['code'] = "\n" + str(label1)+"~"+str(get_variable_attribute(p[1]['place'],'offset'))+" = BaseAddress( " + p[1]['place']+"~"+str(get_variable_attribute(p[1]['place'],'offset')) + " )\n"
+        p[0]['code'] += str(label)+"~-1"+" = "+str(label1)+"~"+str(get_variable_attribute(p[1]['place'],'offset'))+" [ "+p[3]['place']+"~"+str(get_variable_attribute(p[3]['place'],'offset')) +" ]"
         p[0]['value'] = 1
         p[0]['type'] = p[1]['type']['arr_type']
 
@@ -2158,7 +2160,7 @@ def p_arrayexp(p):
   label2 = getlabel()
   register_variable(str(array_label))
   register_variable(str(label2))
-  p[0]['code'] = str(label2)+"~-1"+" = BaseAddress("+str(array_label)+"~-1"+")"
+  p[0]['code'] = str(label2)+"~"+str(get_variable_attribute(p[1]['place'],'offset'))+" = BaseAddress("+str(array_label)+"~-1"+")"
   for objects in p[2]['exprs']:
     if(objects['type']!=c_type):
       print("Error in line "+str(p.lineno(2))+" : Error in array declaration")
@@ -2434,3 +2436,4 @@ parser.parse(input_str,debug=0)
 
 
 #TODO - Code insertion for struct left
+#Todo - next baseaddress for array declaration
