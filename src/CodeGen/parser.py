@@ -1323,6 +1323,7 @@ def p_literal(p):
     b = re.match(r'(([0-9]([0-9]+)*(\.[0-9]([0-9]+)*)?)[eE]\-[0-9]([0-9]+)*)|([0-9]([0-9]+)*\.[0-9]([0-9]+)*)([eE][\+]?[0-9]([0-9]+)*)?',str(p[1]))
     c = re.match(r'(\"[^\"]*\")|(\'[^\']*\') ',str(p[1]))
     p[0] = {}
+
     if(b):
         p[0]['value'] = float(str(p[1]))
         p[0]['type'] = 'float'
@@ -2225,6 +2226,95 @@ def p_pseudocall(p):
                   | PExpr LPAREN ExprOrTypeList DDD OComma RPAREN'''
   p[0] = {}
   p[0]['place'] = []
+  if p[1]['place'] == "printf":
+    format_string = p[3]['exprs'][0]['place']
+    if p[3]['exprs'][0]['type'] != 'string':
+      print("Error in line "+str(p.lineno(2))+" : tried to print without format string, danger!")
+      exit(1)
+    format_string = format_string[1:len(format_string)-1]
+    c = 0
+    type_dict = []
+    while c < len(format_string):
+      if format_string[c] == '\\' and format_string[c+1] == '%':
+        c = c+2
+      elif format_string[c] == '%':
+        char = format_string[c+1]
+        if char == 'd':
+          type_dict.append('int')
+        elif char == 'f':
+          type_dict.append('float')
+        else:
+          print("Error in line "+str(p.lineno(2))+" : not supported this type currently")
+          exit(1)
+        c = c+2
+      else:
+        c = c+1
+
+    if len(type_dict) != len(p[3]['exprs'])-1:
+      print("Error in line "+str(p.lineno(2))+" : unequal arguments in printf, danger!")
+      exit(1)
+
+    count = 0
+    p[0]['code'] = "print "+format_string+" "
+    p[3]['exprs'] = p[3]['exprs'][1:]
+    for i in p[3]['exprs']:
+      if i['type']!= type_dict[count]:
+        print("Error in line "+str(p.lineno(2))+" : type mismatch(or variable not declared) in printf, danger!")
+        exit(1)
+      else:
+        p[0]['code'] += i['place']+" "
+      count += 1        
+
+    p[0]['value'] = ""
+    p[0]['place'] = "print"
+    p[0]['type'] = ""
+    return
+
+  elif p[1]['place'] == "scanf":
+    format_string = p[3]['exprs'][0]['place']
+    if p[3]['exprs'][0]['type'] != 'string':
+      print("Error in line "+str(p.lineno(2))+" : tried to scan without format string, danger!")
+      exit(1)
+    format_string = format_string[1:len(format_string)-1]
+    c = 0
+    type_dict = []
+    while c < len(format_string):
+      if format_string[c] == '\\' and format_string[c+1] == '%':
+        c = c+2
+      elif format_string[c] == '%':
+        char = format_string[c+1]
+        if char == 'd':
+          type_dict.append('int')
+        elif char == 'f':
+          type_dict.append('float')
+        else:
+          print("Error in line "+str(p.lineno(2))+" : not supported this type currently")
+          exit(1)
+        c = c+2
+      else:
+        c = c+1
+
+    if len(type_dict) != len(p[3]['exprs'])-1:
+      print("Error in line "+str(p.lineno(2))+" : unequal arguments in scanf, danger!")
+      exit(1)
+
+    count = 0
+    p[0]['code'] = "scanf "+format_string+" "
+    p[3]['exprs'] = p[3]['exprs'][1:]
+    for i in p[3]['exprs']:
+      if i['type']!= type_dict[count]:
+        print("Error in line "+str(p.lineno(2))+" : type mismatch(or variable not declared) in scanf, danger!")
+        exit(1)
+      else:
+        p[0]['code'] += i['place']+" "
+      count += 1        
+
+    p[0]['value'] = ""
+    p[0]['place'] = "scanf"
+    p[0]['type'] = ""
+    return
+
+
   func_symbol_tables = get_function_symbol_tables(str(p[1]['place']))
   if(func_symbol_tables == -1):
     print("Error in line "+str(p.lineno(2))+" : function not defined!")

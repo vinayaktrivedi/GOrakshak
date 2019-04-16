@@ -30,6 +30,8 @@ func main(){
     tt.xu = 10;
     tt.Y = 1;
     a := tt.Y;
+    printf("%d",a);
+    scanf("%d",a);
     // var num int;
     // if num < 0 {
     //     num = -num;

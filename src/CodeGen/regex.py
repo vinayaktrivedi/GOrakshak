@@ -64,8 +64,8 @@ t_PIPE        = r'(\|\|\|)'
 # Strings in quotes
 def t_STRING(t):
     r'(\"[^\"]*\")|(\'[^\']*\') '
-    t.value=t.value[1:-1].replace("\'","\"")
     return t
+    
 
 def t_INTERFACE(t):
     r'interface'
