@@ -45,6 +45,7 @@ class IR:
         self.src2 = {}
         self.dst = {}
         self.arg2 = {}
+        self.array_offset = {}
 
         if(instr[0] == 'print' or instr[0] == 'scanf'):
             x = instr[2]
@@ -148,7 +149,11 @@ class IR:
             src1 = 0
             if(instr[1] == '['):
                 self.dst['array'] = 'True'
-                self.dst['array_offset'] = instr[2]
+                # self.dst['array_offset'] = instr[2]
+                name, addr = process_string(instr[2])
+                self.dst['array_offset']['val'] = name
+                self.dst['array_offset']['addr'] = addr
+                self.dst['array_offset']['type'] = find_type(addr)
                 src1 = 6
             else:
                 self.dst['array'] = 'False'
