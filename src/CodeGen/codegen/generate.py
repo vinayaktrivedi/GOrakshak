@@ -299,7 +299,7 @@ def genCodeForBlock(block, infoTable):
                     generateHelper.writeInstr("mov "+ir[i].arg2['name']+", %rax")
                 else:
                     if(AddrDesc[ir[i].arg2['name']]['reg']==None):
-                        generateHelper.writeInstr("mov "+AddrDesc[ir[i].arg2['name']]['memory']+" ,%rax")
+                        generateHelper.writeInstr("mov -"+AddrDesc[ir[i].arg2['name']]['memory']+"(%rbp) ,%rax")
                     else:
                         generateHelper.writeInstr("mov "+AddrDesc[ir[i].arg2['name']]['reg']+", %rax")
                 saveDirtyAndClean() #clean everything except eax
@@ -313,6 +313,7 @@ def genCodeForBlock(block, infoTable):
                     saveDirtyAndClean() #clean everything except eax
                     generateHelper.writeInstr("mov $CS335_format, %rdi")  # this will be global variable format
                     generateHelper.writeInstr("lea -"+AddrDesc[ir[i].arg2['name']]['memory']+"(%rbp) , %rsi")
+                    generateHelper.writeInstr("mov $0, %rax")
                     generateHelper.writeInstr("call scanf")
                 else:
                     generateHelper.writeInstr("scanf should be not in local var!")
