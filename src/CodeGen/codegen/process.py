@@ -284,7 +284,11 @@ class IR:
                 return
             # dst is array
             self.dst['array'] = 'True'
-            self.dst['array_offset'] = instr[2]
+            # self.dst['array_offset'] = instr[2]
+            name, addr = process_string(instr[2])
+            self.dst['array_offset']['val'] = name
+            self.dst['array_offset']['addr'] = addr
+            self.dst['array_offset']['type'] = find_type(addr)
             x = instr[5]
             name,addr = process_string(x)
             if(not(x[0] in ['0','1','2','3','4','5','6','7','8','9'])):
