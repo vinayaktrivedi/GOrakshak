@@ -333,9 +333,31 @@ def genCodeForBlock(block, infoTable):
                     generateHelper.writeInstr("add "+ir[i].src2['name']+","+L)
                 elif(ir[i].type == '-int'):
                     generateHelper.writeInstr("sub "+ir[i].src2['name']+", "+L)
+                elif(ir[i].type == '-int'):
+                    generateHelper.writeInstr("sub "+ir[i].src2['name']+", "+L)
                 elif(ir[i].type == '<='):
                     generateHelper.writeInstr("cmp "+ir[i].src2['name']+", "+L)
                     generateHelper.writeInstr("setle %al")
+                    generateHelper.writeInstr("movzbl %al, %eax")
+                    generateHelper.writeInstr("mov %rax ,"+ L)
+                elif(ir[i].type == '=='):
+                    generateHelper.writeInstr("cmp "+ir[i].src2['name']+", "+L)
+                    generateHelper.writeInstr("sete %al")
+                    generateHelper.writeInstr("movzbl %al, %eax")
+                    generateHelper.writeInstr("mov %rax ,"+ L)
+                elif(ir[i].type == '>='):
+                    generateHelper.writeInstr("cmp "+ir[i].src2['name']+", "+L)
+                    generateHelper.writeInstr("setge %al")
+                    generateHelper.writeInstr("movzbl %al, %eax")
+                    generateHelper.writeInstr("mov %rax ,"+ L)
+                elif(ir[i].type == '<'):
+                    generateHelper.writeInstr("cmp "+ir[i].src2['name']+", "+L)
+                    generateHelper.writeInstr("setl %al")
+                    generateHelper.writeInstr("movzbl %al, %eax")
+                    generateHelper.writeInstr("mov %rax ,"+ L)
+                elif(ir[i].type == '>'):
+                    generateHelper.writeInstr("cmp "+ir[i].src2['name']+", "+L)
+                    generateHelper.writeInstr("setg %al")
                     generateHelper.writeInstr("movzbl %al, %eax")
                     generateHelper.writeInstr("mov %rax ,"+ L)
                 removeFromRegs(name)
@@ -366,6 +388,26 @@ def genCodeForBlock(block, infoTable):
                     generateHelper.writeInstr("setle %al")
                     generateHelper.writeInstr("movzbl %al,%eax")
                     generateHelper.writeInstr("mov "+" %rax"+", "+L)
+                elif(ir[i].type == '=='):
+                    generateHelper.writeInstr("cmp "+AddrDesc[ir[i].src2['name']]['reg']+", "+L)
+                    generateHelper.writeInstr("sete %al")
+                    generateHelper.writeInstr("movzbl %al,%eax")
+                    generateHelper.writeInstr("mov "+" %rax"+", "+L)
+                elif(ir[i].type == '<'):
+                    generateHelper.writeInstr("cmp "+AddrDesc[ir[i].src2['name']]['reg']+", "+L)
+                    generateHelper.writeInstr("setl %al")
+                    generateHelper.writeInstr("movzbl %al,%eax")
+                    generateHelper.writeInstr("mov "+" %rax"+", "+L)
+                elif(ir[i].type == '>='):
+                    generateHelper.writeInstr("cmp "+AddrDesc[ir[i].src2['name']]['reg']+", "+L)
+                    generateHelper.writeInstr("setge %al")
+                    generateHelper.writeInstr("movzbl %al,%eax")
+                    generateHelper.writeInstr("mov "+" %rax"+", "+L)
+                elif(ir[i].type == '>'):
+                    generateHelper.writeInstr("cmp "+AddrDesc[ir[i].src2['name']]['reg']+", "+L)
+                    generateHelper.writeInstr("setg %al")
+                    generateHelper.writeInstr("movzbl %al,%eax")
+                    generateHelper.writeInstr("mov "+" %rax"+", "+L)
                 removeFromRegs(ir[i].dst['name'])
                 AddrDesc[ir[i].dst['name']]['reg']=L
                 regsInfo[L]=ir[i].dst['name']
@@ -390,6 +432,16 @@ def genCodeForBlock(block, infoTable):
                 elif(ir[i].type == '>'):
                     generateHelper.writeInstr("cmp $"+ir[i].src2['name']+", "+L)
                     generateHelper.writeInstr("setg %al")
+                    generateHelper.writeInstr("movzbl %al, %eax")
+                    generateHelper.writeInstr("mov %rax, "+ L)
+                elif(ir[i].type == '>='):
+                    generateHelper.writeInstr("cmp $"+ir[i].src2['name']+", "+L)
+                    generateHelper.writeInstr("setge %al")
+                    generateHelper.writeInstr("movzbl %al, %eax")
+                    generateHelper.writeInstr("mov %rax, "+ L)
+                elif(ir[i].type == '<'):
+                    generateHelper.writeInstr("cmp $"+ir[i].src2['name']+", "+L)
+                    generateHelper.writeInstr("setl %al")
                     generateHelper.writeInstr("movzbl %al, %eax")
                     generateHelper.writeInstr("mov %rax, "+ L)
                 removeFromRegs(ir[i].dst['name'])
@@ -428,6 +480,26 @@ def genCodeForBlock(block, infoTable):
                 elif(ir[i].type == '<='):
                     generateHelper.writeInstr("cmp "+AddrDesc[ir[i].src2['name']]['reg']+", "+L)
                     generateHelper.writeInstr("setle %al")
+                    generateHelper.writeInstr("movzbl %al, %eax")
+                    generateHelper.writeInstr("mov "+"%rax,"+ L )
+                elif(ir[i].type == '>='):
+                    generateHelper.writeInstr("cmp "+AddrDesc[ir[i].src2['name']]['reg']+", "+L)
+                    generateHelper.writeInstr("setge %al")
+                    generateHelper.writeInstr("movzbl %al, %eax")
+                    generateHelper.writeInstr("mov "+"%rax,"+ L )
+                elif(ir[i].type == '<'):
+                    generateHelper.writeInstr("cmp "+AddrDesc[ir[i].src2['name']]['reg']+", "+L)
+                    generateHelper.writeInstr("setl %al")
+                    generateHelper.writeInstr("movzbl %al, %eax")
+                    generateHelper.writeInstr("mov "+"%rax,"+ L )
+                elif(ir[i].type == '>'):
+                    generateHelper.writeInstr("cmp "+AddrDesc[ir[i].src2['name']]['reg']+", "+L)
+                    generateHelper.writeInstr("setg %al")
+                    generateHelper.writeInstr("movzbl %al, %eax")
+                    generateHelper.writeInstr("mov "+"%rax,"+ L )
+                elif(ir[i].type == '=='):
+                    generateHelper.writeInstr("cmp "+AddrDesc[ir[i].src2['name']]['reg']+", "+L)
+                    generateHelper.writeInstr("sete %al")
                     generateHelper.writeInstr("movzbl %al, %eax")
                     generateHelper.writeInstr("mov "+"%rax,"+ L )
                 removeFromRegs(ir[i].dst['name'])
@@ -484,7 +556,8 @@ def genCodeForBlock(block, infoTable):
                 generateHelper.writeInstr("call "+ir[i].src1['name'])
             elif ir[i].type in type_4:
                 saveDirtyAndClean()
-                generateHelper.writeInstr(ir[i].src1['name']+":")
+                # generateHelper.writeInstr(ir[i].src1['name']+":")
+                generateHelper.writeInstr("jmp " + ir[i].src1['name'])
             elif ir[i].type in type_6:
                 if(AddrDesc[ir[i].src1['name']]['reg']==None):
 
