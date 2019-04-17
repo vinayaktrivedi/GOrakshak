@@ -1,7 +1,7 @@
 from parameter import *
 rep = []
 opposite = []
-
+avoid = []
 # Creates IR table
 
 def process_string(x):
@@ -147,18 +147,21 @@ class IR:
             x = instr[0]
             name,addr = process_string(x)
             self.dst['name'] = name
+            avoid.append(name)
             self.dst['type'] = find_type(addr,x)
             self.dst['addr'] = addr
             src1 = 0
             if(instr[1] == '['):
                 self.dst['array'] = 'True'
+                print(name)
                 # self.dst['array_offset'] = instr[2]
                 name, addr = process_string(instr[2])
                 self.dst['array_offset']['val'] = name
                 self.dst['array_offset']['addr'] = addr
                 if(name[0] in ['0','1','2','3','4','5','6','7','8','9']):
                     self.dst['array_offset']['addr'] = int(name)
-                
+                    self.dst['array_offset']['const'] = True
+                self.src1['array_offset']['const'] = True
                 src1 = 6
             else:
                 self.dst['array'] = 'False'
@@ -225,8 +228,10 @@ class IR:
                 name, addr = process_string(instr[src1 + 2])
                 self.src1['array_offset']['val'] = name
                 self.src1['array_offset']['addr'] = addr
+                print(addr,name)
                 if(name[0] in ['0','1','2','3','4','5','6','7','8','9']):
-                    self.dst['array_offset']['addr'] = int(name)
+                    self.src1['array_offset']['addr'] = int(name)
+                    self.src1['array_offset']['const'] = True
                 
             if(s2a == 'True'):
                 # self.src2['array_offset'] = instr[src2 + 2]
@@ -234,7 +239,8 @@ class IR:
                 self.src2['array_offset']['val'] = name
                 self.src2['array_offset']['addr'] = addr
                 if(name[0] in ['0','1','2','3','4','5','6','7','8','9']):
-                    self.dst['array_offset']['addr'] = int(name)
+                    self.src2['array_offset']['addr'] = int(name)
+                    self.src2['array_offset']['const'] = True
                
             if(da == 'True'):
                 # self.dst['array_offset'] = instr[dest + 2]
@@ -243,6 +249,7 @@ class IR:
                 self.dst['array_offset']['addr'] = addr
                 if(name[0] in ['0','1','2','3','4','5','6','7','8','9']):
                     self.dst['array_offset']['addr'] = int(name)
+                    self.dst['array_offset']['const'] = True
                 
             return
         else:
@@ -293,8 +300,12 @@ class IR:
                 name, addr = process_string(instr[4])
                 self.src1['array_offset']['val'] = name
                 self.src1['array_offset']['addr'] = addr
+                print(name)
                 if(name[0] in ['0','1','2','3','4','5','6','7','8','9']):
-                    self.dst['array_offset']['addr'] = int(name)
+                    self.src1['array_offset']['addr'] = int(name)
+                    self.src1['array_offset']['const'] = True
+                
+
                 
                 return
             if(instr[1] == '='):
@@ -306,8 +317,11 @@ class IR:
             name, addr = process_string(instr[2])
             self.dst['array_offset']['val'] = name
             self.dst['array_offset']['addr'] = addr
+            print(name)
             if(name[0] in ['0','1','2','3','4','5','6','7','8','9']):
                     self.dst['array_offset']['addr'] = int(name)
+                    self.dst['array_offset']['const'] = True
+            
             
             x = instr[5]
             name,addr = process_string(x)
@@ -318,6 +332,7 @@ class IR:
             else:
                 self.src1['name'] = name
                 self.src1['type'] = 'constant'
+                self.src1['array_offset']['const'] = True
 
             if(length == 6):
                 # src1 is not array
@@ -332,7 +347,8 @@ class IR:
                 name, addr = process_string(instr[7])
                 self.src1['array_offset']['val'] = name
                 self.src1['array_offset']['addr'] = addr
-                if(name[0] in ['0','1','2','3','4','5','6','7','8','9']):
-                    self.dst['array_offset']['addr'] = int(name)
                 
+                if(name[0] in ['0','1','2','3','4','5','6','7','8','9']):
+                    self.src1['array_offset']['addr'] = int(name)
+                    self.src1['array_offset']['const'] = True
                 return
