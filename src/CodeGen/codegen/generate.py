@@ -410,6 +410,8 @@ def genCodeForBlock(block, infoTable):
                     generateHelper.writeInstr("add "+AddrDesc[ir[i].src2['name']]['reg']+", "+L)
                 elif (ir[i].type == '/int'):
                     generateHelper.writeInstr("shr $1"+", "+L)
+                elif (ir[i].type == '*int'):
+                    generateHelper.writeInstr("shl $1"+", "+L)
                 elif(ir[i].type == '-int'):
                     generateHelper.writeInstr("sub "+AddrDesc[ir[i].src2['name']]['reg']+", "+L)
                 elif(ir[i].type == '<='):
@@ -448,6 +450,8 @@ def genCodeForBlock(block, infoTable):
                     generateHelper.writeInstr("add $"+ir[i].src2['name']+", "+L)
                 elif (ir[i].type == '/int'):
                     generateHelper.writeInstr("shr $1"+", "+L)
+                elif (ir[i].type == '*int'):
+                    generateHelper.writeInstr("shl $1"+", "+L)
                 elif(ir[i].type == '-int'):
                     generateHelper.writeInstr("sub $"+ir[i].src2['name']+", "+L)
                 elif(ir[i].type == '<='):
