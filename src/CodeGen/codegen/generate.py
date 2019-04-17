@@ -210,7 +210,6 @@ def genCodeForBlock(block, infoTable):
         instrcution_number = i
         if ir[i].type in type_2:
             name = ir[i].dst['name']
-<<<<<<< HEAD
             if 'array' in ir[i].src1 and ir[i].src1['array'] == 'True':
                 global AddrDesc
                 AddrDesc[name]['memory'] = {}
@@ -274,56 +273,49 @@ def genCodeForBlock(block, infoTable):
             else:
                 if(ir[i].src1['type']!='constant'):
                     #generateHelper.writeInstr("hi "+ir[i].src1['name'])
-                    L=getReg(i,ir[i].src1['name'],infoTable)
-                    removeFromRegs(name)
-=======
-            if(ir[i].src1['type']!='constant'):
-                #generateHelper.writeInstr("hi "+ir[i].src1['name'])
-                x = ir[i].src1['name']
-                if(x[0] == '-'):
-                    u = []
-                    for hh in range(1,len(x)):
-                        u.append(x[hh])
-                    L=getReg(i,"".join(u),infoTable)
-                    L2 = getfreereg(i,infoTable,L)
-                    generateHelper.writeInstr("mov "+L+","+L2)
-                    generateHelper.writeInstr("mov $0, "+L)
-                    generateHelper.writeInstr("sub "+L2+","+L)
-                    removeFromRegs(name)
-                    AddrDesc[name]['reg']=L
-                    regsInfo[L]=name
-                    AddrDesc[name]['dirty']=1
-                else:
-                    L=getReg(i,ir[i].src1['name'],infoTable)
-                    removeFromRegs(name)
-                    AddrDesc[name]['reg']=L
-                    regsInfo[L]=name
-                    AddrDesc[name]['dirty']=1
-            else:
-                if(AddrDesc[name]['reg'] == None):
-                    L=getfreereg(i,infoTable,None)
                     x = ir[i].src1['name']
-                    # if(x[0] == '-'):
-                    #     dummy = 0
-                    # else:
-                    generateHelper.writeInstr("mov $"+ir[i].src1['name']+","+L)
->>>>>>> vibhorispapa
-                    AddrDesc[name]['reg']=L
-                    regsInfo[L]=name
-                    print(ir[i].dst['name'],ir[i].dst['type'],ir[i].dst['name'].find("CS335_"))
-                    if(ir[i].dst['type'] == 'local' and (ir[i].dst['name'].find("CS335_") == 0) ):
-                        generateHelper.writeInstr("mov "+AddrDesc[name]['reg']+", "+AddrDesc[name]['memory']+"(%rbp)")
-                        AddrDesc[ir[i].dst['name']]['dirty']=0
+                    if(x[0] == '-'):
+                        u = []
+                        for hh in range(1,len(x)):
+                            u.append(x[hh])
+                        L=getReg(i,"".join(u),infoTable)
+                        L2 = getfreereg(i,infoTable,L)
+                        generateHelper.writeInstr("mov "+L+","+L2)
+                        generateHelper.writeInstr("mov $0, "+L)
+                        generateHelper.writeInstr("sub "+L2+","+L)
+                        removeFromRegs(name)
+                        AddrDesc[name]['reg']=L
+                        regsInfo[L]=name
+                        AddrDesc[name]['dirty']=1
                     else:
-                        AddrDesc[ir[i].dst['name']]['dirty']=1
+                        L=getReg(i,ir[i].src1['name'],infoTable)
+                        removeFromRegs(name)
+                        AddrDesc[name]['reg']=L
+                        regsInfo[L]=name
+                        AddrDesc[name]['dirty']=1
                 else:
-                    generateHelper.writeInstr("mov $"+ir[i].src1['name']+", "+AddrDesc[name]['reg'])
-                    if(ir[i].dst['type'] == 'local' and (ir[i].dst['name'].find("CS335_") == 0) ):
-                        generateHelper.writeInstr("mov "+AddrDesc[name]['reg']+", "+AddrDesc[name]['memory']+"(%rbp)")
-                        AddrDesc[ir[i].dst['name']]['dirty']=0
+                    if(AddrDesc[name]['reg'] == None):
+                        L=getfreereg(i,infoTable,None)
+                        x = ir[i].src1['name']
+                        # if(x[0] == '-'):
+                        #     dummy = 0
+                        # else:
+                        generateHelper.writeInstr("mov $"+ir[i].src1['name']+","+L)
+                        AddrDesc[name]['reg']=L
+                        regsInfo[L]=name
+                        print(ir[i].dst['name'],ir[i].dst['type'],ir[i].dst['name'].find("CS335_"))
+                        if(ir[i].dst['type'] == 'local' and (ir[i].dst['name'].find("CS335_") == 0) ):
+                            generateHelper.writeInstr("mov "+AddrDesc[name]['reg']+", "+AddrDesc[name]['memory']+"(%rbp)")
+                            AddrDesc[ir[i].dst['name']]['dirty']=0
+                        else:
+                            AddrDesc[ir[i].dst['name']]['dirty']=1
                     else:
-                        AddrDesc[ir[i].dst['name']]['dirty']=1
-
+                        generateHelper.writeInstr("mov $"+ir[i].src1['name']+", "+AddrDesc[name]['reg'])
+                        if(ir[i].dst['type'] == 'local' and (ir[i].dst['name'].find("CS335_") == 0) ):
+                            generateHelper.writeInstr("mov "+AddrDesc[name]['reg']+", "+AddrDesc[name]['memory']+"(%rbp)")
+                            AddrDesc[ir[i].dst['name']]['dirty']=0
+                        else:
+                            AddrDesc[ir[i].dst['name']]['dirty']=1
         elif ir[i].type in type_3:
             name = ir[i].dst['name']
             if(ir[i].src1['type']=='constant' and ir[i].src2['type']=='constant'):
