@@ -1,31 +1,54 @@
 package main;
-import "fmt";
-haystack := []int{1,2, 9, 20, 31, 45, 63, 70, 100};
-func binarySearch(needle int) bool {
- 
-    low := 0;
-    high := len(haystack) - 1;
- 
-    for low <= high{
-        median := (low + high) / 2;
- 
-        if haystack[median] < needle {
-            low = median + 1;
-        }else{
-            high = median - 1;
-        };
-    };
- 
-    if low == len(haystack) || haystack[low] != needle {
-        return 0;
-    };
- 
-    return 1;
-}
- 
- 
-func main(){
-    // items := []int{1,2, 9, 20, 31, 45, 63, 70, 100};
-    v := binarySearch(63);
-    printf("%d",v);
-}
+import "df";
+import (
+    "fmt";
+    "strings";
+    "adfdf";
+);
+
+// type person struct {
+//     name string;
+//     age  int;
+// };
+
+// func f(a int,b int) int {
+// 	var a int;
+// 	var b bool;
+// 	return a;
+// };
+
+func main() int{
+	// var a int;
+	// var b int;
+	// var c int;
+  // a = 90;
+  // b = 9;
+  // c = a + b;
+  // printf("%d",c);
+  // printf("%d",c);
+  var u int;
+  // scanf("%d",u);
+  u = 17;
+  printf("%d",u);
+
+	// var d int;
+	// c = f(a,b);
+	// var e [3]int;
+	// e[2] = 1;
+	// // a = e[5];
+  //
+	// var g [20]int;
+	// g[10] = 0;
+	// g[9],g[1] := 90,845;
+  // 	xy := 2;
+  // 	xy = b*c;
+  //   printf("%d",a);
+  //   // scanf("%d",a);
+  // 	// xy = gg;
+
+
+  // var g int;
+  // printf("%d",g);
+  // scanf("%d",g);
+  return 0;
+};

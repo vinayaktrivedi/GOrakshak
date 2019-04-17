@@ -41,12 +41,12 @@ func main() int{
     
     var a int = 13;
     var u int;
-    u = 1000;
+    //u = 1000;
     x[1] = 100;
     x[2] = 200;
     x[3] = 300;
     x[4] = 400;
-    t = x[1]+x[2]+x[3]+x[4]+u;
+    t = x[1]+x[2]+x[3]+x[4];
     printf("%d",t);
     // var num int;
     // if num < 0 {
