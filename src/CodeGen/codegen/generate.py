@@ -19,6 +19,7 @@ def saveDirtyAndClean():
 
 
 def getfreereg(instrcution_number,nextuse,preserve_reg):
+    print("open",regsInfo)
     global AddrDesc
     global func_offset
     # print("input=", preserve_reg)
@@ -39,6 +40,7 @@ def getfreereg(instrcution_number,nextuse,preserve_reg):
         info = nextuse[instrcution_number][regsInfo[regname]]
         if info == None:
             AddrDesc[regsInfo[regname]]['reg'] = None
+            regsInfo[regname] = None
             return regname
         elif  info > mini:
             mini = info
@@ -57,15 +59,15 @@ def getfreereg(instrcution_number,nextuse,preserve_reg):
         base = AddrDesc[variable_name]['memory']['base']
         shift = AddrDesc[variable_name]['memory']['offset']
         L = getfreereg(instrcution_number,nextuse,[preserve_reg,temp_reg])
-        regsInfo[L] = 'a'
         generateHelper.writeInstr("mov %rbp, "+L)
         generateHelper.writeInstr("add $"+base+" , "+L)
         L2 = getfreereg(instrcution_number,nextuse,[preserve_reg,temp_reg,L])
-        regsInfo[L2] = 'a'
         if int(shift)>=0:
             generateHelper.writeInstr("mov $"+shift+" , "+L2)
         else:
-            temp = AddrDesc[AddrDesc[variable_name]['memory']['val']]['reg']
+            temp = None
+            if AddrDesc[variable_name]['memory']['val'] in AddrDesc:
+                temp = AddrDesc[AddrDesc[variable_name]['memory']['val']]['reg']
             if temp != None:
                 generateHelper.writeInstr("mov "+temp+" , "+L2)
             else:
@@ -80,9 +82,12 @@ def getfreereg(instrcution_number,nextuse,preserve_reg):
         # print(regname)
         # print(variable_name)
         # print(AddrDesc[variable_name]['memory'])
+        #generateHelper.writeInstr("movmov")
         generateHelper.writeInstr("mov "+temp_reg+" , "+AddrDesc[variable_name]['memory']+"(%rbp)")
     AddrDesc[variable_name]['reg'] = None
     AddrDesc[variable_name]['dirty'] = 0
+    regsInfo[regname] = None
+    print("return",regsInfo)
     # print("ouptut=", regname)
     return regname
 
@@ -111,15 +116,15 @@ def getReg(instrcution_number,src1,nextuse):
             base = AddrDesc[src1]['memory']['base']
             shift = AddrDesc[src1]['memory']['offset']
             L = getfreereg(instrcution_number,nextuse,[new_reg])
-            regsInfo[L] = 'a'
             generateHelper.writeInstr("mov %rbp, "+L)
             generateHelper.writeInstr("add $"+base+" , "+L)
             L2 = getfreereg(instrcution_number,nextuse,[new_reg,L])
-            regsInfo[L2] = 'a'
             if int(shift)>=0:
                 generateHelper.writeInstr("mov $"+shift+" , "+L2)
             else:
-                temp = AddrDesc[AddrDesc[src1]['memory']['val']]['reg']
+                temp = None
+                if AddrDesc[src1]['memory']['val'] in AddrDesc:
+                    temp = AddrDesc[AddrDesc[src1]['memory']['val']]['reg']
                 if temp != None:
                     generateHelper.writeInstr("mov "+temp+" , "+L2)
                 else:
@@ -139,16 +144,16 @@ def array_gen(instrcution_number,nextuse,dictionary,preserve_reg,reg):
     base = dictionary['memory']['base']
     shift = dictionary['memory']['offset']
     L = getfreereg(instrcution_number,nextuse,preserve_reg)
-    regsInfo[L] = 'a'
     preserve_reg.append(L)
     generateHelper.writeInstr("mov %rbp, "+L)
     generateHelper.writeInstr("add $"+base+" , "+L)
     L2 = getfreereg(instrcution_number,nextuse,preserve_reg)
-    regsInfo[L2] = 'a'
     if int(shift)>=0:
             generateHelper.writeInstr("mov $"+shift+" , "+L2)
     else:
-        temp = AddrDesc[dictionary['memory']['val']]['reg']
+        temp = None
+        if dictionary['memory']['val'] in AddrDesc:
+            temp = AddrDesc[dictionary['memory']['val']]['reg']
         if temp != None:
             generateHelper.writeInstr("mov "+temp+" , "+L2)
         else:
@@ -213,13 +218,13 @@ def genCodeForBlock(block, infoTable):
     end=block[1]
     freeAllRegs()
     setupAddrDesc(st,end)
-    print(rep)
 
     for i in range(st,end+1):
         instrcution_number = i
         if ir[i].type in type_2:
             name = ir[i].dst['name']
             if name in avoid:
+                print('avoid',name)
                 continue
             if 'array' in ir[i].src1 and ir[i].src1['array'] == 'True':
                 global AddrDesc
@@ -248,8 +253,9 @@ def genCodeForBlock(block, infoTable):
                     if int(shift)>=0:
                         generateHelper.writeInstr("mov $"+shift+" , "+L2)
                     else:
-
-                        temp = AddrDesc[AddrDesc[name]['memory']['val']]['reg']
+                        temp = None
+                        if AddrDesc[name]['memory']['val'] in AddrDesc:
+                            temp = AddrDesc[AddrDesc[name]['memory']['val']]['reg']
                         if temp != None:
                             generateHelper.writeInstr("mov "+temp+" , "+L2)
                         else:
@@ -272,7 +278,9 @@ def genCodeForBlock(block, infoTable):
                     if int(shift)>=0:
                         generateHelper.writeInstr("mov $"+shift+" , "+L2)
                     else:
-                        temp = AddrDesc[AddrDesc[name]['memory']['val']]['reg']
+                        temp = None
+                        if AddrDesc[name]['memory']['val'] in AddrDesc:
+                            temp = AddrDesc[AddrDesc[name]['memory']['val']]['reg']
                         if temp != None:
                             generateHelper.writeInstr("mov "+temp+" , "+L2)
                         else:
@@ -286,8 +294,10 @@ def genCodeForBlock(block, infoTable):
                         
                     else:
                         L3 = getfreereg(instrcution_number,nextuse,[L,L2])
-                        
-                        generateHelper.writeInstr("mov "+AddrDesc[ir[i].src1['name']]['memory']+"(%rbp) , "+L3)
+                        if type(AddrDesc[ir[i].src1['name']]['memory']) == dict:
+                            array_gen(instrcution_number,nextuse,AddrDesc[ir[i].src1['name']],[L,L2,L3],L3)
+                        else:
+                            generateHelper.writeInstr("mov "+AddrDesc[ir[i].src1['name']]['memory']+"(%rbp) , "+L3)
                         generateHelper.writeInstr("mov "+L3+" , "+"("+L+")")
                         
 
@@ -326,6 +336,7 @@ def genCodeForBlock(block, infoTable):
                         regsInfo[L]=name
                         print(ir[i].dst['name'],ir[i].dst['type'],ir[i].dst['name'].find("CS335_"))
                         if(ir[i].dst['type'] == 'local' and (ir[i].dst['name'].find("CS335_") == 0) ):
+                            #generateHelper.writeInstr("haha")
                             generateHelper.writeInstr("mov "+AddrDesc[name]['reg']+", "+AddrDesc[name]['memory']+"(%rbp)")
                             AddrDesc[ir[i].dst['name']]['dirty']=0
                         else:
@@ -333,12 +344,14 @@ def genCodeForBlock(block, infoTable):
                     else:
                         generateHelper.writeInstr("mov $"+ir[i].src1['name']+", "+AddrDesc[name]['reg'])
                         if(ir[i].dst['type'] == 'local' and (ir[i].dst['name'].find("CS335_") == 0) ):
+                            
                             generateHelper.writeInstr("mov "+AddrDesc[name]['reg']+", "+AddrDesc[name]['memory']+"(%rbp)")
                             AddrDesc[ir[i].dst['name']]['dirty']=0
                         else:
                             AddrDesc[ir[i].dst['name']]['dirty']=1
         elif ir[i].type in type_3:
             name = ir[i].dst['name']
+            #print(ir[i].src2['type'],ir[i].src1['type'],ir[i].dst['type'],ir[i].type)
             if(ir[i].src1['type']=='constant' and ir[i].src2['type']=='constant'):
                 L=getfreereg(i,infoTable,None)
                 generateHelper.writeInstr("mov "+ir[i].src1['name']+","+L)
@@ -395,6 +408,8 @@ def genCodeForBlock(block, infoTable):
 
                 if(ir[i].type == '+int'):
                     generateHelper.writeInstr("add "+AddrDesc[ir[i].src2['name']]['reg']+", "+L)
+                elif (ir[i].type == '/int'):
+                    generateHelper.writeInstr("shr $1"+", "+L)
                 elif(ir[i].type == '-int'):
                     generateHelper.writeInstr("sub "+AddrDesc[ir[i].src2['name']]['reg']+", "+L)
                 elif(ir[i].type == '<='):
@@ -431,6 +446,8 @@ def genCodeForBlock(block, infoTable):
                 L=getReg(i,ir[i].src1['name'],infoTable)
                 if(ir[i].type == '+int'):
                     generateHelper.writeInstr("add $"+ir[i].src2['name']+", "+L)
+                elif (ir[i].type == '/int'):
+                    generateHelper.writeInstr("shr $1"+", "+L)
                 elif(ir[i].type == '-int'):
                     generateHelper.writeInstr("sub $"+ir[i].src2['name']+", "+L)
                 elif(ir[i].type == '<='):

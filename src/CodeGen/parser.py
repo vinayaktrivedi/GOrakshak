@@ -44,7 +44,8 @@ size['int'] = 4
 size['float'] = 4
 size['bool'] = 1
 size['char'] = 1
-
+size['*int'] = 4
+size['pointer'] = 8
 def getlabel():
   global counter
   counter += 1
@@ -341,7 +342,9 @@ def p_vardecl(p):
             add_variable_attribute_api(var,'type',p[2]['type'])
             add_variable_attribute_api(var,'offset',offset)
             if(p[2]['type']['val'] == 'array'):
+              print(p[2]['type'])
               increase_local_size(size[p[2]['type']['arr_type']]*p[2]['type']['arr_length'])
+
               offset += size[p[2]['type']['arr_type']]*p[2]['type']['arr_length']
             elif(p[2]['type']['val'][0] == '*'):
               increase_local_size(4)
@@ -1186,6 +1189,7 @@ def p_ptrtype(p):
     p[0] = {}
     p[0]['type'] = {}
     p[0]['type']['val'] = 'pointer'
+
     p[0]['type']['pointer_type'] = p[2]['type']['val']
 
 def p_funcrettype(p):
@@ -1218,6 +1222,8 @@ def p_dotname(p):
     p[0]['type']['struct_fields'] = globalsymboltable['custom_types']['structures'][p[1]['place']]['struct_fields']
     p[0]['type']['size'] = globalsymboltable['custom_types']['structures'][p[1]['place']]['size']
     p[0]['type']['name'] = p[1]['place']
+  else:
+    p[0]['type']['val'] = p[1]['place']
 
 def p_ocomma(p):
   '''OComma :
@@ -1480,7 +1486,11 @@ def p_argtype(p):
         add_variable_attribute(str(p[1]),'type',p[2]['type'])
         add_variable_attribute(str(p[1]),'real',1)
         add_variable_attribute(str(p[1]),'offset',func_arg_counter)
-        func_arg_counter -= size[p[2]['type']['val']]
+        print(p[2]['type'])
+        if p[2]['type']['val'] == 'struct':
+          func_arg_counter =  p[2]['type']['size']
+        else:
+          func_arg_counter -= size[p[2]['type']['val']]
 
 def p_argtypelist(p):
     '''ArgTypeList : ArgType
@@ -2200,7 +2210,7 @@ def p_uexpr(p):
         op = str(p[1])
         p[0]['value'] = ""
         if(op == "&"):
-            p[0]['type'] = '*'+p[2]['type']
+            p[0]['type'] = 'pointer'
             p[0]['place'] = getlabel()
             register_variable(p[0]['place'])
             p[0]['code'] += p[0]['place']+"~"+str(get_variable_attribute(p[0]['place'],'offset'))  + " = " + op + p[2]['place']+"~"+str(get_variable_attribute(p[2]['place'],'offset'))
@@ -2361,7 +2371,9 @@ def p_pseudocall(p):
     i=0
     arg_match=1
     for dicts in args:
-      if(exprs[i]['type']!=dicts['arg_type']['val']):
+      if 'val' in exprs[i]['type'] and dicts['arg_type']['val'] == 'struct' and exprs[i]['type']['val'] == 'struct':
+        dummy = 0
+      elif(exprs[i]['type']!=dicts['arg_type']['val']):
         arg_match=0
         break
       i = i+1
